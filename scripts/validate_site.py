@@ -24,7 +24,7 @@ class SiteParser(HTMLParser):
             self.has_h1 = True
         for attribute in ("href", "src"):
             value = attributes.get(attribute)
-            if value:
+            if value and is_local_reference(value):
                 self.local_links.append(value)
 
     def handle_endtag(self, tag: str) -> None:
@@ -44,9 +44,13 @@ def is_local_reference(target: str) -> bool:
 
 
 def resolve_site_path(target: str) -> Path:
+    site_root = SITE_DIR.resolve()
     target_path = target.lstrip("/")
-    resolved = (SITE_DIR / target_path).resolve()
-    resolved.relative_to(SITE_DIR.resolve())
+    resolved = (site_root / target_path).resolve()
+    try:
+        resolved.relative_to(site_root)
+    except ValueError as exc:
+        raise ValueError(f"{target} must stay within docs/.") from exc
     return resolved
 
 
@@ -70,14 +74,13 @@ def main() -> None:
 
     missing_assets = []
     for target in parser.local_links:
-        if is_local_reference(target):
-            try:
-                asset_path = resolve_site_path(target)
-            except ValueError:
-                missing_assets.append(target)
-                continue
-            if not asset_path.exists():
-                missing_assets.append(target)
+        try:
+            asset_path = resolve_site_path(target)
+        except ValueError:
+            missing_assets.append(target)
+            continue
+        if not asset_path.exists():
+            missing_assets.append(target)
     if missing_assets:
         raise SystemExit(f"docs/index.html references missing local assets: {', '.join(sorted(set(missing_assets)))}")
 
