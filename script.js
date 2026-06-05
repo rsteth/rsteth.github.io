@@ -1,46 +1,77 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const size = 64;
+    const floor = 48;
+    const radius = 11;
+    const fps = 12;
+
     let canvas, ctx, link;
-    let x = 32, y = 32, dx = .2, dy = .2, radius = 18;
+    let frame = 0;
 
     function createFavicon() {
-        // Create a canvas element
         canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
+        canvas.width = size;
+        canvas.height = size;
         ctx = canvas.getContext('2d');
 
-        // Create a link element for the favicon
-        link = document.createElement('link');
+        link = document.querySelector('link[rel~="icon"]') || document.createElement('link');
         link.rel = 'icon';
-        document.head.appendChild(link);
+        link.type = 'image/png';
+        link.sizes = `${size}x${size}`;
 
-        // Start the animation
-        requestAnimationFrame(draw);
+        if (!link.parentNode) {
+            document.head.appendChild(link);
+        }
+
+        draw();
+        setInterval(draw, 1000 / fps);
     }
 
     function draw() {
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const bounce = Math.abs(Math.sin(frame * 0.28));
+        const x = 32 + Math.sin(frame * 0.1) * 13;
+        const y = floor - radius - bounce * 24;
+        const isLanding = bounce < 0.14;
+        const squishX = isLanding ? 1.18 : 1;
+        const squishY = isLanding ? 0.82 : 1;
 
-        // Draw the ball
-        ctx.fillStyle = '#ff0000'; // Red color
+        ctx.clearRect(0, 0, size, size);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
         ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+        ctx.ellipse(x, floor + 5, radius * (1.3 - bounce * 0.55), 3, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Update the position
-        x += dx;
-        y += dy;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(squishX, squishY);
 
-        // Bounce off the walls
-        if (x + radius > canvas.width || x - radius < 0) dx = -dx;
-        if (y + radius > canvas.height || y - radius < 0) dy = -dy;
+        ctx.fillStyle = '#e91b1b';
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
 
-        // Update the favicon
+        ctx.fillStyle = '#ff7777';
+        ctx.beginPath();
+        ctx.arc(-4, -4, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#111111';
+        ctx.beginPath();
+        ctx.arc(-3, -1, 1.4, 0, Math.PI * 2);
+        ctx.arc(4, -1, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#111111';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.arc(1, 2, 4, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        ctx.restore();
+
         link.href = canvas.toDataURL('image/png');
-
-        // Request the next frame
-        requestAnimationFrame(draw);
+        frame += 1;
     }
 
     createFavicon();
