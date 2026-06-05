@@ -1,0 +1,3 @@
+[submodule "verbosele"]
+	path = verbosele
+	url = https://github.com/rsteth/Verbosele.git
