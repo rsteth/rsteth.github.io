@@ -5,14 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Robin Stethem explores new ways of interacting with information, culture, markets, weather, and generative image systems.">
     <title>Robin Stethem</title>
-    <link rel="stylesheet" href="styles.css?v=20260604">
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260605-3">
+    <script src="script.js?v=20260605-3" defer></script>
 </head>
 <body>
     <main class="container">
         <h1 id="page-title">robin stethem</h1>
         <p>i am interested in exploring new ways of interacting with information and one another, currently exploring how markets, weather, and generative image systems can be used to prototype the future of visual storytelling.</p>
-        <img src="placeholder.webp" alt="Floating snow-covered city island beneath a mountain" class="centered-image" fetchpriority="high">
+
+        <section class="market-river market-river-home" aria-label="Market River">
+            <p class="market-river__status" data-market-river-status>loading latest market river image...</p>
+            <div class="market-river-home__viewport">
+                <div class="market-river-home__track" data-market-river-home aria-live="polite"></div>
+            </div>
+        </section>
+
         <p>i started <a href="https://museumor.com">the museum of other realities</a>,</p>
         <a href="https://museumor.com">
             <img src="image.gif" alt="Museum of Other Realities animated preview" class="centered-image" loading="lazy">
