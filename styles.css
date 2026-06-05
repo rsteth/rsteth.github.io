@@ -54,6 +54,17 @@ body {
     width: var(--market-current-width);
 }
 
+.market-river-home .market-river__card--current {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.market-river-home .market-river__card--current .market-river__card-body {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
 .market-river__peek {
     overflow: hidden;
     width: clamp(160px, 30vw, 300px);
@@ -64,6 +75,7 @@ body {
 }
 
 .market-river__peek .market-river__image-wrap {
+    --market-image-feather: 28px;
     aspect-ratio: 4 / 3;
 }
 
@@ -86,6 +98,25 @@ body {
     background: #f4f4f4;
     color: #777;
     font-size: 13px;
+}
+
+.market-river__image-wrap {
+    --market-image-feather: 48px;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+}
+
+.market-river__image-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(to right, #fff 0, rgba(255, 255, 255, 0.84) 12px, rgba(255, 255, 255, 0) var(--market-image-feather)),
+        linear-gradient(to left, #fff 0, rgba(255, 255, 255, 0.84) 12px, rgba(255, 255, 255, 0) var(--market-image-feather)),
+        linear-gradient(to bottom, #fff 0, rgba(255, 255, 255, 0.84) 12px, rgba(255, 255, 255, 0) var(--market-image-feather)),
+        linear-gradient(to top, #fff 0, rgba(255, 255, 255, 0.84) 12px, rgba(255, 255, 255, 0) var(--market-image-feather));
 }
 
 .market-river__image-wrap img {
