@@ -1,8 +1,4 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
     text-align: center;
@@ -10,6 +6,8 @@ body {
 
 .container {
     max-width: 600px;
+    margin: 0 auto;
+    padding: 42svh 20px 40px;
 }
 
 .centered-image {
@@ -39,4 +37,16 @@ a:hover {
 
 .social-links a:hover {
     text-decoration: underline;
+}
+
+@supports not (height: 100svh) {
+    .container {
+        padding-top: 42vh;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: 40svh 16px 32px;
+    }
 }
