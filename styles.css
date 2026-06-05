@@ -7,13 +7,23 @@ body {
 .container {
     max-width: 600px;
     margin: 0 auto;
-    padding: 42svh 20px 40px;
+    padding: 32svh 20px 40px;
 }
 
 .centered-image {
+    display: block;
     width: 100%;
     height: auto;
     max-width: 500px;
+    margin: 0 auto;
+}
+
+.container > .centered-image:first-of-type {
+    margin-bottom: 60px;
+}
+
+.container > a + p {
+    margin-bottom: 60px;
 }
 
 a {
@@ -41,12 +51,12 @@ a:hover {
 
 @supports not (height: 100svh) {
     .container {
-        padding-top: 42vh;
+        padding-top: 32vh;
     }
 }
 
 @media (max-width: 640px) {
     .container {
-        padding: 40svh 16px 32px;
+        padding: 30svh 16px 32px;
     }
 }
