@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,14 +43,23 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Build Pages artifact
+        run: |
+          rm -rf _site
+          mkdir -p _site/verbosele
+          cp index.html styles.css script.js image.gif CNAME _site/
+          rsync -a --exclude='.git' verbosele/ _site/verbosele/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
