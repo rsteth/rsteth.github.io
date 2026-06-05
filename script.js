@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         rail.innerHTML = items
-            .map((item) => renderMarketCard(item))
+            .map((item) => renderMarketCard(item, { showMetadataLink: true }))
             .join('');
     }
 
@@ -192,10 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = formatDate(item.date);
         const caption = item.caption || 'No caption available.';
         const image = renderImage(item, label, date, settings.linkImage);
+        const metadataLink = settings.showMetadataLink ? renderMetadataLink(item.metadata_url) : '';
         const currentClass = settings.isCurrent ? ' market-river__card--current' : '';
 
         return `
-            <article class="market-river__card${currentClass}">
+            <article class="market-river__card${currentClass}" data-metadata-url="${escapeAttribute(item.metadata_url || '')}">
                 ${image}
                 <div class="market-river__card-body">
                     <div class="market-river__eyebrow">
@@ -213,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <dd>${escapeHtml(formatMood(item.volatility_mood))}</dd>
                         </div>
                     </dl>
+                    ${metadataLink}
                 </div>
             </article>
         `;
@@ -223,9 +225,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const date = formatDate(item.date);
 
         return `
-            <article class="market-river__peek" aria-label="${escapeAttribute(`${label} market river image for ${date}`)}">
+            <article class="market-river__peek" data-metadata-url="${escapeAttribute(item.metadata_url || '')}" aria-label="${escapeAttribute(`${label} market river image for ${date}`)}">
                 ${renderImage(item, label, date)}
             </article>
+        `;
+    }
+
+    function renderMetadataLink(metadataUrl) {
+        if (!metadataUrl) {
+            return '';
+        }
+
+        return `
+            <p class="market-river__metadata">
+                <a href="${escapeAttribute(metadataUrl)}" target="_blank" rel="noopener">metadata</a>
+            </p>
         `;
     }
 
@@ -240,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         return `
-            <a class="market-river__image-link" href="${escapeAttribute(linkHref)}" aria-label="Open the Market River archive">
+            <a class="market-river__image-link" href="${escapeAttribute(linkHref)}" data-metadata-url="${escapeAttribute(item.metadata_url || '')}" aria-label="Open the Market River archive">
                 <div class="market-river__image-wrap">${imageMarkup}</div>
             </a>
         `;

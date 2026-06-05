@@ -24,8 +24,8 @@ body {
 }
 
 .market-river-home {
-    --market-current-width: min(500px, calc(100vw - 32px));
-    --market-current-half: min(250px, calc(50vw - 16px));
+    --market-current-width: min(620px, calc(100vw - 32px));
+    --market-current-half: min(310px, calc(50vw - 16px));
 }
 
 .market-river__status {
@@ -197,6 +197,11 @@ body {
     margin: 0;
     overflow-wrap: anywhere;
     font-size: 13px;
+}
+
+.market-river__metadata {
+    margin: 12px 0 0;
+    font-size: 12px;
 }
 
 .market-river__card--empty {
