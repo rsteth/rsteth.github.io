@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         midday: 'Midday',
         close: 'Close'
     };
+    const defaultWeather = 'sunny';
 
     const size = 64;
     const floor = 48;
@@ -107,18 +108,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
-            const producedAt = formatProducedAt(manifest.updated_at);
+            const localWeather = await determineLocalWeather();
+            const currentSlot = getCurrentSlot(items);
+            const displayItems = selectDisplayItemsBySlot(items, localWeather);
 
             if (homeRail) {
-                renderHomeRail(homeRail, items, producedAt, manifest.updated_at);
+                renderHomeRail(homeRail, displayItems, currentSlot, manifest.updated_at);
             }
 
             if (galleryRail) {
-                renderGalleryRail(galleryRail, items, producedAt, manifest.updated_at);
+                renderGalleryRail(galleryRail, displayItems, manifest.updated_at);
             }
 
             bindImageFallbacks(homeRail || galleryRail);
-            setMarketRiverStatus(status, producedAt ? `latest produced ${producedAt}` : formatManifestStatus(manifest.updated_at, items.length));
+            setMarketRiverStatus(status, formatGalleryStatus(displayItems, manifest.updated_at));
 
             if (galleryRail) {
                 galleryRail.scrollLeft = galleryRail.scrollWidth;
@@ -151,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getItemTime(item) {
-        const time = Date.parse(item.date || '');
+        const time = Date.parse(item.created_at || item.updated_at || item.date || '');
         return Number.isNaN(time) ? 0 : time;
     }
 
@@ -160,25 +163,143 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function renderHomeRail(rail, items, producedAt, producedAtDateTime) {
+    function getCurrentSlot(items) {
+        const latestItem = items.slice().sort(compareItemsOldestFirst).pop();
+        return latestItem ? latestItem.slot : null;
+    }
+
+    function selectDisplayItemsBySlot(items, localWeather) {
+        return slotOrder
+            .map((slot) => selectItemForSlot(items, slot, localWeather))
+            .filter(Boolean);
+    }
+
+    function selectItemForSlot(items, slot, localWeather) {
+        const slotItems = items.filter((item) => item.slot === slot);
+
+        if (!slotItems.length) {
+            return null;
+        }
+
+        return getNewestItem(slotItems.filter((item) => normalizeWeather(item.weather) === localWeather))
+            || getNewestItem(slotItems.filter((item) => normalizeWeather(item.weather) === defaultWeather))
+            || getNewestItem(slotItems);
+    }
+
+    function getNewestItem(items) {
+        return items.slice().sort(compareItemsOldestFirst).pop() || null;
+    }
+
+    async function determineLocalWeather() {
+        const position = await getBrowserPosition();
+
+        if (!position) {
+            return defaultWeather;
+        }
+
+        try {
+            const params = new URLSearchParams({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                current: 'weather_code',
+                timezone: 'auto'
+            });
+            const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+
+            if (!response.ok) {
+                return defaultWeather;
+            }
+
+            const weather = await response.json();
+            return normalizeWeather(weather.current && weather.current.weather_code);
+        } catch (error) {
+            console.error('Unable to determine local weather:', error);
+            return defaultWeather;
+        }
+    }
+
+    function getBrowserPosition() {
+        if (!navigator.geolocation) {
+            return Promise.resolve(null);
+        }
+
+        return new Promise((resolve) => {
+            const timeout = setTimeout(() => resolve(null), 7000);
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                clearTimeout(timeout);
+                resolve(position);
+            }, () => {
+                clearTimeout(timeout);
+                resolve(null);
+            }, {
+                enableHighAccuracy: false,
+                maximumAge: 30 * 60 * 1000,
+                timeout: 6000
+            });
+        });
+    }
+
+    function normalizeWeather(value) {
+        if (value === null || value === undefined || value === '') {
+            return defaultWeather;
+        }
+
+        if (typeof value === 'number' || /^\d+$/.test(String(value))) {
+            return normalizeWeatherCode(Number(value));
+        }
+
+        const weather = String(value).toLowerCase().replace(/[_-]/g, ' ');
+
+        if (/(rain|drizzle|thunder|storm|shower|sleet|snow|wet)/.test(weather)) {
+            return 'rainy';
+        }
+
+        if (/(cloud|overcast|partly|fog|mist|haze)/.test(weather)) {
+            return 'cloudy';
+        }
+
+        if (/(clear|sun|fair)/.test(weather)) {
+            return 'sunny';
+        }
+
+        return defaultWeather;
+    }
+
+    function normalizeWeatherCode(code) {
+        if ([0, 1].includes(code)) {
+            return 'sunny';
+        }
+
+        if ([2, 3, 45, 48].includes(code)) {
+            return 'cloudy';
+        }
+
+        if (code >= 51 && code <= 99) {
+            return 'rainy';
+        }
+
+        return defaultWeather;
+    }
+
+    function renderHomeRail(rail, items, currentSlot, fallbackProducedAtDateTime) {
         if (!items.length) {
             rail.innerHTML = renderEmptyState('No market river images yet.');
             return;
         }
 
-        const latestIndex = items.length - 1;
+        const currentItem = items.find((item) => item.slot === currentSlot) || items[items.length - 1];
 
         rail.innerHTML = items
-            .map((item, index) => index === latestIndex ? renderMarketCard(item, {
+            .map((item) => item === currentItem ? renderMarketCard(item, {
                 linkImage: 'market-river/',
                 isCurrent: true,
-                producedAt: producedAt,
-                producedAtDateTime: producedAtDateTime
+                fallbackProducedAtDateTime: fallbackProducedAtDateTime
             }) : renderPeekImage(item))
             .join('');
     }
 
-    function renderGalleryRail(rail, items, producedAt, producedAtDateTime) {
+    function renderGalleryRail(rail, items, fallbackProducedAtDateTime) {
         if (!items.length) {
             rail.innerHTML = renderEmptyState('No market river images yet.');
             return;
@@ -187,8 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rail.innerHTML = items
             .map((item) => renderMarketCard(item, {
                 showMetadataLink: true,
-                producedAt: producedAt,
-                producedAtDateTime: producedAtDateTime
+                fallbackProducedAtDateTime: fallbackProducedAtDateTime
             }))
             .join('');
     }
@@ -196,15 +316,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMarketCard(item, options) {
         const settings = options || {};
         const label = getSlotLabel(item.slot);
-        const date = settings.producedAt || formatDate(item.date);
-        const dateTime = settings.producedAtDateTime || item.date || '';
+        const dateTime = item.created_at || settings.fallbackProducedAtDateTime || item.date || '';
+        const date = formatProducedAt(dateTime) || formatDate(item.date);
         const caption = item.caption || 'No caption available.';
         const image = renderImage(item, label, date, settings.linkImage);
         const metadataLink = settings.showMetadataLink ? renderMetadataLink(item.metadata_url) : '';
         const currentClass = settings.isCurrent ? ' market-river__card--current' : '';
 
         return `
-            <article class="market-river__card${currentClass}" data-metadata-url="${escapeAttribute(item.metadata_url || '')}">
+            <article class="market-river__card${currentClass}" data-metadata-url="${escapeAttribute(item.metadata_url || '')}" data-weather="${escapeAttribute(normalizeWeather(item.weather))}" data-run-id="${escapeAttribute(item.run_id || '')}">
                 ${image}
                 <div class="market-river__card-body">
                     <div class="market-river__eyebrow">
@@ -230,10 +350,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderPeekImage(item) {
         const label = getSlotLabel(item.slot);
-        const date = formatDate(item.date);
+        const date = formatProducedAt(item.created_at) || formatDate(item.date);
 
         return `
-            <article class="market-river__peek" data-metadata-url="${escapeAttribute(item.metadata_url || '')}" aria-label="${escapeAttribute(`${label} market river image for ${date}`)}">
+            <article class="market-river__peek" data-metadata-url="${escapeAttribute(item.metadata_url || '')}" data-weather="${escapeAttribute(normalizeWeather(item.weather))}" data-run-id="${escapeAttribute(item.run_id || '')}" aria-label="${escapeAttribute(`${label} market river image for ${date}`)}">
                 ${renderImage(item, label, date)}
             </article>
         `;
@@ -324,6 +444,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (element) {
             element.textContent = message;
         }
+    }
+
+    function formatGalleryStatus(items, fallbackProducedAtDateTime) {
+        const latestItem = getNewestItem(items);
+        const producedAt = latestItem ? formatProducedAt(latestItem.created_at || fallbackProducedAtDateTime) : '';
+        return producedAt ? `latest produced ${producedAt}` : formatManifestStatus(fallbackProducedAtDateTime, items.length);
     }
 
     function formatManifestStatus(updatedAt, itemCount) {
