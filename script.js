@@ -107,17 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
+            const producedAt = formatProducedAt(manifest.updated_at);
 
             if (homeRail) {
-                renderHomeRail(homeRail, items);
+                renderHomeRail(homeRail, items, producedAt, manifest.updated_at);
             }
 
             if (galleryRail) {
-                renderGalleryRail(galleryRail, items);
+                renderGalleryRail(galleryRail, items, producedAt, manifest.updated_at);
             }
 
             bindImageFallbacks(homeRail || galleryRail);
-            setMarketRiverStatus(status, formatManifestStatus(manifest.updated_at, items.length));
+            setMarketRiverStatus(status, producedAt ? `latest produced ${producedAt}` : formatManifestStatus(manifest.updated_at, items.length));
 
             if (galleryRail) {
                 galleryRail.scrollLeft = galleryRail.scrollWidth;
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function renderHomeRail(rail, items) {
+    function renderHomeRail(rail, items, producedAt, producedAtDateTime) {
         if (!items.length) {
             rail.innerHTML = renderEmptyState('No market river images yet.');
             return;
@@ -170,26 +171,33 @@ document.addEventListener('DOMContentLoaded', function() {
         rail.innerHTML = items
             .map((item, index) => index === latestIndex ? renderMarketCard(item, {
                 linkImage: 'market-river/',
-                isCurrent: true
+                isCurrent: true,
+                producedAt: producedAt,
+                producedAtDateTime: producedAtDateTime
             }) : renderPeekImage(item))
             .join('');
     }
 
-    function renderGalleryRail(rail, items) {
+    function renderGalleryRail(rail, items, producedAt, producedAtDateTime) {
         if (!items.length) {
             rail.innerHTML = renderEmptyState('No market river images yet.');
             return;
         }
 
         rail.innerHTML = items
-            .map((item) => renderMarketCard(item, { showMetadataLink: true }))
+            .map((item) => renderMarketCard(item, {
+                showMetadataLink: true,
+                producedAt: producedAt,
+                producedAtDateTime: producedAtDateTime
+            }))
             .join('');
     }
 
     function renderMarketCard(item, options) {
         const settings = options || {};
         const label = getSlotLabel(item.slot);
-        const date = formatDate(item.date);
+        const date = settings.producedAt || formatDate(item.date);
+        const dateTime = settings.producedAtDateTime || item.date || '';
         const caption = item.caption || 'No caption available.';
         const image = renderImage(item, label, date, settings.linkImage);
         const metadataLink = settings.showMetadataLink ? renderMetadataLink(item.metadata_url) : '';
@@ -201,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="market-river__card-body">
                     <div class="market-river__eyebrow">
                         <span>${escapeHtml(label)}</span>
-                        <time datetime="${escapeAttribute(item.date || '')}">${escapeHtml(date)}</time>
+                        <time datetime="${escapeAttribute(dateTime)}">${escapeHtml(date)}</time>
                     </div>
                     <p class="market-river__caption">${escapeHtml(caption)}</p>
                     <dl class="market-river__moods">
@@ -332,6 +340,23 @@ document.addEventListener('DOMContentLoaded', function() {
             hour: 'numeric',
             minute: '2-digit'
         })}`;
+    }
+
+    function formatProducedAt(value) {
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+
+        return `${date.toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        })} Pacific`;
     }
 
     function formatDate(value) {
