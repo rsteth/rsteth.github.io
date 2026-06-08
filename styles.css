@@ -281,6 +281,12 @@ body {
     width: min(360px, calc(100vw - 48px));
 }
 
+.market-river-page__repo {
+    margin: 8px 24px 0;
+    font-size: 14px;
+    text-align: center;
+}
+
 .container > a + p {
     margin-bottom: 60px;
 }
@@ -344,5 +350,10 @@ a:hover {
         padding-right: 16px;
         padding-left: 16px;
         scroll-padding: 16px;
+    }
+
+    .market-river-page__repo {
+        margin-right: 16px;
+        margin-left: 16px;
     }
 }
