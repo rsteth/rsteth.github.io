@@ -80,7 +80,7 @@ body {
 
 .market-river__peek .market-river__image-wrap {
     --market-image-feather: 28px;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
 }
 
 .market-river__card {
@@ -97,7 +97,7 @@ body {
 .market-river__image-error {
     display: grid;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
     place-items: center;
     background: #f4f4f4;
     color: #777;
