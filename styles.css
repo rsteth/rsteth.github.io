@@ -28,6 +28,8 @@ body {
     --market-current-half: min(279px, calc(50vw - 16px));
     --market-peek-width: clamp(150px, 20vw, 240px);
     --market-carousel-edge: max(16px, calc(50vw - var(--market-current-half)));
+    --market-card-body-height: 180px;
+    --market-carousel-height: calc(var(--market-current-width) + var(--market-card-body-height) + 14px);
 }
 
 .market-river__status {
@@ -46,6 +48,7 @@ body {
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     width: 100vw;
+    min-height: var(--market-carousel-height);
     margin-left: calc(50% - 50vw);
     padding: 2px 0 4px;
 }
@@ -74,10 +77,15 @@ body {
 .market-river-home .market-river__card--current .market-river__card-body {
     box-sizing: border-box;
     width: min(500px, calc(100vw - 40px));
+    min-height: var(--market-card-body-height);
     margin-right: auto;
     margin-left: auto;
     padding-right: 20px;
     padding-left: 20px;
+}
+
+.market-river-gallery .market-river__card--current .market-river__card-body {
+    min-height: var(--market-card-body-height);
 }
 
 .market-river__card {
@@ -297,6 +305,8 @@ body {
     --market-current-half: min(310px, calc(50vw - 24px));
     --market-peek-width: clamp(150px, 22vw, 280px);
     --market-carousel-edge: max(24px, calc(50vw - var(--market-current-half)));
+    --market-card-body-height: 190px;
+    --market-carousel-height: calc(var(--market-current-width) + var(--market-card-body-height) + 32px);
     overflow: hidden;
 }
 
@@ -310,6 +320,7 @@ body {
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     align-items: flex-start;
+    min-height: var(--market-carousel-height);
     -webkit-overflow-scrolling: touch;
 }
 
