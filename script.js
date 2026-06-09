@@ -109,11 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
             const localWeather = await determineLocalWeather();
-            const currentSlot = getCurrentSlot(items);
-            const displayItems = selectDisplayItemsBySlot(items, localWeather);
+            const currentItem = selectCurrentItem(items, localWeather);
+            const displayItems = selectDisplayItemsBySlot(items, localWeather, currentItem);
 
             if (homeRail) {
-                renderHomeRail(homeRail, displayItems, currentSlot, manifest.updated_at);
+                renderHomeRail(homeRail, displayItems, currentItem, manifest.updated_at);
             }
 
             if (galleryRail) {
@@ -163,27 +163,47 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function getCurrentSlot(items) {
+    function selectCurrentItem(items, localWeather) {
         const latestItem = items.slice().sort(compareItemsOldestFirst).pop();
-        return latestItem ? latestItem.slot : null;
+
+        if (!latestItem) {
+            return null;
+        }
+
+        return selectItemFromNewestRun(
+            items.filter((item) => item.slot === latestItem.slot),
+            localWeather
+        ) || latestItem;
     }
 
-    function selectDisplayItemsBySlot(items, localWeather) {
+    function selectDisplayItemsBySlot(items, localWeather, currentItem) {
         return slotOrder
-            .map((slot) => selectItemForSlot(items, slot, localWeather))
-            .filter(Boolean);
+            .map((slot) => currentItem && currentItem.slot === slot
+                ? currentItem
+                : selectItemForSlot(items, slot, localWeather))
+            .filter(Boolean)
+            .sort(compareItemsOldestFirst);
     }
 
     function selectItemForSlot(items, slot, localWeather) {
         const slotItems = items.filter((item) => item.slot === slot);
 
-        if (!slotItems.length) {
+        return selectItemFromNewestRun(slotItems, localWeather);
+    }
+
+    function selectItemFromNewestRun(items, localWeather) {
+        const newestItem = getNewestItem(items);
+
+        if (!newestItem) {
             return null;
         }
 
-        return getNewestItem(slotItems.filter((item) => normalizeWeather(item.weather) === localWeather))
-            || getNewestItem(slotItems.filter((item) => normalizeWeather(item.weather) === defaultWeather))
-            || getNewestItem(slotItems);
+        const newestTime = getItemTime(newestItem);
+        const newestRunItems = items.filter((item) => getItemTime(item) === newestTime);
+
+        return getNewestItem(newestRunItems.filter((item) => normalizeWeather(item.weather) === localWeather))
+            || getNewestItem(newestRunItems.filter((item) => normalizeWeather(item.weather) === defaultWeather))
+            || newestItem;
     }
 
     function getNewestItem(items) {
@@ -282,16 +302,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return defaultWeather;
     }
 
-    function renderHomeRail(rail, items, currentSlot, fallbackProducedAtDateTime) {
+    function renderHomeRail(rail, items, currentItem, fallbackProducedAtDateTime) {
         if (!items.length) {
             rail.innerHTML = renderEmptyState('No market river images yet.');
             return;
         }
 
-        const currentItem = items.find((item) => item.slot === currentSlot) || items[items.length - 1];
+        const featuredItem = currentItem || items[items.length - 1];
+        const orderedItems = items.filter((item) => item !== featuredItem).concat(featuredItem);
 
-        rail.innerHTML = items
-            .map((item) => item === currentItem ? renderMarketCard(item, {
+        rail.innerHTML = orderedItems
+            .map((item) => item === featuredItem ? renderMarketCard(item, {
                 linkImage: 'market-river/',
                 isCurrent: true,
                 fallbackProducedAtDateTime: fallbackProducedAtDateTime
