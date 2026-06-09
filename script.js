@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const carouselWheelUnlockMs = 260;
     const carouselTouchThreshold = 36;
     const carouselCenterSettleDelays = [0, 120, 240, 380];
+    const carouselDesktopMediaQuery = '(min-width: 641px)';
 
     const size = 64;
     const floor = 48;
@@ -406,6 +407,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             event.preventDefault();
+
+            if (isDesktopCarousel()) {
+                return;
+            }
+
             window.clearTimeout(wheelUnlockTimer);
 
             if (wheelGestureLocked) {
@@ -521,6 +527,10 @@ document.addEventListener('DOMContentLoaded', function() {
             left: scroller.scrollLeft + cardCenterOffset,
             behavior: smooth ? 'smooth' : 'auto'
         });
+    }
+
+    function isDesktopCarousel() {
+        return window.matchMedia && window.matchMedia(carouselDesktopMediaQuery).matches;
     }
 
     function setFocusedMarketRiverCard(cards, focusedCard) {
