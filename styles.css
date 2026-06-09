@@ -43,10 +43,16 @@ body {
     overscroll-behavior-x: contain;
     scroll-padding-inline: var(--market-carousel-edge);
     scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 2px 0 4px;
+}
+
+.market-river-home__viewport::-webkit-scrollbar,
+.market-river-gallery__rail::-webkit-scrollbar {
+    display: none;
 }
 
 .market-river-home__track {
@@ -302,6 +308,7 @@ body {
     padding: 4px var(--market-carousel-edge) 28px;
     scroll-padding-inline: var(--market-carousel-edge);
     scroll-snap-type: x mandatory;
+    scrollbar-width: none;
     align-items: flex-start;
     -webkit-overflow-scrolling: touch;
 }
