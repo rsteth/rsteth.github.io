@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
             const localWeather = await determineLocalWeather();
-            const displayItems = selectDisplayImages(items, localWeather, maxMarketRiverSnapshots);
+            const displayItems = selectDisplaySnapshots(items, localWeather, maxMarketRiverSnapshots);
             const currentItem = displayItems[displayItems.length - 1] || null;
 
             if (homeRail) {
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function selectDisplayImages(items, localWeather, maxItems) {
+    function selectDisplaySnapshots(items, localWeather, maxItems) {
         const groups = new Map();
 
         items.forEach((item) => {
@@ -176,7 +176,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return Array.from(groups.values())
             .sort(compareSnapshotGroupsOldestFirst)
-            .flatMap((group) => group.slice().sort((a, b) => compareItemsForSnapshotGroup(a, b, localWeather)))
+            .map((group) => selectItemFromSnapshotGroup(group, localWeather))
+            .filter(Boolean)
             .slice(-maxItems);
     }
 
@@ -184,35 +185,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return compareItemsOldestFirst(getNewestItem(a), getNewestItem(b));
     }
 
-    function compareItemsForSnapshotGroup(a, b, localWeather) {
-        const weatherDiff = getWeatherRank(a, localWeather) - getWeatherRank(b, localWeather);
-
-        if (weatherDiff !== 0) {
-            return weatherDiff;
-        }
-
-        return compareItemsOldestFirst(a, b);
-    }
-
-    function getWeatherRank(item, localWeather) {
-        const weather = normalizeWeather(item.weather);
-
-        if (weather === localWeather) {
-            return 2;
-        }
-
-        if (weather === defaultWeather) {
-            return 1;
-        }
-
-        return 0;
-    }
-
     function getSnapshotKey(item) {
         const baseRunId = String(item.run_id || item.id || '').replace(/-(sunny|cloudy|rainy)$/i, '');
         const producedAt = item.created_at || item.updated_at || item.date || '';
 
         return `${producedAt}|${item.date || ''}|${item.slot || ''}|${baseRunId}`;
+    }
+
+    function selectItemFromSnapshotGroup(items, localWeather) {
+        return getNewestItem(items.filter((item) => normalizeWeather(item.weather) === localWeather))
+            || getNewestItem(items.filter((item) => normalizeWeather(item.weather) === defaultWeather))
+            || getNewestItem(items);
     }
 
     function getNewestItem(items) {
