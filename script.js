@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     const defaultWeather = 'sunny';
     const maxMarketRiverSnapshots = 9;
+    const carouselWheelThreshold = 8;
+    const carouselWheelLockMs = 320;
 
     const size = 64;
     const floor = 48;
@@ -110,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
             const localWeather = await determineLocalWeather();
-            const displayItems = selectDisplaySnapshots(items, localWeather, maxMarketRiverSnapshots);
+            const displayItems = selectDisplayImages(items, localWeather, maxMarketRiverSnapshots);
             const currentItem = displayItems[displayItems.length - 1] || null;
 
             if (homeRail) {
@@ -160,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function selectDisplaySnapshots(items, localWeather, maxItems) {
+    function selectDisplayImages(items, localWeather, maxItems) {
         const groups = new Map();
 
         items.forEach((item) => {
@@ -172,10 +174,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         return Array.from(groups.values())
-            .map((group) => selectItemFromSnapshotGroup(group, localWeather))
-            .filter(Boolean)
-            .sort(compareItemsOldestFirst)
+            .sort(compareSnapshotGroupsOldestFirst)
+            .flatMap((group) => group.slice().sort((a, b) => compareItemsForSnapshotGroup(a, b, localWeather)))
             .slice(-maxItems);
+    }
+
+    function compareSnapshotGroupsOldestFirst(a, b) {
+        return compareItemsOldestFirst(getNewestItem(a), getNewestItem(b));
+    }
+
+    function compareItemsForSnapshotGroup(a, b, localWeather) {
+        const weatherDiff = getWeatherRank(a, localWeather) - getWeatherRank(b, localWeather);
+
+        if (weatherDiff !== 0) {
+            return weatherDiff;
+        }
+
+        return compareItemsOldestFirst(a, b);
+    }
+
+    function getWeatherRank(item, localWeather) {
+        const weather = normalizeWeather(item.weather);
+
+        if (weather === localWeather) {
+            return 2;
+        }
+
+        if (weather === defaultWeather) {
+            return 1;
+        }
+
+        return 0;
     }
 
     function getSnapshotKey(item) {
@@ -183,12 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const producedAt = item.created_at || item.updated_at || item.date || '';
 
         return `${producedAt}|${item.date || ''}|${item.slot || ''}|${baseRunId}`;
-    }
-
-    function selectItemFromSnapshotGroup(items, localWeather) {
-        return getNewestItem(items.filter((item) => normalizeWeather(item.weather) === localWeather))
-            || getNewestItem(items.filter((item) => normalizeWeather(item.weather) === defaultWeather))
-            || getNewestItem(items);
     }
 
     function getNewestItem(items) {
@@ -333,6 +356,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         let frameRequest = null;
+        let wheelLocked = false;
+        let suppressScrollFocus = false;
         const latestCard = cards[cards.length - 1];
 
         setFocusedMarketRiverCard(cards, latestCard);
@@ -342,6 +367,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         scroller.addEventListener('scroll', () => {
+            if (suppressScrollFocus) {
+                return;
+            }
+
             if (frameRequest) {
                 return;
             }
@@ -351,6 +380,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 setFocusedMarketRiverCard(cards, getCenteredMarketRiverCard(scroller, cards));
             });
         }, { passive: true });
+
+        scroller.addEventListener('wheel', (event) => {
+            const horizontalDelta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) || event.shiftKey
+                ? event.deltaX || event.deltaY
+                : 0;
+
+            if (Math.abs(horizontalDelta) < carouselWheelThreshold) {
+                return;
+            }
+
+            event.preventDefault();
+
+            if (wheelLocked) {
+                return;
+            }
+
+            const currentCard = getCenteredMarketRiverCard(scroller, cards);
+            const currentIndex = cards.indexOf(currentCard);
+            const nextIndex = Math.max(0, Math.min(cards.length - 1, currentIndex + Math.sign(horizontalDelta)));
+            const nextCard = cards[nextIndex];
+
+            wheelLocked = true;
+            suppressScrollFocus = true;
+            setFocusedMarketRiverCard(cards, nextCard);
+
+            requestAnimationFrame(() => {
+                centerMarketRiverCard(scroller, nextCard, true);
+            });
+
+            window.setTimeout(() => {
+                wheelLocked = false;
+                suppressScrollFocus = false;
+                setFocusedMarketRiverCard(cards, getCenteredMarketRiverCard(scroller, cards));
+            }, carouselWheelLockMs);
+        }, { passive: false });
     }
 
     function getCenteredMarketRiverCard(scroller, cards) {
@@ -369,12 +433,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }, cards[0]);
     }
 
-    function centerMarketRiverCard(scroller, card) {
+    function centerMarketRiverCard(scroller, card, smooth) {
         const scrollerRect = scroller.getBoundingClientRect();
         const cardRect = card.getBoundingClientRect();
         const cardCenterOffset = cardRect.left + cardRect.width / 2 - (scrollerRect.left + scrollerRect.width / 2);
 
-        scroller.scrollLeft += cardCenterOffset;
+        scroller.scrollTo({
+            left: scroller.scrollLeft + cardCenterOffset,
+            behavior: smooth ? 'smooth' : 'auto'
+        });
     }
 
     function setFocusedMarketRiverCard(cards, focusedCard) {

@@ -40,6 +40,7 @@ body {
 .market-river-home__viewport {
     overflow-x: auto;
     overflow-y: hidden;
+    overscroll-behavior-x: contain;
     scroll-padding-inline: var(--market-carousel-edge);
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -86,6 +87,7 @@ body {
 .market-river-gallery .market-river__card {
     margin-top: calc((var(--market-current-width) - var(--market-peek-width)) / 2);
     scroll-snap-align: center;
+    scroll-snap-stop: always;
     border: 0;
     border-radius: 0;
     background: transparent;
@@ -296,6 +298,7 @@ body {
     display: flex;
     gap: 20px;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding: 4px var(--market-carousel-edge) 28px;
     scroll-padding-inline: var(--market-carousel-edge);
     scroll-snap-type: x mandatory;
