@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const carouselWheelThreshold = 10;
     const carouselWheelUnlockMs = 260;
     const carouselTouchThreshold = 36;
+    const carouselCenterSettleDelays = [0, 120, 240, 380];
 
     const size = 64;
     const floor = 48;
@@ -343,6 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let frameRequest = null;
         let wheelGestureLocked = false;
         let wheelUnlockTimer = null;
+        let centerSettleTimers = [];
         let suppressScrollFocus = false;
         let touchStartX = 0;
         let touchStartY = 0;
@@ -352,9 +354,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const latestCard = cards[cards.length - 1];
 
         setFocusedMarketRiverCard(cards, latestCard);
+        settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
 
-        requestAnimationFrame(() => {
-            centerMarketRiverCard(scroller, latestCard);
+        window.addEventListener('resize', () => {
+            settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
+            }
         });
 
         scroller.addEventListener('scroll', () => {
@@ -369,7 +378,9 @@ document.addEventListener('DOMContentLoaded', function() {
             frameRequest = requestAnimationFrame(() => {
                 frameRequest = null;
                 activeIndex = cards.indexOf(getCenteredMarketRiverCard(scroller, cards));
+                suppressScrollFocus = true;
                 setFocusedMarketRiverCard(cards, cards[activeIndex]);
+                settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
             });
         }, { passive: true });
 
@@ -460,16 +471,28 @@ document.addEventListener('DOMContentLoaded', function() {
             activeIndex = nextIndex;
             suppressScrollFocus = true;
             setFocusedMarketRiverCard(targetCards, targetCards[nextIndex]);
+            settleMarketRiverCarouselCenter(targetScroller, targetCards, nextIndex, smooth);
+        }
 
-            requestAnimationFrame(() => {
-                centerMarketRiverCard(targetScroller, targetCards[nextIndex], smooth);
-            });
+        function settleMarketRiverCarouselCenter(targetScroller, targetCards, index, smooth) {
+            centerSettleTimers.forEach((timer) => window.clearTimeout(timer));
+            centerSettleTimers = carouselCenterSettleDelays.map((delay, delayIndex) => window.setTimeout(() => {
+                requestAnimationFrame(() => {
+                    const targetCard = targetCards[index];
 
-            window.setTimeout(() => {
-                suppressScrollFocus = false;
-                activeIndex = targetCards.indexOf(getCenteredMarketRiverCard(targetScroller, targetCards));
-                setFocusedMarketRiverCard(targetCards, targetCards[activeIndex]);
-            }, smooth ? 340 : 0);
+                    if (!targetCard) {
+                        return;
+                    }
+
+                    centerMarketRiverCard(targetScroller, targetCard, smooth && delayIndex === 0);
+
+                    if (delayIndex === carouselCenterSettleDelays.length - 1) {
+                        activeIndex = index;
+                        suppressScrollFocus = false;
+                        setFocusedMarketRiverCard(targetCards, targetCard);
+                    }
+                });
+            }, delay));
         }
     }
 
