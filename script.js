@@ -8,8 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     const defaultWeather = 'sunny';
     const maxMarketRiverSnapshots = 9;
-    const carouselWheelThreshold = 8;
-    const carouselWheelLockMs = 320;
+    const carouselWheelThreshold = 10;
+    const carouselWheelUnlockMs = 260;
+    const carouselTouchThreshold = 36;
 
     const size = 64;
     const floor = 48;
@@ -355,9 +356,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        let activeIndex = cards.length - 1;
         let frameRequest = null;
-        let wheelLocked = false;
+        let wheelGestureLocked = false;
+        let wheelUnlockTimer = null;
         let suppressScrollFocus = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchDeltaX = 0;
+        let touchDeltaY = 0;
+        let touchIsHorizontal = false;
         const latestCard = cards[cards.length - 1];
 
         setFocusedMarketRiverCard(cards, latestCard);
@@ -377,9 +385,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
             frameRequest = requestAnimationFrame(() => {
                 frameRequest = null;
-                setFocusedMarketRiverCard(cards, getCenteredMarketRiverCard(scroller, cards));
+                activeIndex = cards.indexOf(getCenteredMarketRiverCard(scroller, cards));
+                setFocusedMarketRiverCard(cards, cards[activeIndex]);
             });
         }, { passive: true });
+
+        scroller.addEventListener('click', (event) => {
+            const card = event.target.closest('.market-river__card');
+            const cardIndex = cards.indexOf(card);
+
+            if (cardIndex === -1 || cardIndex === activeIndex) {
+                return;
+            }
+
+            event.preventDefault();
+            moveMarketRiverCarouselToIndex(scroller, cards, cardIndex, true);
+        });
 
         scroller.addEventListener('wheel', (event) => {
             const horizontalDelta = Math.abs(event.deltaX) >= Math.abs(event.deltaY) || event.shiftKey
@@ -391,30 +412,82 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             event.preventDefault();
+            window.clearTimeout(wheelUnlockTimer);
 
-            if (wheelLocked) {
+            if (wheelGestureLocked) {
+                wheelUnlockTimer = window.setTimeout(() => {
+                    wheelGestureLocked = false;
+                }, carouselWheelUnlockMs);
                 return;
             }
 
-            const currentCard = getCenteredMarketRiverCard(scroller, cards);
-            const currentIndex = cards.indexOf(currentCard);
-            const nextIndex = Math.max(0, Math.min(cards.length - 1, currentIndex + Math.sign(horizontalDelta)));
-            const nextCard = cards[nextIndex];
+            wheelGestureLocked = true;
+            moveMarketRiverCarouselToIndex(scroller, cards, activeIndex + Math.sign(horizontalDelta), true);
 
-            wheelLocked = true;
+            wheelUnlockTimer = window.setTimeout(() => {
+                wheelGestureLocked = false;
+            }, carouselWheelUnlockMs);
+        }, { passive: false });
+
+        scroller.addEventListener('touchstart', (event) => {
+            const touch = event.touches[0];
+
+            if (!touch) {
+                return;
+            }
+
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchDeltaX = 0;
+            touchDeltaY = 0;
+            touchIsHorizontal = false;
+        }, { passive: true });
+
+        scroller.addEventListener('touchmove', (event) => {
+            const touch = event.touches[0];
+
+            if (!touch) {
+                return;
+            }
+
+            touchDeltaX = touch.clientX - touchStartX;
+            touchDeltaY = touch.clientY - touchStartY;
+
+            if (!touchIsHorizontal) {
+                touchIsHorizontal = Math.abs(touchDeltaX) > carouselWheelThreshold
+                    && Math.abs(touchDeltaX) > Math.abs(touchDeltaY);
+            }
+
+            if (touchIsHorizontal) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        scroller.addEventListener('touchend', () => {
+            if (!touchIsHorizontal || Math.abs(touchDeltaX) < carouselTouchThreshold) {
+                return;
+            }
+
+            moveMarketRiverCarouselToIndex(scroller, cards, activeIndex + (touchDeltaX < 0 ? 1 : -1), true);
+        }, { passive: false });
+
+        function moveMarketRiverCarouselToIndex(targetScroller, targetCards, index, smooth) {
+            const nextIndex = Math.max(0, Math.min(targetCards.length - 1, index));
+
+            activeIndex = nextIndex;
             suppressScrollFocus = true;
-            setFocusedMarketRiverCard(cards, nextCard);
+            setFocusedMarketRiverCard(targetCards, targetCards[nextIndex]);
 
             requestAnimationFrame(() => {
-                centerMarketRiverCard(scroller, nextCard, true);
+                centerMarketRiverCard(targetScroller, targetCards[nextIndex], smooth);
             });
 
             window.setTimeout(() => {
-                wheelLocked = false;
                 suppressScrollFocus = false;
-                setFocusedMarketRiverCard(cards, getCenteredMarketRiverCard(scroller, cards));
-            }, carouselWheelLockMs);
-        }, { passive: false });
+                activeIndex = targetCards.indexOf(getCenteredMarketRiverCard(targetScroller, targetCards));
+                setFocusedMarketRiverCard(targetCards, targetCards[activeIndex]);
+            }, smooth ? 340 : 0);
+        }
     }
 
     function getCenteredMarketRiverCard(scroller, cards) {

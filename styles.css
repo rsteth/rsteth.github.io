@@ -46,6 +46,7 @@ body {
     scroll-padding-inline: var(--market-carousel-edge);
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
     width: 100vw;
     min-height: var(--market-carousel-height);
@@ -126,6 +127,7 @@ body {
 .market-river-home .market-river__card:not(.market-river__card--current) .market-river__image-wrap,
 .market-river-gallery .market-river__card:not(.market-river__card--current) .market-river__image-wrap {
     --market-image-feather: 28px;
+    cursor: pointer;
 }
 
 .market-river__image-wrap,
@@ -320,6 +322,7 @@ body {
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     align-items: flex-start;
+    touch-action: pan-y;
     min-height: var(--market-carousel-height);
     -webkit-overflow-scrolling: touch;
 }
