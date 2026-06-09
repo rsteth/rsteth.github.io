@@ -26,6 +26,8 @@ body {
 .market-river-home {
     --market-current-width: min(558px, calc(100vw - 32px));
     --market-current-half: min(279px, calc(50vw - 16px));
+    --market-peek-width: clamp(150px, 20vw, 240px);
+    --market-carousel-edge: max(16px, calc(50vw - var(--market-current-half)));
 }
 
 .market-river__status {
@@ -36,7 +38,11 @@ body {
 }
 
 .market-river-home__viewport {
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-padding-inline: var(--market-carousel-edge);
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 2px 0 4px;
@@ -47,17 +53,15 @@ body {
     width: max-content;
     gap: 20px;
     align-items: flex-start;
-    transform: translateX(calc(50vw + var(--market-current-half) - 100%));
+    padding: 4px var(--market-carousel-edge) 8px;
 }
 
 .market-river-home .market-river__card {
-    width: var(--market-current-width);
+    width: var(--market-peek-width);
 }
 
 .market-river-home .market-river__card--current {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
+    width: var(--market-current-width);
 }
 
 .market-river-home .market-river__card--current .market-river__card-body {
@@ -69,20 +73,6 @@ body {
     padding-left: 20px;
 }
 
-.market-river__peek {
-    overflow: hidden;
-    width: clamp(160px, 30vw, 300px);
-    flex: 0 0 auto;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-}
-
-.market-river__peek .market-river__image-wrap {
-    --market-image-feather: 28px;
-    aspect-ratio: 1 / 1;
-}
-
 .market-river__card {
     overflow: hidden;
     min-width: 0;
@@ -90,6 +80,36 @@ body {
     border: 1px solid #ddd;
     border-radius: 8px;
     background: #fff;
+}
+
+.market-river-home .market-river__card,
+.market-river-gallery .market-river__card {
+    margin-top: calc((var(--market-current-width) - var(--market-peek-width)) / 2);
+    scroll-snap-align: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    opacity: 0.7;
+    transition:
+        width 180ms ease,
+        margin-top 180ms ease,
+        opacity 180ms ease;
+}
+
+.market-river-home .market-river__card--current,
+.market-river-gallery .market-river__card--current {
+    margin-top: 0;
+    opacity: 1;
+}
+
+.market-river-home .market-river__card:not(.market-river__card--current) .market-river__card-body,
+.market-river-gallery .market-river__card:not(.market-river__card--current) .market-river__card-body {
+    display: none;
+}
+
+.market-river-home .market-river__card:not(.market-river__card--current) .market-river__image-wrap,
+.market-river-gallery .market-river__card:not(.market-river__card--current) .market-river__image-wrap {
+    --market-image-feather: 28px;
 }
 
 .market-river__image-wrap,
@@ -265,6 +285,10 @@ body {
 }
 
 .market-river-gallery {
+    --market-current-width: min(620px, calc(100vw - 48px));
+    --market-current-half: min(310px, calc(50vw - 24px));
+    --market-peek-width: clamp(150px, 22vw, 280px);
+    --market-carousel-edge: max(24px, calc(50vw - var(--market-current-half)));
     overflow: hidden;
 }
 
@@ -272,13 +296,19 @@ body {
     display: flex;
     gap: 20px;
     overflow-x: auto;
-    padding: 4px 24px 28px;
-    scroll-padding: 24px;
+    padding: 4px var(--market-carousel-edge) 28px;
+    scroll-padding-inline: var(--market-carousel-edge);
+    scroll-snap-type: x mandatory;
     align-items: flex-start;
+    -webkit-overflow-scrolling: touch;
 }
 
 .market-river-gallery .market-river__card {
-    width: min(360px, calc(100vw - 48px));
+    width: var(--market-peek-width);
+}
+
+.market-river-gallery .market-river__card--current {
+    width: var(--market-current-width);
 }
 
 .market-river-page__repo {
@@ -333,8 +363,9 @@ a:hover {
         gap: 14px;
     }
 
-    .market-river__peek {
-        width: 160px;
+    .market-river-home,
+    .market-river-gallery {
+        --market-peek-width: 160px;
     }
 
     .market-river-page {
@@ -347,9 +378,6 @@ a:hover {
 
     .market-river-gallery__rail {
         gap: 14px;
-        padding-right: 16px;
-        padding-left: 16px;
-        scroll-padding: 16px;
     }
 
     .market-river-page__repo {

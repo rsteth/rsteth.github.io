@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         close: 'Close'
     };
     const defaultWeather = 'sunny';
+    const maxMarketRiverSnapshots = 9;
 
     const size = 64;
     const floor = 48;
@@ -109,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const manifest = await response.json();
             const items = normalizeItems(manifest.items);
             const localWeather = await determineLocalWeather();
-            const currentItem = selectCurrentItem(items, localWeather);
-            const displayItems = selectDisplayItemsBySlot(items, localWeather, currentItem);
+            const displayItems = selectDisplaySnapshots(items, localWeather, maxMarketRiverSnapshots);
+            const currentItem = displayItems[displayItems.length - 1] || null;
 
             if (homeRail) {
                 renderHomeRail(homeRail, displayItems, currentItem, manifest.updated_at);
@@ -122,10 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             bindImageFallbacks(homeRail || galleryRail);
             setMarketRiverStatus(status, formatGalleryStatus(displayItems, manifest.updated_at));
-
-            if (galleryRail) {
-                galleryRail.scrollLeft = galleryRail.scrollWidth;
-            }
         } catch (error) {
             renderFetchError(homeRail || galleryRail);
             setMarketRiverStatus(status, 'market river is unavailable right now. please check back soon.');
@@ -163,47 +160,35 @@ document.addEventListener('DOMContentLoaded', function() {
         return rank === -1 ? slotOrder.length : rank;
     }
 
-    function selectCurrentItem(items, localWeather) {
-        const latestItem = items.slice().sort(compareItemsOldestFirst).pop();
+    function selectDisplaySnapshots(items, localWeather, maxItems) {
+        const groups = new Map();
 
-        if (!latestItem) {
-            return null;
-        }
+        items.forEach((item) => {
+            const key = getSnapshotKey(item);
+            const group = groups.get(key) || [];
 
-        return selectItemFromNewestRun(
-            items.filter((item) => item.slot === latestItem.slot),
-            localWeather
-        ) || latestItem;
-    }
+            group.push(item);
+            groups.set(key, group);
+        });
 
-    function selectDisplayItemsBySlot(items, localWeather, currentItem) {
-        return slotOrder
-            .map((slot) => currentItem && currentItem.slot === slot
-                ? currentItem
-                : selectItemForSlot(items, slot, localWeather))
+        return Array.from(groups.values())
+            .map((group) => selectItemFromSnapshotGroup(group, localWeather))
             .filter(Boolean)
-            .sort(compareItemsOldestFirst);
+            .sort(compareItemsOldestFirst)
+            .slice(-maxItems);
     }
 
-    function selectItemForSlot(items, slot, localWeather) {
-        const slotItems = items.filter((item) => item.slot === slot);
+    function getSnapshotKey(item) {
+        const baseRunId = String(item.run_id || item.id || '').replace(/-(sunny|cloudy|rainy)$/i, '');
+        const producedAt = item.created_at || item.updated_at || item.date || '';
 
-        return selectItemFromNewestRun(slotItems, localWeather);
+        return `${producedAt}|${item.date || ''}|${item.slot || ''}|${baseRunId}`;
     }
 
-    function selectItemFromNewestRun(items, localWeather) {
-        const newestItem = getNewestItem(items);
-
-        if (!newestItem) {
-            return null;
-        }
-
-        const newestTime = getItemTime(newestItem);
-        const newestRunItems = items.filter((item) => getItemTime(item) === newestTime);
-
-        return getNewestItem(newestRunItems.filter((item) => normalizeWeather(item.weather) === localWeather))
-            || getNewestItem(newestRunItems.filter((item) => normalizeWeather(item.weather) === defaultWeather))
-            || newestItem;
+    function selectItemFromSnapshotGroup(items, localWeather) {
+        return getNewestItem(items.filter((item) => normalizeWeather(item.weather) === localWeather))
+            || getNewestItem(items.filter((item) => normalizeWeather(item.weather) === defaultWeather))
+            || getNewestItem(items);
     }
 
     function getNewestItem(items) {
@@ -308,16 +293,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const featuredItem = currentItem || items[items.length - 1];
-        const orderedItems = items.filter((item) => item !== featuredItem).concat(featuredItem);
-
-        rail.innerHTML = orderedItems
-            .map((item) => item === featuredItem ? renderMarketCard(item, {
+        rail.innerHTML = items
+            .map((item) => renderMarketCard(item, {
                 linkImage: 'market-river/',
-                isCurrent: true,
+                isCurrent: item === currentItem,
                 fallbackProducedAtDateTime: fallbackProducedAtDateTime
-            }) : renderPeekImage(item))
+            }))
             .join('');
+
+        bindMarketRiverCarousel(rail.parentElement, rail);
     }
 
     function renderGalleryRail(rail, items, fallbackProducedAtDateTime) {
@@ -329,9 +313,77 @@ document.addEventListener('DOMContentLoaded', function() {
         rail.innerHTML = items
             .map((item) => renderMarketCard(item, {
                 showMetadataLink: true,
+                isCurrent: item === items[items.length - 1],
                 fallbackProducedAtDateTime: fallbackProducedAtDateTime
             }))
             .join('');
+
+        bindMarketRiverCarousel(rail, rail);
+    }
+
+    function bindMarketRiverCarousel(scroller, rail) {
+        if (!scroller || !rail) {
+            return;
+        }
+
+        const cards = Array.from(rail.querySelectorAll('.market-river__card'));
+
+        if (!cards.length) {
+            return;
+        }
+
+        let frameRequest = null;
+        const latestCard = cards[cards.length - 1];
+
+        setFocusedMarketRiverCard(cards, latestCard);
+
+        requestAnimationFrame(() => {
+            centerMarketRiverCard(scroller, latestCard);
+        });
+
+        scroller.addEventListener('scroll', () => {
+            if (frameRequest) {
+                return;
+            }
+
+            frameRequest = requestAnimationFrame(() => {
+                frameRequest = null;
+                setFocusedMarketRiverCard(cards, getCenteredMarketRiverCard(scroller, cards));
+            });
+        }, { passive: true });
+    }
+
+    function getCenteredMarketRiverCard(scroller, cards) {
+        const scrollerRect = scroller.getBoundingClientRect();
+        const scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
+
+        return cards.reduce((closestCard, card) => {
+            const cardRect = card.getBoundingClientRect();
+            const cardCenter = cardRect.left + cardRect.width / 2;
+            const closestRect = closestCard.getBoundingClientRect();
+            const closestCenter = closestRect.left + closestRect.width / 2;
+
+            return Math.abs(cardCenter - scrollerCenter) < Math.abs(closestCenter - scrollerCenter)
+                ? card
+                : closestCard;
+        }, cards[0]);
+    }
+
+    function centerMarketRiverCard(scroller, card) {
+        const scrollerRect = scroller.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const cardCenterOffset = cardRect.left + cardRect.width / 2 - (scrollerRect.left + scrollerRect.width / 2);
+
+        scroller.scrollLeft += cardCenterOffset;
+    }
+
+    function setFocusedMarketRiverCard(cards, focusedCard) {
+        cards.forEach((card) => {
+            const isFocused = card === focusedCard;
+
+            card.classList.toggle('market-river__card--current', isFocused);
+            card.setAttribute('aria-current', isFocused ? 'true' : 'false');
+        });
     }
 
     function renderMarketCard(item, options) {
