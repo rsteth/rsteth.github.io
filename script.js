@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const manifestUrl = 'https://market-river-generator-089089716476-dev.s3.us-east-1.amazonaws.com/manifests/latest.json';
+    const publicBaseUrl = 'https://market-river-generator-089089716476-dev.s3.us-east-1.amazonaws.com';
     const slotOrder = ['open', 'midday', 'close'];
     const slotLabels = {
         open: 'Open',
@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         renderLoading(homeRail || galleryRail);
 
         try {
+            const manifestUrl = `${publicBaseUrl}/manifests/${homeRail ? 'latest' : 'recent'}.json`;
             const response = await fetch(manifestUrl, { cache: 'no-store' });
 
             if (!response.ok) {
@@ -113,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const manifest = await response.json();
-            const items = normalizeItems(manifest.items);
+            const items = normalizeItems(Array.isArray(manifest) ? manifest : manifest.items);
             const localWeather = await determineLocalWeather();
             const displayItems = selectDisplaySnapshots(items, localWeather, maxMarketRiverSnapshots);
             const currentItem = displayItems[displayItems.length - 1] || null;
@@ -123,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (galleryRail) {
-                renderGalleryRail(galleryRail, displayItems, manifest.updated_at);
+                renderGalleryRail(galleryRail, displayItems.slice().reverse(), manifest.updated_at);
             }
 
             bindImageFallbacks(homeRail || galleryRail);
@@ -140,24 +141,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
 
-        return items
-            .filter((item) => item && item.image_url)
-            .sort(compareItemsOldestFirst);
+        return items.filter((item) => item && item.image_url);
     }
 
     function compareItemsOldestFirst(a, b) {
-        const dateDiff = getItemTime(a) - getItemTime(b);
+        const aCreatedAt = Date.parse(a.created_at || '');
+        const bCreatedAt = Date.parse(b.created_at || '');
+        const dateDiff = Number.isFinite(aCreatedAt) && Number.isFinite(bCreatedAt)
+            ? aCreatedAt - bCreatedAt
+            : Date.parse(a.date || '') - Date.parse(b.date || '');
 
-        if (dateDiff !== 0) {
+        if (Number.isFinite(dateDiff) && dateDiff !== 0) {
             return dateDiff;
         }
 
         return getSlotRank(a.slot) - getSlotRank(b.slot);
-    }
-
-    function getItemTime(item) {
-        const time = Date.parse(item.created_at || item.updated_at || item.date || '');
-        return Number.isNaN(time) ? 0 : time;
     }
 
     function getSlotRank(slot) {
@@ -188,16 +186,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getSnapshotKey(item) {
-        const baseRunId = String(item.run_id || item.id || '').replace(/-(sunny|cloudy|rainy)$/i, '');
-        const producedAt = item.created_at || item.updated_at || item.date || '';
-
-        return `${producedAt}|${item.date || ''}|${item.slot || ''}|${baseRunId}`;
+        return `${item.date || ''}|${item.slot || ''}`;
     }
 
     function selectItemFromSnapshotGroup(items, localWeather) {
-        return getNewestItem(items.filter((item) => normalizeWeather(item.weather) === localWeather))
-            || getNewestItem(items.filter((item) => normalizeWeather(item.weather) === defaultWeather))
-            || getNewestItem(items);
+        const weatherOrder = [...new Set([localWeather || defaultWeather, 'sunny', 'cloudy', 'rainy'])];
+
+        for (const weather of weatherOrder) {
+            const selected = getNewestItem(items.filter((item) => String(item.weather || '').toLowerCase() === weather));
+
+            if (selected) {
+                return selected;
+            }
+        }
+
+        return items[0] || null;
     }
 
     function getNewestItem(items) {
@@ -322,7 +325,8 @@ document.addEventListener('DOMContentLoaded', function() {
         rail.innerHTML = items
             .map((item) => renderMarketCard(item, {
                 showMetadataLink: true,
-                isCurrent: item === items[items.length - 1],
+                isCurrent: item === items[0],
+                showSnapshotDate: true,
                 fallbackProducedAtDateTime: fallbackProducedAtDateTime
             }))
             .join('');
@@ -341,7 +345,10 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        let activeIndex = cards.length - 1;
+        let activeIndex = cards.findIndex((card) => card.classList.contains('market-river__card--current'));
+        if (activeIndex === -1) {
+            activeIndex = cards.length - 1;
+        }
         let frameRequest = null;
         let wheelGestureLocked = false;
         let wheelUnlockTimer = null;
@@ -352,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let touchDeltaX = 0;
         let touchDeltaY = 0;
         let touchIsHorizontal = false;
-        const latestCard = cards[cards.length - 1];
+        const latestCard = cards[activeIndex];
 
         setFocusedMarketRiverCard(cards, latestCard);
         settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
@@ -545,9 +552,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderMarketCard(item, options) {
         const settings = options || {};
         const label = getSlotLabel(item.slot);
-        const dateTime = item.created_at || settings.fallbackProducedAtDateTime || item.date || '';
-        const date = formatProducedAt(dateTime) || formatDate(item.date);
-        const caption = item.caption || 'No caption available.';
+        const dateTime = (settings.showSnapshotDate && item.date) || item.created_at || settings.fallbackProducedAtDateTime || item.date || '';
+        const date = settings.showSnapshotDate && item.date ? formatDate(item.date) : formatProducedAt(dateTime) || formatDate(item.date);
+        const caption = item.caption ? `<p class="market-river__caption">${escapeHtml(item.caption)}</p>` : '';
         const image = renderImage(item, label, date, settings.linkImage);
         const metadataLink = settings.showMetadataLink ? renderMetadataLink(item.metadata_url) : '';
         const currentClass = settings.isCurrent ? ' market-river__card--current' : '';
@@ -560,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span>${escapeHtml(label)}</span>
                         <time datetime="${escapeAttribute(dateTime)}">${escapeHtml(date)}</time>
                     </div>
-                    <p class="market-river__caption">${escapeHtml(caption)}</p>
+                    ${caption}
                     <dl class="market-river__moods">
                         <div>
                             <dt>market</dt>
