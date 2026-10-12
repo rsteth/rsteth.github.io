@@ -272,10 +272,6 @@ body {
     font-size: 13px;
 }
 
-.market-river__card--loading .market-river__placeholder {
-    min-height: 180px;
-}
-
 .market-river-page {
     max-width: none;
     margin: 0;

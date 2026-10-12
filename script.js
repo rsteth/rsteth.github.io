@@ -623,17 +623,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         target.innerHTML = `
-            <article class="market-river__card market-river__card--loading">
+            <article class="market-river__card market-river__card--current market-river__card--loading">
                 <div class="market-river__placeholder">loading</div>
+                <div class="market-river__card-body" aria-hidden="true"></div>
             </article>
         `;
     }
 
     function renderEmptyState(message) {
         return `
-            <article class="market-river__card market-river__card--empty">
+            <article class="market-river__card market-river__card--current market-river__card--empty">
                 <div class="market-river__placeholder">market river</div>
-                <h3>${escapeHtml(message)}</h3>
+                <div class="market-river__card-body">
+                    <h3>${escapeHtml(message)}</h3>
+                </div>
             </article>
         `;
     }
