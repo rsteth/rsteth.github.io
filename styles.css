@@ -55,7 +55,7 @@ body {
 }
 
 .market-river-home__viewport::-webkit-scrollbar,
-.market-river-gallery__rail::-webkit-scrollbar {
+.market-river-gallery__day-rail::-webkit-scrollbar {
     display: none;
 }
 
@@ -308,7 +308,7 @@ body {
     overflow: hidden;
 }
 
-.market-river-gallery__rail {
+.market-river-gallery__day-rail {
     display: flex;
     gap: 20px;
     overflow-x: auto;
@@ -372,7 +372,7 @@ a:hover {
 
 @media (min-width: 641px) {
     .market-river-home__viewport,
-    .market-river-gallery__rail {
+    .market-river-gallery__day-rail {
         overflow-x: hidden;
         scroll-snap-type: none;
     }
@@ -404,7 +404,7 @@ a:hover {
         margin-left: 16px;
     }
 
-    .market-river-gallery__rail {
+    .market-river-gallery__day-rail {
         gap: 14px;
     }
 
@@ -412,4 +412,45 @@ a:hover {
         margin-right: 16px;
         margin-left: 16px;
     }
+}
+
+.market-river-gallery__rail {
+    display: grid;
+    gap: 24px;
+}
+
+.market-river-gallery__date {
+    margin: 0 24px 8px;
+    text-align: center;
+    color: #666;
+    font-size: 12px;
+    font-weight: normal;
+    text-transform: lowercase;
+}
+
+.market-river-gallery__day:not(.market-river-gallery__day--current) .market-river-gallery__day-rail {
+    min-height: 0;
+}
+
+.market-river-gallery__day:not(.market-river-gallery__day--current) .market-river__card {
+    margin-top: 0;
+}
+
+.market-river-gallery__day--current .market-river-gallery__date {
+    color: #111;
+}
+
+.market-river-gallery .market-river__card:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
+
+.market-river-gallery__date button {
+    border: 0;
+    padding: 4px 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    cursor: pointer;
 }

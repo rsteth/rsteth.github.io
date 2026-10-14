@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 if (galleryRail) {
-                    renderGalleryRail(galleryRail, displayItems.slice().reverse(), manifest.updated_at);
+                    renderGalleryRail(galleryRail, displayItems, manifest.updated_at);
                 }
 
                 bindImageFallbacks(homeRail || galleryRail);
@@ -344,19 +344,47 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        rail.innerHTML = items
-            .map((item) => renderMarketCard(item, {
-                showMetadataLink: true,
-                isCurrent: item === items[0],
-                showSnapshotDate: true,
-                fallbackProducedAtDateTime: fallbackProducedAtDateTime
-            }))
-            .join('');
+        const days = new Map();
+        items.forEach((item) => {
+            const dayItems = days.get(item.date) || [];
+            dayItems.push(item);
+            days.set(item.date, dayItems);
+        });
+        const currentItem = items[items.length - 1];
+        rail.innerHTML = Array.from(days, ([date, dayItems]) => `
+            <section class="market-river-gallery__day${date === currentItem.date ? ' market-river-gallery__day--current' : ''}">
+                <h2 class="market-river-gallery__date"><button type="button">${escapeHtml(formatDate(date))}</button></h2>
+                <div class="market-river-gallery__day-rail">
+                    ${dayItems.map((item) => renderMarketCard(item, {
+                        showMetadataLink: true,
+                        isCurrent: item === currentItem,
+                        showSnapshotDate: true,
+                        fallbackProducedAtDateTime
+                    })).join('')}
+                </div>
+            </section>
+        `).join('');
 
-        bindMarketRiverCarousel(rail, rail);
+        const allCards = Array.from(rail.querySelectorAll('.market-river__card'));
+        const rows = Array.from(rail.querySelectorAll('.market-river-gallery__day'));
+        rows.forEach((row) => {
+            const dayRail = row.querySelector('.market-river-gallery__day-rail');
+            dayRail.querySelectorAll('.market-river__card').forEach((card) => {
+                card.tabIndex = 0;
+                card.setAttribute('aria-label', `View ${row.querySelector('h2').textContent} ${card.querySelector('.market-river__eyebrow span').textContent} snapshot`);
+            });
+            row.querySelector('button').addEventListener('click', () => {
+                const dayCards = dayRail.querySelectorAll('.market-river__card');
+                dayCards[dayCards.length - 1].click();
+            });
+            bindMarketRiverCarousel(dayRail, dayRail, (card) => {
+                setFocusedMarketRiverCard(allCards, card);
+                rows.forEach((day) => day.classList.toggle('market-river-gallery__day--current', day === row));
+            });
+        });
     }
 
-    function bindMarketRiverCarousel(scroller, rail) {
+    function bindMarketRiverCarousel(scroller, rail, onFocus) {
         if (!scroller || !rail) {
             return;
         }
@@ -375,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let wheelGestureLocked = false;
         let wheelUnlockTimer = null;
         let centerSettleTimers = [];
-        let suppressScrollFocus = false;
+        let suppressScrollFocus = true;
         let touchStartX = 0;
         let touchStartY = 0;
         let touchDeltaX = 0;
@@ -383,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let touchIsHorizontal = false;
         const latestCard = cards[activeIndex];
 
-        setFocusedMarketRiverCard(cards, latestCard);
+        if (!onFocus) setFocusedMarketRiverCard(cards, latestCard);
         settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
 
         window.addEventListener('resize', () => {
@@ -409,7 +437,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 frameRequest = null;
                 activeIndex = cards.indexOf(getCenteredMarketRiverCard(scroller, cards));
                 suppressScrollFocus = true;
-                setFocusedMarketRiverCard(cards, cards[activeIndex]);
+                if (onFocus) onFocus(cards[activeIndex]);
+                else setFocusedMarketRiverCard(cards, cards[activeIndex]);
                 settleMarketRiverCarouselCenter(scroller, cards, activeIndex, false);
             });
         }, { passive: true });
@@ -418,12 +447,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = event.target.closest('.market-river__card');
             const cardIndex = cards.indexOf(card);
 
-            if (cardIndex === -1 || cardIndex === activeIndex) {
+            if (cardIndex === -1 || (cardIndex === activeIndex && card.classList.contains('market-river__card--current'))) {
                 return;
             }
 
             event.preventDefault();
             moveMarketRiverCarouselToIndex(scroller, cards, cardIndex, true);
+        });
+
+        if (onFocus) scroller.addEventListener('keydown', (event) => {
+            if (event.target.closest('a')) return;
+            const index = cards.indexOf(event.target.closest('.market-river__card'));
+            if (index !== -1 && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                moveMarketRiverCarouselToIndex(scroller, cards, index, true);
+            }
         });
 
         scroller.addEventListener('wheel', (event) => {
@@ -505,7 +543,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             activeIndex = nextIndex;
             suppressScrollFocus = true;
-            setFocusedMarketRiverCard(targetCards, targetCards[nextIndex]);
+            if (onFocus) onFocus(targetCards[nextIndex]);
+            else setFocusedMarketRiverCard(targetCards, targetCards[nextIndex]);
             settleMarketRiverCarouselCenter(targetScroller, targetCards, nextIndex, smooth);
         }
 
@@ -524,7 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (delayIndex === carouselCenterSettleDelays.length - 1) {
                         activeIndex = index;
                         suppressScrollFocus = false;
-                        setFocusedMarketRiverCard(targetCards, targetCard);
+                        if (!onFocus) setFocusedMarketRiverCard(targetCards, targetCard);
                     }
                 });
             }, delay));

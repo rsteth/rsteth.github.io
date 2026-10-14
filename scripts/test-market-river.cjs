@@ -92,7 +92,9 @@ async function main() {
         if (view === 'gallery') {
             assert.ok(/<article class="market-river__card market-river__card--current"[^>]*>[\s\S]*?2026-10-12-close-sunny.png/.test(harness.rail.innerHTML));
             assert.ok(harness.rail.innerHTML.indexOf('2026-10-12-close-sunny.png')
-                < harness.rail.innerHTML.indexOf('2026-10-12-open-sunny.png'));
+                > harness.rail.innerHTML.indexOf('2026-10-12-open-sunny.png'));
+            assert.equal((harness.rail.innerHTML.match(/<section class="market-river-gallery__day/g) || []).length, 3);
+            assert.ok(harness.rail.innerHTML.indexOf('2026-10-10-open-sunny.png') < harness.rail.innerHTML.indexOf('2026-10-12-open-sunny.png'));
             assert.ok(harness.rail.innerHTML.includes('datetime="2026-10-12"'));
         }
     }
