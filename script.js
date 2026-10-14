@@ -107,7 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const manifestUrl = `${publicBaseUrl}/manifests/${homeRail ? 'latest' : 'recent'}.json`;
-            const response = await fetch(manifestUrl, { cache: 'no-store' });
+            let response;
+            let historyUnavailable = false;
+            try {
+                response = await fetch(manifestUrl, { cache: 'no-store' });
+                if (!response.ok) {
+                    throw new Error(`Manifest request failed with status ${response.status}`);
+                }
+            } catch (error) {
+                if (!galleryRail) throw error;
+                historyUnavailable = true;
+                response = await fetch(`${publicBaseUrl}/manifests/latest.json`, { cache: 'no-store' });
+            }
 
             if (!response.ok) {
                 throw new Error(`Manifest request failed with status ${response.status}`);
@@ -115,20 +126,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const manifest = await response.json();
             const items = normalizeItems(Array.isArray(manifest) ? manifest : manifest.items);
+            renderForWeather(defaultWeather);
             const localWeather = await determineLocalWeather();
-            const displayItems = selectDisplaySnapshots(items, localWeather, maxMarketRiverSnapshots);
-            const currentItem = displayItems[displayItems.length - 1] || null;
-
-            if (homeRail) {
-                renderHomeRail(homeRail, displayItems, currentItem, manifest.updated_at);
+            if (localWeather !== defaultWeather) {
+                renderForWeather(localWeather);
             }
 
-            if (galleryRail) {
-                renderGalleryRail(galleryRail, displayItems.slice().reverse(), manifest.updated_at);
-            }
+            function renderForWeather(weather) {
+                const displayItems = selectDisplaySnapshots(items, weather, maxMarketRiverSnapshots);
+                const currentItem = displayItems[displayItems.length - 1] || null;
 
-            bindImageFallbacks(homeRail || galleryRail);
-            setMarketRiverStatus(status, formatGalleryStatus(displayItems, manifest.updated_at));
+                if (homeRail) {
+                    renderHomeRail(homeRail, displayItems, currentItem, manifest.updated_at);
+                }
+
+                if (galleryRail) {
+                    renderGalleryRail(galleryRail, displayItems.slice().reverse(), manifest.updated_at);
+                }
+
+                bindImageFallbacks(homeRail || galleryRail);
+                setMarketRiverStatus(status, historyUnavailable
+                    ? 'history is unavailable right now. showing the latest snapshots.'
+                    : formatGalleryStatus(displayItems, manifest.updated_at));
+            }
         } catch (error) {
             renderFetchError(homeRail || galleryRail);
             setMarketRiverStatus(status, 'market river is unavailable right now. please check back soon.');
@@ -221,7 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 current: 'weather_code',
                 timezone: 'auto'
             });
-            const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+            const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`, {
+                signal: AbortSignal.timeout(5000)
+            });
 
             if (!response.ok) {
                 return defaultWeather;

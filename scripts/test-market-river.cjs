@@ -4,7 +4,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 // Exercise the shared browser code with deterministic manifests and no location access.
-function createHarness(view, manifest, ok = true) {
+function createHarness(view, manifest, ok = true, options = {}) {
     let onReady;
     const requests = [];
     const rail = { innerHTML: '', querySelectorAll: () => [] };
@@ -15,10 +15,15 @@ function createHarness(view, manifest, ok = true) {
             querySelector: (selector) => selector === `[data-market-river-${view}]` ? rail
                 : selector === '[data-market-river-status]' ? status : null
         },
-        navigator: {},
+        navigator: options.navigator || {},
+        setTimeout,
+        clearTimeout,
+        AbortSignal,
+        URLSearchParams,
         console: { error: () => {} },
         fetch: async (url) => {
             requests.push(url);
+            if (options.fetch) return options.fetch(url);
             return { ok, status: ok ? 200 : 403, json: async () => manifest };
         }
     };
@@ -104,6 +109,34 @@ async function main() {
     const failed = createHarness('gallery', {}, false);
     await failed.loadMarketRiver();
     assert.ok(failed.status.textContent.includes('unavailable'));
+    let confirmLocation;
+    const pending = createHarness('home', { items: variants }, true, {
+        navigator: { geolocation: { getCurrentPosition: (success) => { confirmLocation = success; } } },
+        fetch: async (url) => ({ ok: true, json: async () => url.includes('open-meteo')
+            ? { current: { weather_code: 61 } } : { items: variants } })
+    });
+    const loading = pending.loadMarketRiver();
+    while (!confirmLocation) await new Promise(setImmediate);
+    assert.ok(pending.rail.innerHTML.includes('close-sunny.png'), 'sunny renders before location resolves');
+    confirmLocation({ coords: { latitude: 50, longitude: -100 } });
+    await loading;
+    assert.ok(pending.rail.innerHTML.includes('close-rainy.png'), 'confirmed weather updates the image');
+    const fallback = createHarness('gallery', {}, true, {
+        fetch: async (url) => ({ ok: url.endsWith('latest.json'), status: 403,
+            json: async () => ({ items: variants }) })
+    });
+    await fallback.loadMarketRiver();
+    assert.equal(fallback.requests.length, 2);
+    assert.ok(fallback.rail.innerHTML.includes('close-sunny.png'));
+    assert.ok(fallback.status.textContent.includes('history is unavailable'));
+    const blocked = createHarness('gallery', {}, true, {
+        fetch: async (url) => {
+            if (url.endsWith('recent.json')) throw new TypeError('Failed to fetch');
+            return { ok: true, json: async () => ({ items: variants }) };
+        }
+    });
+    await blocked.loadMarketRiver();
+    assert.ok(blocked.rail.innerHTML.includes('close-sunny.png'), 'network failures also fall back');
     console.log('Market River grouping, selection, ordering, feed routing, rendering, and error checks passed.');
 }
 
