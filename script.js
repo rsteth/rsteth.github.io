@@ -425,7 +425,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         scroller.addEventListener('scroll', () => {
-            if (suppressScrollFocus) {
+            // Collapsing another day can change its scroll offset; it must not reclaim focus.
+            if (suppressScrollFocus || (onFocus && !cards.some((card) => card.classList.contains('market-river__card--current')))) {
                 return;
             }
 

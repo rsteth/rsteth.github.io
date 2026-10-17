@@ -416,7 +416,13 @@ a:hover {
 
 .market-river-gallery__rail {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 24px;
+}
+
+/* Keep each scroll viewport within the page instead of its cards’ intrinsic width. */
+.market-river-gallery__day {
+    min-width: 0;
 }
 
 .market-river-gallery__date {
