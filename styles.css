@@ -111,6 +111,12 @@ body {
     object-fit: contain;
 }
 
+/* Center any crop evenly; the supplied image already matches the 4:3 cards. */
+.project-thumbnail--great-circle img {
+    object-fit: cover;
+    object-position: center;
+}
+
 .project-thumbnail--type {
     background: #f4f4f4;
     display: grid;
