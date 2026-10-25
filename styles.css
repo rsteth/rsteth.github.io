@@ -38,7 +38,7 @@ body {
 
 .container.portfolio {
     max-width: 1080px;
-    padding: 72px 28px 40px;
+    padding: 96px 28px 40px;
 }
 
 .portfolio-intro {
@@ -53,6 +53,7 @@ body {
 
 .project-grid {
     display: grid;
+    container-type: inline-size;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 48px 32px;
     margin-bottom: 72px;
@@ -60,7 +61,18 @@ body {
 }
 
 .project-card {
+    --project-image-height: calc((100cqw - 32px) * 0.375);
     min-width: 0;
+    height: calc(var(--project-image-height) + 184px);
+}
+
+/* A wide first entry keeps the same image and total card height as its peers. */
+.project-card--featured {
+    grid-column: 1 / -1;
+}
+
+.project-card--last {
+    grid-column: 2;
 }
 
 .project-card__link,
@@ -76,8 +88,10 @@ body {
     display: block;
     aspect-ratio: 4 / 3;
     width: 100%;
+    height: var(--project-image-height);
+    flex-shrink: 0;
     overflow: hidden;
-    background: #f4f4f4;
+    background: transparent;
 }
 
 .project-thumbnail img {
@@ -88,6 +102,7 @@ body {
 }
 
 .project-thumbnail--type {
+    background: #f4f4f4;
     display: grid;
     place-items: center;
     font-size: clamp(24px, 3vw, 40px);
@@ -95,12 +110,6 @@ body {
     letter-spacing: -0.04em;
     line-height: 1.1;
     text-align: center;
-}
-
-.project-thumbnail--river {
-    font-weight: normal;
-    font-family: Georgia, serif;
-    font-style: italic;
 }
 
 .project-thumbnail--verbosele {
@@ -159,11 +168,23 @@ body {
 
 @media (max-width: 640px) {
     .container.portfolio {
-        padding: 40px 20px 32px;
+        padding: 56px 20px 32px;
     }
 
     .portfolio-intro {
         margin-bottom: 24px;
+    }
+
+    .project-card {
+        height: auto;
+    }
+
+    .project-card--last {
+        grid-column: auto;
+    }
+
+    .project-thumbnail {
+        height: auto;
     }
 
     .project-grid {
