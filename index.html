@@ -5,29 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Robin Stethem explores new ways of interacting with information, culture, markets, weather, and generative image systems.">
     <title>Robin Stethem</title>
-    <link rel="stylesheet" href="styles.css?v=20261014-2">
+    <link rel="stylesheet" href="styles.css?v=20261025-2">
     <script src="script.js?v=20261014-2" defer></script>
 </head>
 <body>
-    <main class="container">
-        <h1 id="page-title">robin stethem</h1>
-        <p>exploring new ways to interact with information and one another. currently looking at how markets, weather, and generative image systems can be used to prototype the future of visual storytelling.</p>
+    <main class="container portfolio">
+        <header class="portfolio-intro">
+            <h1 id="page-title">robin stethem</h1>
+        </header>
 
-        <section class="market-river market-river-home" aria-label="Market River">
-            <div class="market-river-home__viewport">
-                <div class="market-river-home__track" data-market-river-home aria-live="polite"></div>
-            </div>
+        <section class="project-grid" aria-label="Projects">
+            <article class="project-card">
+                <a class="project-card__link" href="https://museumor.com">
+                    <picture class="project-thumbnail">
+                        <source srcset="museum.webp" type="image/webp">
+                        <img src="image.gif" alt="An immersive exhibition in the Museum of Other Realities" loading="lazy" decoding="async">
+                    </picture>
+                    <h2>Museum of Other Realities</h2>
+                    <p>A space for creatives prototyping new forms of cultural production.</p>
+                    <p class="project-card__note">i started the museum of other realities.</p>
+                    <span class="project-card__action">Explore the museum →</span>
+                </a>
+            </article>
+
+            <article class="project-card">
+                <a class="project-card__link" href="objects/the-spoon-app/">
+                    <div class="project-thumbnail"><img src="images/invisible-objects/IMG_8494.jpeg" alt="A phone used as a spoon in a bowl of yogurt and banana slices" width="1200" height="900" loading="lazy" decoding="async"></div>
+                    <h2>The Spoon App</h2>
+                    <p>Use your phone as a spoon. It works best on a phone you can fit in your mouth.</p>
+                    <span class="project-card__action">See the work →</span>
+                </a>
+            </article>
+
+            <article class="project-card">
+                <a class="project-card__link" href="objects/mysterious-modular-device/">
+                    <div class="project-thumbnail"><img src="images/invisible-objects/IMG_8487.jpeg" alt="The colorful Mysterious Modular Device assembled upright" width="1440" height="1080" loading="lazy" decoding="async"></div>
+                    <h2>Mysterious Modular Device</h2>
+                    <p>It comes in pieces. You assemble it yourself. You aren't quite sure what all the pieces do.</p>
+                    <span class="project-card__action">See the work →</span>
+                </a>
+            </article>
+
+            <article class="project-card">
+                <a class="project-card__link" href="objects/fischer-price-revolutionary-device/">
+                    <div class="project-thumbnail"><img src="images/invisible-objects/IMG_8485.jpeg" alt="The blue, yellow, orange, and green Fischer Price Revolutionary Device" width="1440" height="1080" loading="lazy" decoding="async"></div>
+                    <h2>Fischer Price Revolutionary Device</h2>
+                    <p>An examination of the hazards of contextualizing a technology.</p>
+                    <span class="project-card__action">See the work →</span>
+                </a>
+            </article>
+
+            <article class="project-card">
+                <a class="project-card__link" href="market-river/">
+                    <div class="project-thumbnail project-thumbnail--type project-thumbnail--river" aria-hidden="true"><span>market<br>river</span></div>
+                    <h2>Market River</h2>
+                    <p>Market and volatility moods become river landscapes, with weather selected for your location.</p>
+                    <span class="project-card__action">Explore the snapshots →</span>
+                </a>
+            </article>
+
+            <article class="project-card" data-project="great-circle">
+                <a class="project-card__link" href="https://stethem.com/great_circle/">
+                    <div class="project-thumbnail project-thumbnail--type" aria-hidden="true"><span>great<br>circle<small>Temporary graphic</small></span></div>
+                    <h2>Great Circle</h2>
+                    <p>Plan a route and export it as GPX.</p>
+                    <span class="project-card__action">Plan a route →</span>
+                </a>
+            </article>
+
+            <article class="project-card">
+                <a class="project-card__link" href="verbosele/">
+                    <div class="project-thumbnail project-thumbnail--type project-thumbnail--verbosele" aria-hidden="true"><span>wordle<br>with levels</span></div>
+                    <h2>Verbosele</h2>
+                    <p>Wordle with levels.</p>
+                    <span class="project-card__action">Play Verbosele →</span>
+                </a>
+            </article>
+
+            <article class="project-card" data-project="speed-reader">
+                <a class="project-card__link" href="https://rsteth.github.io/focus-speed-reader/">
+                    <div class="project-thumbnail project-thumbnail--type" aria-hidden="true"><span>focus<br>speed reader<small>Temporary graphic</small></span></div>
+                    <h2>Focus Speed Reader</h2>
+                    <p>Read EPUBs and text at an adjustable speed, with a local library.</p>
+                    <span class="project-card__action">Open the reader →</span>
+                </a>
+            </article>
         </section>
-
-        <p>i started <a href="https://museumor.com">the museum of other realities</a>,</p>
-        <a href="https://museumor.com">
-            <picture>
-                <source srcset="museum.webp" type="image/webp">
-                <img src="image.gif" alt="Museum of Other Realities animated preview" class="centered-image" loading="lazy">
-            </picture>
-        </a>
-        <p>a space for creatives prototyping new forms of cultural production.</p>
-        <p>wordle with levels <a href="verbosele/" target="_blank" rel="noopener">verbosele</a></p>
 
         <div class="social-links">
             <a href="https://github.com/rsteth" target="_blank" rel="noopener">github</a> |
