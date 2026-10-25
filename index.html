@@ -8,8 +8,9 @@
     <link rel="preload" href="fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="styles.css?v=20261025-7">
+    <link rel="stylesheet" href="styles.css?v=20261025-8">
     <script src="script.js?v=20261014-2" defer></script>
+    <script src="museum-video.js?v=20261025-1" defer></script>
 </head>
 <body>
     <main class="container portfolio">
@@ -20,14 +21,15 @@
         <section class="project-grid" aria-label="Projects">
             <article class="project-card project-card--featured">
                 <a class="project-card__link" href="https://museumor.com">
-                    <picture class="project-thumbnail">
-                        <source srcset="museum.webp" type="image/webp">
-                        <img src="image.gif" alt="An immersive exhibition in the Museum of Other Realities" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-                    </picture>
+                    <div class="project-thumbnail museum-animation">
+                        <img src="museum-poster.jpg" alt="An immersive exhibition in the Museum of Other Realities" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
+                        <video class="museum-animation__video" data-src="museum.mp4" width="640" height="360" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" hidden></video>
+                    </div>
                     <h2>Museum of Other Realities</h2>
                     <p>i started the museum of other realities, a space for creatives prototyping new forms of cultural production</p>
                     <span class="project-card__action">Explore the museum →</span>
                 </a>
+                <button class="museum-animation__toggle" type="button" aria-label="Play museum animation" hidden>play</button>
             </article>
 
 
