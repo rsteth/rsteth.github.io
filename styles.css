@@ -68,7 +68,17 @@ body {
 
 /* A wide first entry keeps the same image and total card height as its peers. */
 .project-card--featured {
+    --featured-content-width: min(100%, calc(var(--project-image-height) * 16 / 9));
     grid-column: 1 / -1;
+}
+
+/* Match the text measure to the visible 16:9 museum image. */
+.project-card--featured .project-thumbnail,
+.project-card--featured h2,
+.project-card--featured p,
+.project-card--featured .project-card__action {
+    width: var(--featured-content-width);
+    align-self: center;
 }
 
 .project-card--last {
@@ -177,6 +187,10 @@ body {
 
     .project-card {
         height: auto;
+    }
+
+    .project-card--featured {
+        --featured-content-width: 100%;
     }
 
     .project-card--last {
