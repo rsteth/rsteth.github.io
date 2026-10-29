@@ -121,6 +121,7 @@ samp {
 }
 
 .project-card {
+    position: relative;
     min-width: 0;
 }
 
@@ -132,11 +133,23 @@ samp {
     grid-column: 2;
 }
 
-.project-card__link,
 .project-card__content {
     display: block;
     color: inherit;
     text-decoration: none;
+}
+
+/* Only the title is the link; its ::after stretches over the whole card so
+   the entire card stays clickable while the link text is just the title. */
+.project-card__link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.project-card__link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
 }
 
 .project-thumbnail {
@@ -205,19 +218,31 @@ samp {
 }
 
 .project-card__link:hover {
-    color: var(--ink);
-    text-decoration: none;
+    color: inherit;
 }
 
-.project-card__link:hover .project-card__action {
+.project-card:has(.project-card__link:hover) .project-card__action {
     color: var(--accent-hover);
     text-decoration-thickness: 2px;
 }
 
-.project-card__link:hover h2 {
+.project-card:has(.project-card__link:hover) h2 {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.18em;
+}
+
+/* Keyboard focus outlines the whole card, as before. */
+@supports selector(:has(*)) {
+    .project-card__link:focus-visible {
+        outline: none;
+    }
+
+    .project-card:has(.project-card__link:focus-visible) {
+        outline: 2px solid var(--accent);
+        outline-offset: 5px;
+        border-radius: 2px;
+    }
 }
 
 .container.project-detail {

@@ -670,8 +670,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderImage(item, label, date, linkHref) {
+        const fallbackAlt = `${label} market river image for ${date}`;
+        const alt = item.caption ? `${item.caption} (${fallbackAlt})` : fallbackAlt;
         const imageMarkup = `
-            <img src="${escapeAttribute(item.image_url || '')}" alt="${escapeAttribute(`${label} market river image for ${date}`)}" loading="lazy">
+            <img src="${escapeAttribute(item.image_url || '')}" alt="${escapeAttribute(alt)}" loading="lazy">
             <div class="market-river__image-error" hidden>image unavailable</div>
         `;
 

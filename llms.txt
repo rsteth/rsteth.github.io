@@ -1,0 +1,24 @@
+# Robin Stethem
+
+> Founder of the Museum of Other Realities, a social VR museum that served as the official virtual platform for Cannes XR, Tribeca, NewImages, and VIFF Immersed. This site collects Robin's speculative design objects, generative image systems, and small web apps.
+
+Contact: robin@stethem.com · GitHub: https://github.com/rsteth · LinkedIn: https://www.linkedin.com/in/stethem · X: https://x.com/robinstethem
+
+## Projects
+
+- [Museum of Other Realities](https://museumor.com): A social VR space for creatives prototyping new forms of cultural production; finalist for Immersive Reality Technical Achievement at the D.I.C.E. Awards.
+- [Market River](https://stethem.com/market-river/index.md): Generative art driven by live stock market data. River landscapes made at the open, midday, and close of each trading day from versioned templates, each traceable to its market snapshot. Source: https://github.com/rsteth/market-river-generator
+- [Great Circle](https://stethem.com/great_circle/): A cycling loop planner. Pick a start point and distance, get a near-circular route, and export it as GPX.
+- [Verbosele](https://stethem.com/verbosele/): Wordle with levels. Words from 5 to 9 letters across five rounds on one shared pool of 18 lives, with optional thesaurus hints. Source: https://github.com/rsteth/Verbosele
+- [Focus Speed Reader](https://stethem.com/focus-speed-reader/): A browser speed reader for EPUBs and plain text, with a library stored on your device.
+
+## Invisible Objects (speculative design)
+
+- [Mysterious Modular Device](https://stethem.com/objects/mysterious-modular-device/index.md): A self-assembled device whose pieces have unclear functions; a commentary on opaque consumer electronics, after Albert Borgmann.
+- [Fischer Price Revolutionary Device](https://stethem.com/objects/fischer-price-revolutionary-device/index.md): A toy-like object about the risks designers take when they make new technology feel familiar.
+- [The Spoon App](https://stethem.com/objects/the-spoon-app/index.md): Use your phone as a spoon. On which parts of life are best left physical.
+
+## Optional
+
+- [Homepage (markdown)](https://stethem.com/index.md)
+- [Sitemap](https://stethem.com/sitemap.xml)
