@@ -142,7 +142,7 @@ samp {
 .project-thumbnail {
     position: relative;
     display: block;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     width: 100%;
     overflow: hidden;
     background: transparent;
@@ -158,9 +158,16 @@ samp {
     object-position: center;
 }
 
-/* The museum keeps its entire wide composition at the full grid width. */
+/* The museum keeps its natural composition at the full grid width. */
 .project-card--featured .project-thumbnail {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: auto;
+    overflow: visible;
+}
+
+.project-card--featured .project-thumbnail img {
+    position: static;
+    height: auto;
+    object-fit: contain;
 }
 
 /* Keep the portrait's spoon bowl and the river's mountain/city in view. */
@@ -737,7 +744,7 @@ button:focus-visible,
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     pointer-events: none;
 }
 .museum-animation__video[hidden],
