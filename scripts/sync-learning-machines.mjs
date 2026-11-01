@@ -1,5 +1,5 @@
 import {execFileSync} from 'node:child_process';
-import {writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 const [repo,revision]=process.argv.slice(2);
 if(!repo || !/^[a-f0-9]{40}$/.test(revision??'')) throw Error('Usage: node scripts/sync-learning-machines.mjs <repo-path> <full-commit-sha>');
@@ -11,5 +11,10 @@ const sourcePath='experiments/attention-memory/mechanics.mjs';
 const bytes=git('show',resolved+':'+sourcePath);
 const dest=new URL('../learning-machines/attention-and-memory/',import.meta.url);mkdirSync(dest,{recursive:true});
 writeFileSync(new URL('mechanics.mjs',dest),bytes);
-writeFileSync(new URL('mechanics-pin.json',dest),JSON.stringify({repository:'https://github.com/rsteth/learning-machines',commit:resolved,path:sourcePath,sha256:createHash('sha256').update(bytes).digest('hex')},null,2)+'\n');
+const license=git('show',resolved+':LICENSE');
+writeFileSync(new URL('mechanics-LICENSE.txt',dest),license);
+writeFileSync(new URL('mechanics-pin.json',dest),JSON.stringify({repository:'https://github.com/rsteth/learning-machines',commit:resolved,path:sourcePath,sha256:createHash('sha256').update(bytes).digest('hex'),license:'MIT',licensePath:'LICENSE',licenseFile:'mechanics-LICENSE.txt',licenseSha256:createHash('sha256').update(license).digest('hex')},null,2)+'\n');
+const pageUrl=new URL('index.html',dest);
+const html=readFileSync(pageUrl,'utf8').replace(/https:\/\/github.com\/rsteth\/learning-machines\/tree\/[a-f0-9]{40}\/experiments\/attention-memory/g,'https://github.com/rsteth/learning-machines/tree/'+resolved+'/experiments/attention-memory').replace(/https:\/\/github.com\/rsteth\/learning-machines\/commit\/[a-f0-9]{40}/g,'https://github.com/rsteth/learning-machines/commit/'+resolved);
+writeFileSync(pageUrl,html);
 console.log('Pinned '+resolved);

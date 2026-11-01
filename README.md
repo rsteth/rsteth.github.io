@@ -33,10 +33,10 @@ node scripts/sync-learning-machines.mjs /path/to/learning-machines <full-commit-
 node scripts/test-learning-machines.mjs
 ```
 
-Review the teaching assumptions and source revisions when updating. The experiment repository is currently private; the website serves the pinned module locally. Publishing the website makes this module and provenance public.
+Review the teaching assumptions and source revisions when updating. The experiment repository is public. The website serves the pinned module, MIT license notice and provenance locally. The rest of this website is not relicensed by that notice.
 
 ### Source links on every companion page
 
 The collection index links to the Learning Machines repository. Every concept page links to its experiment directory **at the full mechanics commit in its pin manifest**, that exact commit's GitHub page, and the locally served integrity manifest. Link text must identify the experiment. Never link a published explanation only to a moving branch.
 
-When updating mechanics, run the sync command, update both experiment/commit links to the manifest commit, then run the Learning Machines checks. Before publishing, verify those remote links resolve with the intended audience's access. Keep private/unpushed status explicit until it actually changes; the current preview accurately labels its not-yet-pushed GitHub links. Remove the unpushed notice only after verifying the push, and change private-access wording only after visibility is confirmed.
+When updating mechanics, run the sync command; it also updates both experiment/commit links to the manifest commit. Then run the Learning Machines checks. Before publishing, verify those remote links resolve with the intended audience's access. Keep any private/unpushed status explicit until it actually changes. Remove an unpushed notice only after verifying the push, and change access wording only after visibility is confirmed.

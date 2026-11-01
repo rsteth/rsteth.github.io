@@ -7,6 +7,8 @@ const root=fileURLToPath(new URL('../',import.meta.url));
 const base=resolve(root,'learning-machines/attention-and-memory');
 const pin=JSON.parse(readFileSync(resolve(base,'mechanics-pin.json')));
 assert.match(pin.commit,/^[a-f0-9]{40}$/);
+assert.equal(pin.license,'MIT');
+assert.equal(createHash('sha256').update(readFileSync(resolve(base,pin.licenseFile))).digest('hex'),pin.licenseSha256);
 assert.equal(createHash('sha256').update(readFileSync(resolve(base,'mechanics.mjs'))).digest('hex'),pin.sha256);
 for(const file of ['learning-machines/index.html','learning-machines/attention-and-memory/index.html']) {
  const path=resolve(root,file), html=readFileSync(path,'utf8');
