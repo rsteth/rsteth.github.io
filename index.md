@@ -53,3 +53,5 @@ https://stethem.com/focus-speed-reader/
 Use your phone as a spoon. It works best on a phone you can fit in your mouth.
 
 [Read more](https://stethem.com/objects/the-spoon-app/index.md)
+
+Learning Machines: https://stethem.com/learning-machines/ — small ML teaching experiments. First: attention and memory.

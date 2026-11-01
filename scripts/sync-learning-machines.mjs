@@ -1,0 +1,15 @@
+import {execFileSync} from 'node:child_process';
+import {writeFileSync,mkdirSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const [repo,revision]=process.argv.slice(2);
+if(!repo || !/^[a-f0-9]{40}$/.test(revision??'')) throw Error('Usage: node scripts/sync-learning-machines.mjs <repo-path> <full-commit-sha>');
+const git=(...args)=>execFileSync('git',['-C',repo,...args]);
+const remote=git('remote','get-url','origin').toString().trim();
+if(!/^https:\/\/github.com\/rsteth\/learning-machines(?:\.git)?$|^git@github.com:rsteth\/learning-machines(?:\.git)?$/.test(remote)) throw Error('Unexpected mechanics repository origin');
+const resolved=git('rev-parse',revision+'^{commit}').toString().trim();
+const sourcePath='experiments/attention-memory/mechanics.mjs';
+const bytes=git('show',resolved+':'+sourcePath);
+const dest=new URL('../learning-machines/attention-and-memory/',import.meta.url);mkdirSync(dest,{recursive:true});
+writeFileSync(new URL('mechanics.mjs',dest),bytes);
+writeFileSync(new URL('mechanics-pin.json',dest),JSON.stringify({repository:'https://github.com/rsteth/learning-machines',commit:resolved,path:sourcePath,sha256:createHash('sha256').update(bytes).digest('hex')},null,2)+'\n');
+console.log('Pinned '+resolved);

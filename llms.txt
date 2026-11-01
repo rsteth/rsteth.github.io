@@ -22,3 +22,5 @@ Contact: robin@stethem.com · GitHub: https://github.com/rsteth · LinkedIn: htt
 
 - [Homepage (markdown)](https://stethem.com/index.md)
 - [Sitemap](https://stethem.com/sitemap.xml)
+
+Learning Machines: https://stethem.com/learning-machines/ — small ML teaching experiments. First: attention and memory.

@@ -21,3 +21,16 @@ Run the manifest and rendering regression checks with `node scripts/test-market-
 
 Preview locally with `python3 -m http.server 8765 --bind 127.0.0.1` from the
 repository root. The site has no build step or package dependencies.
+
+## Learning Machines
+
+The sparse companion pages live under `/learning-machines/`. Mechanics are vendored from `rsteth/learning-machines` at the exact commit and SHA-256 in `learning-machines/attention-and-memory/mechanics-pin.json`. No runtime network dependency or build step.
+
+Update reproducibly from a committed experiment:
+
+```sh
+node scripts/sync-learning-machines.mjs /path/to/learning-machines <full-commit-sha>
+node scripts/test-learning-machines.mjs
+```
+
+Review the teaching assumptions and source revisions when updating. The experiment repository is currently private; the website serves the pinned module locally. Publishing the website makes this module and provenance public.
