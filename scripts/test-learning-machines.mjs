@@ -18,4 +18,7 @@ for(const file of ['learning-machines/index.html','learning-machines/attention-a
 const {growth,illustrate,architecture}=await import('../learning-machines/attention-and-memory/mechanics.mjs');
 assert.equal(growth(262144).recurrent,64);assert.equal(illustrate(6).state.door,'yellow');assert.equal(architecture(true).length,64);
 assert.ok(readFileSync(resolve(root,'index.html'),'utf8').includes('href="learning-machines/"'));
-console.log('PASS: pin integrity, companion links/assets, module import, home entry');
+const page=readFileSync(resolve(base,'index.html'),'utf8');
+assert.ok(page.includes(pin.repository+'/tree/'+pin.commit+'/experiments/attention-memory'),'Experiment link must match mechanics pin');
+assert.ok(page.includes(pin.repository+'/commit/'+pin.commit),'Commit link must match mechanics pin');
+console.log('PASS: pin integrity, companion links/assets, module import, home entry, pinned source links');
