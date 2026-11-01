@@ -62,3 +62,9 @@ node scripts/test-learning-visuals.mjs
 The token integrity manifest pins both `mechanics.mjs` and `fixture.mjs`, plus
 the MIT notice. Regenerate token fixtures in the experiment repository first;
 never hand-edit token IDs in the website copy.
+
+The token study keeps the active diagram, context strip and controls in one
+card. The five stages visibly change the scene; selected token labels remain
+attached to their rows, while next-token prediction explicitly uses the last
+position. The longer approved explanation remains below. Run
+`node scripts/test-token-flow.mjs` for flow/provenance-boundary regressions.

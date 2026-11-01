@@ -1,15 +1,16 @@
+import {describeFlow,renderFlow} from './flow.mjs';
 import {createState,step,reset,decode,distributionFor,matricesFor,PHASES} from './mechanics.mjs';
 import {context2d,paintTokens,paintEmbedding,paintLayers} from './visuals.mjs';
 const $=id=>document.getElementById(id);
 const narrow=window.matchMedia('(max-width:540px)'),reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
 const names={tokens:'Tokenize the text',embedding:'Look up representations',layers:'Use the earlier context',distribution:'Score the next token',append:'Append and decode'};
-const contexts=Object.fromEntries(['tokens','embedding','layers','output'].map(name=>[name,context2d($(name+'-canvas'))]));
+const contexts={tokens:null,embedding:null,layers:null,output:null};
 let state=createState(),history=[],selected=1,timer=null,configValid=true;
 const piece=id=>decode([id]).replaceAll(' ','·');
 function pause(){if(timer!==null){clearInterval(timer);timer=null;}$('play').textContent='Play';$('play').setAttribute('aria-pressed','false');}
 function render(){
  const stage=PHASES.indexOf(state.phase);
- $('status').textContent=state.stopped?(state.stopReason==='outside-fixture'?'Stopped: choice outside this fixture. No token was invented.':'Stopped: two-token demo limit reached.'):`${stage+1} / 5 · ${names[state.phase]} · ${state.generated} tokens generated`;
+ $('status').textContent=state.stopped?(state.stopReason==='outside-fixture'?'Stopped: choice outside this fixture. No token was invented.':'Stopped: two-token demo limit reached.'):`${stage+1} / 5 · ${names[state.phase]} · ${state.generated} ${state.generated===1?'token':'tokens'} generated`;
  PHASES.forEach(name=>$('stage-'+name).classList.toggle('current-stage',name===state.phase));
  $('back').disabled=history.length===0;$('next').disabled=state.stopped||!configValid;$('play').disabled=state.stopped||reduced.matches||!configValid;
  $('motion-note').hidden=!reduced.matches;
@@ -32,6 +33,8 @@ function render(){
  if(contexts.layers)paintLayers(contexts.layers,input,contextual,narrow.matches);
  if(contexts.output)paintTokens(contexts.output,state.ids,-1,narrow.matches,state.generated);
  for(const [name,ctx] of Object.entries(contexts))$(name+'-canvas').hidden=!ctx;
+ renderFlow(describeFlow(state,selected,prediction),index=>{selected=index;render();$('flow-scene').querySelector('[data-piece-index="'+index+'"]')?.focus({preventScroll:true});});
+ $('next').textContent=state.phase==='append'&&!state.stopped?(state.generated<2?'Next cycle':'Finish'):'Next step';
  if(state.stopped)pause();
 }
 function advance(){if(state.stopped||!configValid)return;history.push(state);state=step(state);render();}
@@ -45,4 +48,5 @@ $('token-select').addEventListener('change',()=>{selected=Number($('token-select
 narrow.addEventListener('change',render);reduced.addEventListener('change',()=>{pause();render();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
 for(const id of ['reset','mode','seed','token-select'])$(id).disabled=false;
+$('flow-controls').append($('experiment-controls'));$('flow').hidden=false;document.body.classList.add('flow-ready');
 $('play').setAttribute('aria-pressed','false');render();

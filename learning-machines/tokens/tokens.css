@@ -16,3 +16,39 @@
 .token-distribution dd span {height:22px;width:var(--probability);background:#c67f5d;min-width:1px;}
 .token-distribution>div:nth-child(2) span {background:#9caa87;}.token-distribution>div:nth-child(3) span {background:#c2a66a;}.token-distribution>div:nth-child(4) span {background:#d5d1c6;}
 @media(max-width:540px){.token-controls{padding:14px;}.token-distribution>div{grid-template-columns:110px 1fr;gap:12px;font-size:12px;}.token-list li{min-width:65px;}.token-study h2{font-size:25px;}}
+/* Local UX revision: a single active scene and its controls share one card. */
+.token-study .flow {border:1px solid #d5d1c6;padding:24px;margin-bottom:56px;}
+.flow-top h2 {margin-top:8px;}.flow-top>p:last-child {font-size:15px;}
+.flow-context {border-block:1px solid #d5d1c6;padding:12px 0;margin:20px 0;}
+.flow-context p {font:18px var(--font-mono);margin:8px 0;overflow-wrap:anywhere;}
+.flow-scene {min-height:280px;padding:12px 0;}
+.flow #flow-change {font-size:14px;min-height:48px;color:var(--accent);}
+.flow .token-controls {border:0;border-top:1px solid #d5d1c6;padding:20px 0 0;margin:0;}
+.flow .token-controls #status {font-size:12px;}
+.flow-pieces {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;}
+.flow .flow-piece {display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0;padding:14px 5px;background:transparent;border:1px solid transparent;}
+.flow .flow-piece.selected {border-color:var(--accent);}
+.flow-piece strong {font:16px var(--font-mono);}.flow-piece small{font:11px var(--font-mono);}
+.flow-slab {display:block;width:80px;height:58px;max-width:100%;margin:4px 0 10px;image-rendering:pixelated;}
+.flow-matrix {width:100%;border-collapse:collapse;font:12px var(--font-mono);}
+.flow-matrix caption {text-align:left;font-size:12px;color:var(--muted);margin-bottom:14px;}
+.flow-matrix th,.flow-matrix td{padding:8px;border-bottom:1px solid #d5d1c6;}
+.flow-matrix th{width:135px;text-align:left;}.flow-matrix button{padding:8px;font-size:12px;white-space:nowrap;}
+.flow-matrix tr.selected{background:#e7eadc;}.flow-matrix .selected th{border-left:2px solid var(--accent);}
+.flow-vector {display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;font:12px var(--font-mono);}
+.flow-vector span {display:block;padding:10px 3px;background:#e4e9d8;text-align:center;}
+.flow-vector .changed {background:#ead7c7;}
+.flow-transform {display:grid;grid-template-columns:1fr 100px 1fr;align-items:center;gap:16px;}
+.flow-transform .flow-vector {grid-template-columns:repeat(3,minmax(0,1fr));}
+.flow-follow {font:13px var(--font-mono);color:var(--accent);}
+.flow-stack {display:flex;flex-direction:column-reverse;gap:10px;align-items:center;height:160px;justify-content:center;}
+.flow-stack span {display:block;width:58px;height:20px;background:#bac4a6;transform:skewY(-15deg);box-shadow:0 6px #66745f;}.flow-stack span:last-child{background:#db9672;box-shadow:0 6px #874d3a;}
+.flow-append{display:flex;align-items:center;justify-content:center;gap:25px;min-height:100px;font:24px var(--font-mono);}.flow-id{background:#e4e9d8;padding:20px;}.flow-decoded{background:#ead7c7;padding:20px;}.flow mark{background:#ead7c7;color:var(--ink);}
+.flow-ready #stage-tokens #prompt,.flow-ready #token-list,.flow-ready #token-select,.flow-ready label[for=token-select],.flow-ready #embedding-value,.flow-ready #prediction-context,.flow-ready #distribution,.flow-ready #chosen,.flow-ready #output,.flow-ready #stop-note{display:none;}
+.flow-ready section[id^=stage-]{margin-bottom:36px;}
+@media(max-width:540px){
+ .token-study .flow {padding:16px;margin-inline:-6px;}.flow-pieces{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}.flow-scene{min-height:310px;}
+ .flow-matrix th,.flow-matrix td{padding:6px 2px;}.flow-matrix th{width:90px;}.flow-matrix button{font-size:10px;padding:5px;}.flow-vector{gap:3px;font-size:10px;}.flow-vector span{padding:9px 1px;}
+ .flow-transform{grid-template-columns:1fr;gap:8px;}.flow-transform .flow-vector{grid-template-columns:repeat(6,minmax(0,1fr));}.flow-stack{height:100px;gap:6px;}.flow-stack span{height:12px;width:50px;}
+ .flow-append{font-size:18px;gap:14px;}.flow-id,.flow-decoded{padding:14px;}.flow .token-distribution>div{grid-template-columns:100px 1fr;}
+}
