@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/rsteth/learning-machines",
-  "commit": "8054bc1db2ef820e5e4bd7270a073ee988e3f1c9",
+  "commit": "32f31a531c75fbe40dc226c139293e630af4227e",
   "path": "experiments/attention-memory/mechanics.mjs",
   "sha256": "1bf483c77945e1be9b332a742efd908262171fdc49b76fa9865ad47460eaa69c"
 }
