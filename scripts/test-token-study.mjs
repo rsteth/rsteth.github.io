@@ -22,7 +22,7 @@ for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%
 assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));assert.ok(html.includes('/commit/'+pin.commit));
 assert.equal((html.match(/<figure class="worked-example"/g)||[]).length,4);
 assert.ok(!html.includes('<canvas'));
-for(const f of ['worked-embedding.svg','worked-layers.svg','worked-layers-narrow.svg','worked-output.svg','worked-output-narrow.svg'])assert.ok(read(f).includes('<svg'));
+for(const f of ['worked-output.svg','worked-output-narrow.svg'])assert.ok(read(f).includes('<svg'));
 for(const id of ['back','next','play','reset','mode','seed'])assert.match(html,new RegExp('disabled id="'+id+'"'));
 assert.match(html,/role="status" aria-live="polite"/);assert.match(page,/prefers-reduced-motion:reduce/);assert.match(page,/visibilitychange/);assert.match(page,/pagehide/);assert.match(css,/@media\(max-width:540px\)/);
 assert.equal(context2d({getContext(){throw Error('blocked')}}),null);

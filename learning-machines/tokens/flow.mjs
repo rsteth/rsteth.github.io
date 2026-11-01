@@ -1,14 +1,14 @@
-import {decode,matricesFor,distributionFor,PHASES} from './mechanics.mjs';
+import {decode,matricesFor,traceFor,distributionFor,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
+import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261101-tokenmath4';
 const TITLES={tokens:'Text becomes labeled pieces.',embedding:'Each piece gets a row of numbers.',layers:'The same row changes with context.',distribution:'The last row scores the next piece.',append:'One new piece joins the text.'};
-const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context; we are highlighting one row.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
+const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context. Follow the actual arithmetic of this hand-authored toy, not a trained model.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
 export function describeFlow(state,selected=1,previous=null){
  const selectedIndex=Math.max(0,Math.min(selected,state.ids.length-1)),matrices=matricesFor(state),last=state.ids.length-1;
  return {phase:state.phase,stage:PHASES.indexOf(state.phase)+1,title:TITLES[state.phase],purpose:PURPOSES[state.phase],context:state.text,
  pieces:state.ids.map((id,index)=>({id,index,text:decode([id]),label:decode([id]).replaceAll(' ','·'),input:matrices.input[index],contextual:matrices.contextual[index]})),
- selectedIndex,lastIndex:last,distribution:distributionFor(previous??state),selection:state.selection,generated:state.generated,stopped:state.stopped,stopReason:state.stopReason};
+ trace:traceFor(state,selectedIndex),selectedIndex,lastIndex:last,distribution:distributionFor(previous??state),selection:state.selection,generated:state.generated,stopped:state.stopped,stopReason:state.stopReason};
 }
 function node(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}
-function numbers(values,changed=false){const n=node('div','flow-vector');values.forEach(v=>{const cell=node('span',changed?'changed':'',v.toFixed(2));n.append(cell);});return n;}
 function pieceCard(piece,selected,onSelect){
  const b=node('button','flow-piece'+(selected?' selected':''));b.type='button';b.dataset.pieceIndex=piece.index;b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',piece.label+', token ID '+piece.id);
  const art=document.createElementNS('http://www.w3.org/2000/svg','svg');art.setAttribute('viewBox','0 0 80 58');art.setAttribute('class','flow-slab');art.setAttribute('aria-hidden','true');
@@ -24,16 +24,15 @@ export function renderFlow(view,onSelect){
   const grid=node('div','flow-pieces');view.pieces.forEach(p=>grid.append(pieceCard(p,p.index===view.selectedIndex,onSelect)));scene.append(grid,node('p','small','· marks a space. Every label stays attached to its piece.'));
   change=`Following ${followed.label} / ID ${followed.id}. Next: look up its numbers.`;
  }else if(view.phase==='embedding'){
-  const table=node('table','flow-matrix');const caption=node('caption','', 'Illustrative starting rows · select a piece to follow');table.append(caption);const tbody=node('tbody');
-  view.pieces.forEach(p=>{const tr=node('tr',p.index===view.selectedIndex?'selected':'');const th=node('th');th.scope='row';const b=node('button','',p.label+' / '+p.id);b.type='button';b.dataset.pieceIndex=p.index;b.setAttribute('aria-pressed',String(p.index===view.selectedIndex));b.addEventListener('click',()=>onSelect(p.index));th.append(b);const td=node('td');td.append(numbers(p.input));tr.append(th,td);tbody.append(tr);});table.append(tbody);scene.append(table);change=`${followed.label} / ID ${followed.id} now identifies the highlighted row. These numbers are illustrative.`;
+  scene.innerHTML=renderLookup(view,{selectedIndex:view.selectedIndex,interactive:true});
+  for(const button of scene.querySelectorAll('[data-piece-index]'))button.addEventListener('click',()=>onSelect(Number(button.dataset.pieceIndex)));
+  change=`${followed.label} / ID ${followed.id} selects one stored row. The ID is a label, not a number used to calculate these values.`;
  }else if(view.phase==='layers'){
-  const title=node('p','flow-follow',`Following ${followed.label} / ID ${followed.id}`),grid=node('div','flow-transform');
-  const before=node('div'),after=node('div');before.append(node('p','eyebrow','INPUT ROW'),numbers(followed.input));after.append(node('p','eyebrow','UPDATED ROW'),numbers(followed.contextual,true));
-  const stack=node('div','flow-stack');stack.setAttribute('aria-hidden','true');for(let i=0;i<4;i++)stack.append(node('span'));
-  grid.append(before,stack,after);scene.append(title,grid,node('p','small','Schematic layers. The toy changes values deterministically; it does not run a neural network.'));
-  change='Only the representation changed. The context strip above is still the same text.';
+  scene.innerHTML=renderTrace(view,{selectedIndex:view.selectedIndex,compact:true});
+  change='The same row positions remain. Numbers change; the text does not. These operations are a hand-authored teaching toy.';
  }else if(view.phase==='distribution'){
-  const last=view.pieces[view.lastIndex];scene.append(node('p','flow-follow',`LAST POSITION · ${last.label} / ID ${last.id}`),numbers(last.contextual,true));
+  const last=view.pieces[view.lastIndex];scene.append(node('p','flow-follow',`LAST POSITION · ${last.label} / ID ${last.id}`),node('p','small','In a real model this last row feeds vocabulary scores. The probabilities below are supplied separately; our toy does not calculate them.'));
+  const lastNumbers=node('div','explanation');lastNumbers.innerHTML=renderVector(last.contextual,{label:'Last position · updated numbers'});scene.append(lastNumbers);
   const dl=node('dl','token-distribution');view.distribution.forEach(item=>{const div=node('div'),dt=node('dt','',item.aggregate?'all other tokens':decode([item.id]).replaceAll(' ','·')),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');div.append(dt,dd);dl.append(div);});scene.append(dl);
   change=view.generated===1?'This second cycle scripts a period at 100%. It is not model output. Next step appends it.':'Next step chooses from these illustrative probabilities. Probability is not truth confidence.';
  }else{

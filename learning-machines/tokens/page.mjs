@@ -1,5 +1,5 @@
-import {describeFlow,renderFlow} from './flow.mjs';
-import {createState,step,reset,PHASES} from './mechanics.mjs';
+import {describeFlow,renderFlow} from './flow.mjs?v=20261101-tokenmath4';
+import {createState,step,reset,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
 const $=id=>document.getElementById(id);
 const narrow=window.matchMedia('(max-width:540px)'),reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
 const names={tokens:'Tokenize the text',embedding:'Look up representations',layers:'Use the earlier context',distribution:'Score the next token',append:'Append and decode'};
