@@ -44,7 +44,7 @@
 .flow-stack {display:flex;flex-direction:column-reverse;gap:10px;align-items:center;height:160px;justify-content:center;}
 .flow-stack span {display:block;width:58px;height:20px;background:#bac4a6;transform:skewY(-15deg);box-shadow:0 6px #66745f;}.flow-stack span:last-child{background:#db9672;box-shadow:0 6px #874d3a;}
 .flow-append{display:flex;align-items:center;justify-content:center;gap:25px;min-height:100px;font:24px var(--font-mono);}.flow-id{background:#e4e9d8;padding:20px;}.flow-decoded{background:#ead7c7;padding:20px;}.flow mark{background:#ead7c7;color:var(--ink);}
-.flow-ready #stage-tokens #prompt,.flow-ready #token-list,.flow-ready #token-select,.flow-ready label[for=token-select],.flow-ready #embedding-value,.flow-ready #prediction-context,.flow-ready #distribution,.flow-ready #chosen,.flow-ready #output,.flow-ready #stop-note{display:none;}
+.flow-ready .tokens-fallback{display:none;}
 .flow-ready section[id^=stage-]{margin-bottom:36px;}
 @media(max-width:540px){
  .token-study .flow {padding:16px;margin-inline:-6px;}.flow-pieces{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}.flow-scene{min-height:310px;}
@@ -52,3 +52,10 @@
  .flow-transform{grid-template-columns:1fr;gap:8px;}.flow-transform .flow-vector{grid-template-columns:repeat(6,minmax(0,1fr));}.flow-stack{height:100px;gap:6px;}.flow-stack span{height:12px;width:50px;}
  .flow-append{font-size:18px;gap:14px;}.flow-id,.flow-decoded{padding:14px;}.flow .token-distribution>div{grid-template-columns:100px 1fr;}
 }
+
+/* The long-form examples are always visible and independent of the stepper. */
+.flow-top #flow-heading{font:28px/1.25 var(--font-heading);margin:8px 0 20px;}
+.worked-example{margin:24px 0 32px;}
+.worked-example img{display:block;width:100%;height:auto;image-rendering:pixelated;}
+.worked-example figcaption{font:12px/1.7 var(--font-mono);color:var(--muted);margin-top:16px;}
+@media(max-width:540px){.flow-top #flow-heading{font-size:25px;}.worked-example picture img{height:auto;}}

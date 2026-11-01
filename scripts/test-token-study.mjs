@@ -20,8 +20,10 @@ for(const s of [
 for(const old of ['final input position','The next pass predicts','Position information helps distinguish','PIN_COMMIT'])assert.ok(!html.includes(old));
 for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%','15%','unhappiness','not a model run','not extracted from a model','Text. Token IDs. Representations. Next-token probabilities. Text again.','00 / tokens'])assert.ok(html.includes(text),text);
 assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));assert.ok(html.includes('/commit/'+pin.commit));
-assert.equal((html.match(/<canvas[^>]*aria-hidden="true" hidden/g)||[]).length,4);
-for(const id of ['back','next','play','reset','mode','seed','token-select'])assert.match(html,new RegExp('disabled id="'+id+'"'));
+assert.equal((html.match(/<figure class="worked-example"/g)||[]).length,4);
+assert.ok(!html.includes('<canvas'));
+for(const f of ['worked-embedding.svg','worked-layers.svg','worked-layers-narrow.svg','worked-output.svg','worked-output-narrow.svg'])assert.ok(read(f).includes('<svg'));
+for(const id of ['back','next','play','reset','mode','seed'])assert.match(html,new RegExp('disabled id="'+id+'"'));
 assert.match(html,/role="status" aria-live="polite"/);assert.match(page,/prefers-reduced-motion:reduce/);assert.match(page,/visibilitychange/);assert.match(page,/pagehide/);assert.match(css,/@media\(max-width:540px\)/);
 assert.equal(context2d({getContext(){throw Error('blocked')}}),null);
 let state=createState();for(let i=0;i<20&&!state.stopped;i++)state=step(state);assert.equal(state.text,'The cat sat on the mat.');assert.equal(state.stopReason,'demo-limit');assert.equal(decode([389]),' on');

@@ -68,3 +68,9 @@ card. The five stages visibly change the scene; selected token labels remain
 attached to their rows, while next-token prediction explicitly uses the last
 position. The longer approved explanation remains below. Run
 `node scripts/test-token-flow.mjs` for flow/provenance-boundary regressions.
+
+Section 00 owns the token interactive. Sections 01–04 retain fixed worked
+examples independently of the stepper. Their SVG artwork is generated from
+the pinned fixture through the existing renderer and remains visible without
+JavaScript or canvas. Rebuild with `node scripts/render-token-examples.mjs`;
+verify with `node scripts/render-token-examples.mjs --check`.
