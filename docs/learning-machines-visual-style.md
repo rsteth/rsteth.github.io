@@ -1,11 +1,27 @@
 # Learning Machines visual language
 
-Warm ivory (#f6f3eb), charcoal (#302e28), accessible muted text (#6b695f), sage GDN slabs, terracotta attention slabs, and ochre converted slabs. Preserve the site's Space Grotesk, Inter, and Space Mono typography. Keep labels and controls in HTML, never rasterize them.
+This is a house style, not a contract. The **commitments** are the few things the tests enforce because they keep the studies honest. Everything under **defaults** is how the pages look today; change it whenever a better picture explains the idea better.
 
-Illustrations use a small fixed-resolution canvas with nearest-neighbour CSS enlargement. Isometric faces use a 2:1 diamond, limited palette and stable pixel-grid dither. No random noise, continuous render loop or GPU dependency. Redraw only on relevant state changes. Homepage slab separation runs only for a fine hover pointer with no reduced-motion preference; touch and reduced-motion remain still.
+## Commitments (tested)
 
-The pinned mechanics module owns all educational values. Presentation must not fabricate model output or benchmarks. Growth heights use an explicitly labelled logarithmic scale with ticks and exact values below; the recurrent height stays fixed. Architecture inspection shows 16 of the real 64 layers at once, with explicit ranges, four pages, all-layer keyboard selection and text patterns (G/G/G/A or D/D/D/C). At narrow width the same 16 layers reflow into two rows. The toy's tiles come from the actual six events and two latest-value slots.
+- **The pinned mechanics own every educational value.** Token IDs, embeddings, weights, probabilities, sampler draws, growth units and layer kinds come from the vendored modules at the commit and SHA-256 in each `mechanics-pin.json`. Presentation may compute views of those values (a tile count, a seed's draw, where a tile is first filled) but must not invent model output, measurements or benchmarks.
+- **Caveats appear once.** Each study states its teaching caveats in one place; live re-renders never repeat them.
+- **Exact arithmetic and provenance stay byte-stable.** The token study's calculation tables, exact equations and Sources block are generated or verified; update them deliberately.
+- **It works without JavaScript.** Static explanations and fixed worked examples stay readable, controls start disabled, and anything interactive-only starts hidden.
+- **Accessible by default.** Native controls, labels in HTML (or SVG text), keyboard paths for every interaction, and reduced-motion respected. Canvas art is decorative (`aria-hidden`) with the same information available as text.
 
-Retain semantic HTML, the existing line chart and 64-layer grid as no-canvas fallback. With no JavaScript, leave controls disabled and the initial static explanation readable. Canvas is decorative to assistive technology; native controls, summaries and data lists remain available.
+## Defaults (change freely)
 
-Validation: `node scripts/test-learning-machines.mjs`, `node scripts/test-learning-visuals.mjs`, `node scripts/test-market-river.cjs`. Before a visual revision, test keyboard, touch, narrow width, reduced motion and canvas failure. Do not claim screenshots or browser/device checks that were not performed.
+**Palette and type.** Warm ivory (#f6f3eb), charcoal (#302e28), muted text (#6b695f). One colour per meaning: terracotta = full attention, sage = recurrent/GDN, ochre = hybrid/converted. Space Grotesk, Inter and Space Mono.
+
+**Texture.** Ordered (Bayer 4×4) dither for grain, in CSS masks and canvas art. It is deterministic, so pages render identically every time. Panels are plain paper with viewfinder corner brackets; no graph-paper grid behind diagrams.
+
+**Illustrations.** Small fixed-resolution canvases enlarged with nearest-neighbour scaling; isometric 2:1 slabs. Redraw on state changes; short transitions are fine when they explain a change, and are skipped under reduced motion.
+
+**Token study.** One scroll story with a sticky pipeline that doubles as a scrubber (back/next, arrow keys). Every section follows one selected piece. Vectors are dots (area = magnitude, filled = positive, ring = negative, tick = zero). Context weights are arcs. Tap a column to trace one component through every row. The next-token distribution is one 100% ribbon; the sampling playground shows where any seed's draw lands and what many draws add up to. The word picker shows real fixture splits.
+
+**Attention and memory.** Linear, countable growth tiles (one tile = the whole stack's state at 1,024 tokens), with a readout for any tile. All 64 layers in one strip with a zoom on the selected block of four. The record-versus-state toy ends on a recall question both representations answer.
+
+## Before shipping a visual change
+
+Run every `node scripts/test-*.mjs` and `node scripts/test-market-river.cjs`. Look at it at desktop and phone width, with the keyboard, with reduced motion and with JavaScript off. Do not claim browser or device checks that were not performed.

@@ -45,10 +45,11 @@ When updating mechanics, run the sync command; it also updates both experiment/c
 
 `/learning-machines/tokens/` uses a fixed, verified `cl100k_base` token fixture,
 not an arbitrary-input tokenizer or a live model. Embeddings and probabilities
-are explicitly illustrative. Greedy or seeded sampling chooses at most two
-new tokens; the grouped “all other tokens” result stops outside the fixture
-without inventing a token ID. Play pauses when the page is hidden and is
-unavailable with reduced motion; manual steps, Back and Reset remain available.
+are explicitly illustrative. The page is one scroll story: every section follows one
+selected piece, and section 03 chooses the next piece (greedy or seeded
+sampling, at most two new tokens); the grouped “all other tokens” result stops
+outside the fixture without inventing a token ID. Every step is reader-initiated;
+there is no autoplay.
 HTML explanations and the worked example remain readable without JavaScript
 or canvas. Attention and memory is study #2; its URL is unchanged.
 
