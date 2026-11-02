@@ -1,25 +1,27 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createState,step} from '../learning-machines/tokens/mechanics.mjs';
-import {describeFlow,STATUS} from '../learning-machines/tokens/flow.mjs';
-// One scroll story: a cycle's state drives every section; the followed piece survives a new cycle.
-const toAppend=s=>{let t=s;while(t.phase!=='append'&&!t.stopped)t=step(t);return t;};
-let cycle=createState();const first=describeFlow(cycle,3);
-assert.equal(first.pieces[first.selectedIndex].id,389);assert.equal(first.pieces[first.selectedIndex].label,'·on');
-assert.ok(first.pieces.every(p=>!p.generated));assert.deepEqual(first.distribution.map(p=>p.probability),[.45,.25,.15,.15]);
-const appended=toAppend(cycle),shown=describeFlow(appended,3);
-assert.equal(shown.context,'The cat sat on the mat');assert.equal(shown.selection.id,5634);assert.equal(shown.pieces.at(-1).generated,true);
-assert.notDeepEqual(first.pieces[3].input,first.pieces[3].contextual);
-cycle=step(appended);const second=describeFlow(cycle,3);
-assert.equal(second.phase,'tokens');assert.equal(second.pieces[second.selectedIndex].label,'·on');
-assert.deepEqual(second.distribution.map(p=>[p.id,p.probability]),[[13,1]]);
-const done=step(toAppend(cycle));assert.equal(done.text,'The cat sat on the mat.');assert.equal(done.stopReason,'demo-limit');assert.ok(STATUS[done.stopReason]);
-assert.ok(STATUS['outside-fixture'].includes('No token was invented'));
-const root=new URL('../learning-machines/tokens/',import.meta.url),read=f=>readFileSync(new URL(f,root),'utf8');
-const html=read('index.html'),page=read('page.mjs'),flow=read('flow.mjs');
-for(const id of ['tokens','embedding','layers','distribution','append'])assert.match(html,new RegExp('<a href="#stage-'+id+'">'));
-assert.match(html,/<nav class="pipeline" aria-label=/);assert.match(page,/aria-current/);assert.match(page,/IntersectionObserver/);
-assert.match(flow,/LAST POSITION/);assert.match(flow,/scripts a period at 100%/);assert.match(flow,/two-token demo limit/);assert.match(flow,/aria-pressed/);
-assert.match(page,/preventScroll:true/);assert.match(read('tokens.css'),/@media\(max-width:540px\)/);
-assert.match(flow,/chosen\.seed\/4294967296/,'Needle shows the pinned sampler draw, not an invented value');
-console.log('PASS: one shared cycle drives all sections, followed piece persists across cycles, appended pieces marked, supplied probabilities, bounded stop, pipeline nav and pinned sampler draw');
+import {createState,step,chooseToken,distributionFor,FIXTURE} from '../learning-machines/tokens/mechanics.mjs';
+import {describeFlow,STATUS,startPosition,forward,canForward,preview,drawMany,PLAYGROUND_DISTRIBUTION,WORDS} from '../learning-machines/tokens/flow.mjs';
+// The followed piece survives a new cycle; generated pieces are marked.
+let pos=startPosition();assert.equal(pos.phase,3);
+const first=describeFlow(pos.cycle,3);assert.equal(first.pieces[3].label,'·on');assert.ok(first.pieces.every(p=>!p.generated));
+// Scrubber: 03 → 04 chooses; 04 → 00 starts the next cycle; earlier stops never choose.
+assert.equal(forward({...pos,phase:0}).phase,1);assert.equal(forward({...pos,phase:2}).result,null);
+pos=forward(pos);assert.equal(pos.phase,4);assert.equal(pos.result.text,'The cat sat on the mat');assert.equal(describeFlow(pos.result,3).pieces.at(-1).generated,true);
+pos=forward(pos);assert.deepEqual([pos.phase,pos.cycle.generated,pos.result],[0,1,null]);
+assert.deepEqual(describeFlow(pos.cycle).distribution.map(p=>[p.id,p.probability]),[[13,1]]);
+for(let i=0;i<4;i++)pos=forward(pos);assert.equal(pos.result.text,'The cat sat on the mat.');
+pos=forward(pos);assert.equal(pos.result.stopReason,'demo-limit');assert.equal(canForward(pos),false);assert.equal(forward(pos),pos);assert.ok(STATUS[pos.result.stopReason]);
+// Playground: the needle is the pinned sampler's own draw; chained draws follow the seeds it returns.
+assert.deepEqual(PLAYGROUND_DISTRIBUTION,distributionFor(createState()));
+for(const seed of [0,1,600,4294967295]){const {pick,draw}=preview(seed),real=chooseToken(PLAYGROUND_DISTRIBUTION,{mode:'sample',seed});assert.deepEqual(pick,real);assert.equal(draw,real.seed/4294967296);}
+const many=drawMany(1,100);assert.equal(many.counts.reduce((a,b)=>a+b,0),100);
+let s=1;for(let i=0;i<100;i++)s=chooseToken(PLAYGROUND_DISTRIBUTION,{mode:'sample',seed:s}).seed;assert.equal(many.seed,s);
+// Word picker: real fixture splits only.
+for(const w of WORDS){const e=FIXTURE.examples.find(x=>x.text===w.text);assert.deepEqual(w.pieces.map(p=>p.id),e.ids);}
+assert.ok(WORDS.some(w=>w.text==='antidisestablishmentarianism'&&w.pieces.length===6));
+// Without JavaScript every new control is disabled or hidden.
+const html=readFileSync(new URL('../learning-machines/tokens/index.html',import.meta.url),'utf8');
+for(const id of ['phase-back','phase-next','pg-seed','pg-draw','pg-clear','pg-use'])assert.match(html,new RegExp('disabled id="'+id+'"'));
+for(const id of ['playground','word-picker'])assert.match(html,new RegExp('id="'+id+'"[^>]*hidden'));
+console.log('PASS: scrubber stops and cycles, followed piece, playground draws equal the pinned sampler, real fixture splits, inert without JS');

@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
+// Only the parts that carry provenance or exact arithmetic are byte-locked. Everything else is free to change.
 const html=readFileSync(new URL('../learning-machines/tokens/index.html',import.meta.url),'utf8');
 const sha=s=>createHash('sha256').update(s).digest('hex');
-const checks=[{"label": "Sources", "pattern": "<details><summary>Sources, assumptions &amp; limits</summary>[\\s\\S]*?</details>", "hash": "933b6167f00df5a575bca2acb2562c9c9ab54fc684bb02e71a776b4f0a142a71"}, {"label": "controls", "pattern": "<div class=\"token-controls visual-panel\" id=\"experiment-controls\"[\\s\\S]*?rather than inventing a token\\.</p></div>", "hash": "8a678c53ebcf6119e38bbf92c741c784b7ac9d330c682e5521e69550a76102d1"}, {"label": "section03", "pattern": "<section id=\"stage-distribution\"[\\s\\S]*?</section>", "hash": "5adbf1834c9fca5c0ee81c6b975255a3329cded1e3d8b865abe8cf023b7e6196"}, {"label": "tables", "pattern": "<table>[\\s\\S]*?</table>", "hash": "cef0ea2a525c9dad8a5bf8d4f96654779b8c74366cac31c756835bf83beafa1e"}, {"label": "equations", "pattern": "<p class=\"ex-exact\">[\\s\\S]*?</p>", "hash": "fd5abae8b60f0f1a7ea8093b5c1fc1fdd72dd1dfc7780756b7a6dc8544456546"}, {"label": "headings", "pattern": "<h[1-4][^>]*>[\\s\\S]*?</h[1-4]>", "hash": "17dbff525e0d0afea10f9eed611ae4d5b8c9dc86df6d34de948242dfcf7a7743"}];
-for(const c of checks)assert.equal(sha((html.match(new RegExp(c.pattern,'g'))||[]).join('\n')),c.hash,c.label+' must remain byte-identical');
-assert.ok(html.includes("The percentages below are this example's fixed recipe, not learned attention scores."));
-assert.ok(html.includes('Stored arithmetic is rounded to ten decimal places. All six components use the same stated recipe; this is a transparent teaching calculation, not trained attention or a model prediction.'));
-assert.ok(html.includes('This example generates at most two tokens, then stops at its demo limit.'));
-for(const gone of ['Six dimensions and all values are hand-authored','Numbers and dimensions shown here are illustrative','All six components use the same stated recipe. This is','This tiny calculation uses','These exact operations are a hand-authored','This is one tiny, hand-authored teaching block'])assert.ok(!html.includes(gone),gone);
-console.log('PASS: exact disclaimer edits and protected Sources, controls, section03, tables, equations and headings');
+const checks=[{"label": "Sources", "pattern": "<details><summary>Sources, assumptions &amp; limits</summary>[\\s\\S]*?</details>", "hash": "933b6167f00df5a575bca2acb2562c9c9ab54fc684bb02e71a776b4f0a142a71"}, {"label": "tables", "pattern": "<table>[\\s\\S]*?</table>", "hash": "cef0ea2a525c9dad8a5bf8d4f96654779b8c74366cac31c756835bf83beafa1e"}, {"label": "equations", "pattern": "<p class=\"ex-exact\">[\\s\\S]*?</p>", "hash": "fd5abae8b60f0f1a7ea8093b5c1fc1fdd72dd1dfc7780756b7a6dc8544456546"}];
+for(const c of checks)assert.equal(sha((html.match(new RegExp(c.pattern,'g'))||[]).join('\n')),c.hash,c.label+' changed: these are generated from the pinned math or record provenance. Regenerate or update deliberately.');
+// The two caveats that keep the toy honest must still be on the page (wording elsewhere is free).
+assert.ok(html.includes("fixed recipe, not learned attention scores"));
+assert.ok(html.includes('not trained attention or a model prediction'));
+console.log('PASS: Sources, exact tables and equations unchanged; core caveats present');

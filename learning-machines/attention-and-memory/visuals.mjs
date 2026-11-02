@@ -38,16 +38,18 @@ export function contains(point,polygon) {
  return inside;
 }
 function polygon(ctx,points,color) {ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
+const BAYER=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
 function slab(ctx,x,y,w,h,depth,palette) {
  const [top,left,right,highlight]=palette;
  const face=[[x,y-h],[x+w,y],[x,y+h],[x-w,y]];
  polygon(ctx,[face[3],face[2],[x,y+h+depth],[x-w,y+depth]],left);
  polygon(ctx,[face[2],face[1],[x+w,y+depth],[x,y+h+depth]],right);
  polygon(ctx,face,top);
- // Deterministic pixel-grid shading; no random shimmer or animation loop.
+ // Ordered (Bayer 4×4) dither, denser toward the back corner: deterministic grain, no random noise.
  ctx.fillStyle=highlight;
  for(let px=Math.ceil(x-w+2);px<x+w-1;px++)for(let py=Math.ceil(y-h+1);py<y+h;py++) {
-  if(Math.abs(px-x)/w+Math.abs(py-y)/h<.9&&((px%4===0&&py%4===0)||(px%4===2&&py%4===2)))ctx.fillRect(px,py,1,1);
+  const level=Math.round(6-4*(py-(y-h))/(2*h));
+  if(Math.abs(px-x)/w+Math.abs(py-y)/h<.9&&BAYER[py&3][px&3]<level)ctx.fillRect(px,py,1,1);
  }
  return [...face,[x,y+h+depth]];
 }
@@ -69,7 +71,18 @@ function tile(ctx,x,y,width,palette) {
  const [top,left,right,highlight]=palette;
  ctx.fillStyle=right;ctx.fillRect(x,y,width,TILE-1);
  ctx.fillStyle=top;ctx.fillRect(x,y,Math.max(1,width-1),TILE-2);
- ctx.fillStyle=highlight;if(width>3){ctx.fillRect(x+2,y+2,1,1);ctx.fillRect(x+4,y+4,1,1);}
+ ctx.fillStyle=highlight;for(let r=0;r<TILE-2;r++)for(let c=0;c<width-1;c++)if(BAYER[(y+r)&3][(x+c)&3]<5-r)ctx.fillRect(x+c,y+r,1,1);
+}
+/** Which growth tile sits under a canvas point: 1-based tile number, and whether it is filled yet. */
+export function tileAt(data,px,py) {
+ const floor=170,row=Math.floor((floor-py)/TILE);
+ for(const col of growthTiles(data)) {
+  const c=Math.floor((px-col.x)/TILE);
+  if(c<0||c>=TILE_COLUMNS||row<0||row>=TILE_COLUMNS||py>floor)continue;
+  const number=row*TILE_COLUMNS+c+1;
+  return {kind:col.kind,number,filled:number<=Math.ceil(col.value-1e-9),partial:number===Math.ceil(col.value-1e-9)&&col.fraction>0,value:col.value};
+ }
+ return null;
 }
 export function paintGrowth(ctx,data) {
  const width=466,height=188,floor=170;paper(ctx,width,height);

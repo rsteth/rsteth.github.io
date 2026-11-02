@@ -1,11 +1,32 @@
 import {growth, architecture, illustrate, EVENTS} from './mechanics.mjs';
-import {context2d,paintGrowth,paintLayers,paintToy,contains,layerStrip,groupOf} from './visuals.mjs';
+import {context2d,paintGrowth,paintLayers,paintToy,contains,layerStrip,groupOf,tileAt} from './visuals.mjs';
+const reducedMotion=window.matchMedia('(prefers-reduced-motion:reduce)');
 const $ = id => document.getElementById(id);
 const growthContext=context2d($('growth-canvas')),layerContext=context2d($('layer-canvas')),toyContext=context2d($('toy-canvas'));
 let selectedLayer=3,layerHits=[];
 const narrow=window.matchMedia('(max-width:540px)');
 const names={attention:'Full attention',gdn:'Original GDN',converted:'Converted to GDN',adapted:'Original GDN, later adapted'};
 const format = n => n.toLocaleString('en-US', {maximumFractionDigits:2});
+// Tiles ease to the new count (instant with reduced motion). Redraws only during the transition.
+let shown=null,frame=null,target=null;
+function animateGrowth(data){
+ target=data;if(frame)cancelAnimationFrame(frame);
+ if(!shown||reducedMotion.matches){shown=data;paintGrowth(growthContext,data);return;}
+ const from=shown,start=performance.now(),mix=t=>Object.fromEntries(['full','hybrid','recurrent'].map(k=>[k,from[k]+(data[k]-from[k])*t]));
+ const tick=now=>{const t=Math.min(1,(now-start)/320),e=1-(1-t)**3;shown=mix(e);paintGrowth(growthContext,shown);frame=t<1?requestAnimationFrame(tick):null;};
+ frame=requestAnimationFrame(tick);
+}
+// What a tile stands for. "Reaches tile k at" searches the pinned growth() rather than inverting it.
+const KIND={full:'Full attention',hybrid:'Qwen hybrid',recurrent:'All recurrent'};
+function reaches(kind,k){for(let n=1024;n<=262144;n+=1024)if(growth(n)[kind]/64>=k-1e-9)return n;return null;}
+function readTile(event){
+ if(!target)return;const canvas=$('growth-canvas'),rect=canvas.getBoundingClientRect();
+ const hit=tileAt(target,(event.clientX-rect.left)/rect.width*canvas.width,(event.clientY-rect.top)/rect.height*canvas.height);
+ if(!hit){$('tile-readout').textContent='';return;}
+ const at=reaches(hit.kind,hit.number);
+ $('tile-readout').textContent=hit.filled?KIND[hit.kind]+' · tile '+hit.number+(hit.partial?' (partly filled)':'')+' — one more copy of the whole stack’s state at 1,024 tokens. Now '+format(hit.value)+' tiles.'
+  :at?KIND[hit.kind]+' fills tile '+hit.number+' at '+format(at)+' tokens.':KIND[hit.kind]+(hit.kind==='recurrent'?' never needs tile '+hit.number+': its state stays one tile at any length.':' does not reach tile '+hit.number+' within 262,144 tokens.');
+}
 function updateGrowth() {
  const tokens=Number($('context').value), data=growth(tokens);
  $('tokens').value=format(tokens)+' tokens';
@@ -18,7 +39,7 @@ function updateGrowth() {
   $(name+'-dot').setAttribute('cx',x);$(name+'-dot').setAttribute('cy',y(data[name]));
  }
  $('cursor').setAttribute('x1',x);$('cursor').setAttribute('x2',x);
- if(growthContext){paintGrowth(growthContext,data);if($('growth-art').hidden)$('linear-growth').open=false;$('growth-art').hidden=false;}
+ if(growthContext){animateGrowth(data);if($('growth-art').hidden)$('linear-growth').open=false;$('growth-art').hidden=false;}
 }
 function updateLayers() {
  const converted=document.querySelector('[name=architecture]:checked').value==='converted';
@@ -67,6 +88,7 @@ $('layer-canvas').addEventListener('click',event=>{
  if(hit){selectedLayer=hit.index;updateLayers();}
 });
 $('context').addEventListener('input',updateGrowth);
+$('growth-canvas').addEventListener('pointermove',readTile);$('growth-canvas').addEventListener('pointerdown',readTile);$('growth-canvas').addEventListener('pointerleave',()=>{$('tile-readout').textContent='';});
 document.querySelectorAll('[name=architecture]').forEach(input=>input.addEventListener('change',updateLayers));
 $('next').addEventListener('click',()=>{step=Math.min(EVENTS.length,step+1);updateToy();});
 $('previous').addEventListener('click',()=>{step=Math.max(0,step-1);updateToy();});

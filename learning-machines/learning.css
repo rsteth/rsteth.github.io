@@ -129,3 +129,24 @@
  .recall-answers {grid-template-columns:1fr;}
  .growth-labels {font-size:9px;}.growth-labels span::before {width:6px;height:6px;margin-right:4px;}
 }
+
+/* Ordered dither (Bayer 4×4): deterministic grain. A colour is masked through a fixed threshold
+   pattern, so it renders identically on every load and at every zoom. */
+.learning-study {
+ --bayer-2:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 8 8%27 shape-rendering=%27crispEdges%27%3E%3Crect x=%270%27 y=%270%27 width=%271%27 height=%271%27/%3E%3Crect x=%274%27 y=%274%27 width=%271%27 height=%271%27/%3E%3C/svg%3E");
+ --bayer-4:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 8 8%27 shape-rendering=%27crispEdges%27%3E%3Crect x=%270%27 y=%270%27 width=%271%27 height=%271%27/%3E%3Crect x=%274%27 y=%270%27 width=%271%27 height=%271%27/%3E%3Crect x=%270%27 y=%274%27 width=%271%27 height=%271%27/%3E%3Crect x=%274%27 y=%274%27 width=%271%27 height=%271%27/%3E%3C/svg%3E");
+ --bayer-8:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 8 8%27 shape-rendering=%27crispEdges%27%3E%3Crect x=%270%27 y=%270%27 width=%271%27 height=%271%27/%3E%3Crect x=%274%27 y=%270%27 width=%271%27 height=%271%27/%3E%3Crect x=%272%27 y=%272%27 width=%271%27 height=%271%27/%3E%3Crect x=%276%27 y=%272%27 width=%271%27 height=%271%27/%3E%3Crect x=%270%27 y=%274%27 width=%271%27 height=%271%27/%3E%3Crect x=%274%27 y=%274%27 width=%271%27 height=%271%27/%3E%3Crect x=%272%27 y=%276%27 width=%271%27 height=%271%27/%3E%3Crect x=%276%27 y=%276%27 width=%271%27 height=%271%27/%3E%3C/svg%3E");
+}
+.learning-study .visual-panel,.learning-study .pipeline,.piece-row .flow-piece,.ribbon-seg,.recall-card,.loop-panel {isolation:isolate;}
+.learning-study .visual-panel::after,.piece-row .flow-piece::after,.ribbon-seg::after,.recall-card::after,.loop-panel::after,.pg-dots::after {
+ content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:var(--dither-color,#302e28);opacity:var(--dither-opacity,.07);
+ -webkit-mask:var(--dither,var(--bayer-2)) 0 0/8px 8px repeat;mask:var(--dither,var(--bayer-2)) 0 0/8px 8px repeat;}
+.recall-card,.loop-panel {position:relative;}
+@media(prefers-contrast:more){.learning-study .visual-panel::after,.piece-row .flow-piece::after,.recall-card::after,.loop-panel::after{display:none;}}
+/* Attention: tile readout under the growth canvas. */
+.tile-readout {font:12px var(--font-mono);color:var(--ink);min-height:1.7em;margin:10px 0 0;}
+.tile-readout:empty::before {content:'Hover a tile to see what it stands for.';color:var(--muted);}
+#growth-canvas {cursor:crosshair;}
+/* No graph paper: panels keep the viewfinder corners and the faint dither only. */
+.learning-study .visual-panel {background-size:var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),0 0,0 0;}
+.learning-study .visual-panel canvas {outline:0;}

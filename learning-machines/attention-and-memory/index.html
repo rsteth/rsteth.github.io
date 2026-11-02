@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Attention and memory — Learning Machines · Robin Stethem</title><meta name="description" content="Explore how attention caches grow and recurrent state stays bounded, through a small teaching illustration.">
 <link rel="canonical" href="https://stethem.com/learning-machines/attention-and-memory/">
-<link rel="icon" href="../../favicon.png"><link rel="stylesheet" href="../../styles.css?v=20261101-viewfinder1"><link rel="stylesheet" href="../learning.css?v=20261101-viewfinder1">
+<link rel="icon" href="../../favicon.png"><link rel="stylesheet" href="../../styles.css?v=20261101-viewfinder1"><link rel="stylesheet" href="../learning.css?v=20261102-dither1">
 </head><body class="learning-study"><main class="container learning-page">
 <a class="back" href="../">← learning machines</a>
 <header><p class="eyebrow">02 / attention and memory</p><h1>How much does a model need to keep?</h1><p>Some layers keep a growing record of earlier tokens. Others fold each new token into a compact state.</p></header>
@@ -12,7 +12,7 @@
 <p>During cached decoding, full-attention layers retain keys and values for earlier tokens. Recurrent layers update a bounded state.</p>
 <label for="context">Context length <output id="tokens" for="context">16,384 tokens</output></label><input disabled id="context" type="range" min="1024" max="262144" step="1024" value="16384" aria-describedby="growth-note">
 <div class="range-ends small"><span>1,024 tokens</span><span>262,144 tokens</span></div>
-<div id="growth-art" class="visual-panel" hidden><div class="growth-scene"><canvas id="growth-canvas" width="466" height="188" aria-hidden="true"></canvas><div class="growth-labels" aria-hidden="true"><span>Full attention</span><span>Qwen hybrid</span><span>All recurrent</span></div></div><p class="visual-note">One tile = the whole stack’s state at 1,024 tokens. Count the tiles; the dots show room for 256. Abstract state units, not measured GPU memory.</p></div>
+<div id="growth-art" class="visual-panel" hidden><div class="growth-scene"><canvas id="growth-canvas" width="466" height="188" aria-hidden="true"></canvas><div class="growth-labels" aria-hidden="true"><span>Full attention</span><span>Qwen hybrid</span><span>All recurrent</span></div></div><p id="tile-readout" class="tile-readout" aria-live="polite"></p><p class="visual-note">One tile = the whole stack’s state at 1,024 tokens. Count the tiles; the dots show room for 256. Abstract state units, not measured GPU memory.</p></div>
 <details id="linear-growth" open><summary>Linear-scale growth chart</summary><svg class="growth-chart" viewBox="0 0 600 200" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Illustrative context-state growth</title><desc id="chart-desc">Full attention grows fastest; hybrid grows with a smaller slope; recurrent state remains flat. Abstract units, not measured memory.</desc><path class="axis" d="M30 10V170H580"/><path class="full-line" d="M30 169.375L580 10"/><path class="hybrid-line" d="M30 169.375L580 129.53"/><path class="recurrent-line" d="M30 169.375H580"/><circle id="full-dot" r="4" fill="#9c4635"/><circle id="hybrid-dot" r="4" fill="#24211f"/><circle id="recurrent-dot" r="4" fill="#6b625d"/><line id="cursor" x1="63" x2="63" y1="10" y2="170"/><text x="30" y="193">1K</text><text x="540" y="193">262K</text><text x="38" y="22">illustrative units ↑</text></svg></details>
 <dl class="readings" aria-live="polite" aria-atomic="true"><div><dt><i class="key full"></i>Full attention</dt><dd id="full-value">16× baseline</dd></div><div><dt><i class="key hybrid"></i>Qwen hybrid</dt><dd id="hybrid-value">4.75× baseline</dd></div><div><dt><i class="key recurrent"></i>All recurrent</dt><dd id="recurrent-value">1× baseline</dd></div></dl>
 <p class="small" id="growth-note">Growth illustration, not GPU memory. Each layer starts at one abstract unit at 1,024 tokens. Attention units grow with context; recurrent units stay fixed. Actual layer sizes differ.</p>
@@ -43,4 +43,4 @@
 <p>The source is public. The browser uses the pinned copy served with this page; the experiment also runs independently of this site. Original experiment code is MIT licensed; the source repository preserves the upstream snapshots under Apache-2.0 with attribution.</p>
 </div></details>
 <footer><a href="../">← back to the experiments</a></footer>
-</main><script type="module" src="./page.mjs?v=20261101-viewfinder1"></script></body></html>
+</main><script type="module" src="./page.mjs?v=20261102-dither1"></script></body></html>

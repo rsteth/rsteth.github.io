@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {growth,architecture,illustrate} from '../learning-machines/attention-and-memory/mechanics.mjs';
-import {growthTiles,layerStrip,groupOf,toyTiles,contains,context2d,paintGrowth,paintLayers,paintToy} from '../learning-machines/attention-and-memory/visuals.mjs';
+import {growthTiles,layerStrip,groupOf,tileAt,toyTiles,contains,context2d,paintGrowth,paintLayers,paintToy} from '../learning-machines/attention-and-memory/visuals.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 for(const n of [1024,16384,262144]) {
  const cols=growthTiles(growth(n));assert.deepEqual(cols.map(x=>x.value),[n/1024,n/4096+.75,1]);
@@ -9,7 +9,10 @@ for(const n of [1024,16384,262144]) {
  cols.forEach(c=>{assert.ok(Math.abs(c.whole+c.fraction-c.value)<1e-9);assert.ok(c.whole+(c.fraction>0)<=256);});
  assert.equal(cols[2].whole,1);assert.equal(cols[2].fraction,0);
 }
-assert.equal(growthTiles(growth(262144))[0].whole,256);assert.ok(growthTiles(growth(262144))[0].whole>growthTiles(growth(16384))[0].whole);
+assert.equal(growthTiles(growth(262144))[0].whole,256);
+{const d=growth(40960),at=(col,k)=>[12+col*155+((k-1)%16)*9+4,170-(Math.floor((k-1)/16)+1)*9+4];
+ assert.deepEqual(tileAt(d,...at(0,6)),{kind:'full',number:6,filled:true,partial:false,value:40});
+ assert.equal(tileAt(d,...at(1,11)).partial,true);assert.equal(tileAt(d,...at(1,12)).filled,false);assert.equal(tileAt(d,...at(2,2)).filled,false);assert.equal(tileAt(d,5,5),null);}assert.ok(growthTiles(growth(262144))[0].whole>growthTiles(growth(16384))[0].whole);
 for(const mode of [false,true]) {
  const all=architecture(mode);
  for(const compact of [false,true]){const strip=layerStrip(all,compact);assert.equal(strip.length,64);assert.equal(new Set(strip.map(b=>b.x+','+b.row)).size,64);assert.ok(strip.every(b=>b.x>0&&b.x+b.w<(compact?246:466)));}

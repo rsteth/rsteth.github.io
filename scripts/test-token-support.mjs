@@ -16,7 +16,7 @@ for(const name of ['embedding','layers','distribution','output']){
 }
 // Live versions exist and only show once the page is interactive.
 for(const id of ['live-embedding','live-layers','live-output'])assert.ok(html.includes('id="'+id+'"'));
-assert.match(css,/\.live-example \{display:none;\}/);assert.match(css,/\.flow-ready #worked-embedding,\.flow-ready #worked-layers \{display:none;\}/);
+assert.match(css,/\.live-example\s*\{[^}]*display:\s*none/);assert.match(page,/classList\.add\('flow-ready'\)/);
 assert.ok(html.includes('·cat / 8415 → [-0.9, -0.2, 0.5, -0.7, 0.0, 0.7]'));assert.ok(html.includes('The cat sat on the mat'));
 assert.ok(!html.includes('src="worked-layers.svg"'));assert.ok(html.includes('worked-output-narrow.svg'));assert.ok(!html.includes('<canvas'));
 console.log('PASS: section 00 shows real splits; one control set beside the distribution; four fixed worked examples remain visible without JS and are never mutated; live examples appear only when interactive');

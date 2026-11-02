@@ -140,3 +140,57 @@
 .token-study mark {background:#ecc9b2;color:var(--ink);padding:0 2px;}
 /* Text panels keep the viewfinder corners but drop the drawing grid. */
 .piece-panel.visual-panel,.token-controls.visual-panel {background-size:14px 1px,1px 14px,14px 1px,1px 14px,14px 1px,1px 14px,14px 1px,1px 14px,0 0,0 0;}
+
+/* v3 · interaction. Scrubber on the pipeline: done / current / ahead. */
+.pipeline {gap:10px;}
+.pipeline .scrub {min-height:32px;min-width:32px;padding:0 8px;font:16px var(--font-mono);line-height:1;}
+.pipeline li[data-state=done] a {color:var(--ink);}
+.pipeline li[data-state=done] a span {color:var(--recurrent,#9caa87);}
+.pipeline li[data-state=current] a {color:var(--ink);background:linear-gradient(var(--accent),var(--accent)) 0 100%/100% 2px no-repeat;}
+.pipeline li[data-state=current] a span {color:var(--accent);}
+.phase-label {font:11px var(--font-mono);color:var(--accent);white-space:nowrap;}
+.phase-label:empty {display:none;}
+.flow-ready section.ahead {opacity:.5;transition:opacity .25s;}
+.flow-ready section.ahead:hover,.flow-ready section.ahead:focus-within {opacity:1;}
+.ribbon.pending .ribbon-seg {background:transparent;box-shadow:inset 0 0 0 1px #c9c4b6;}
+.ribbon.pending .ribbon-seg::after {opacity:.15;}
+/* Ribbon and tiles: dithered fills replace the dot pattern. */
+.ribbon-seg {position:relative;background:var(--bg);--dither:var(--bayer-8);--dither-color:var(--c);--dither-opacity:1;}
+.piece-row .flow-piece {position:relative;--dither:var(--bayer-2);--dither-opacity:.09;}
+.piece-row .flow-piece.selected,.piece-row .appended .flow-piece {--dither:var(--bayer-4);--dither-color:var(--accent);--dither-opacity:.18;}
+/* Component tracing. */
+.flow-ready .live-example .ex-cell {cursor:pointer;border-radius:2px;}
+.flow-ready .live-example .ex-cell:focus-visible {outline:2px solid var(--accent);outline-offset:1px;}
+.tracing .live-example .ex-cell {opacity:.3;transition:opacity .15s;}
+.tracing .live-example .ex-cell.traced {opacity:1;box-shadow:inset 0 0 0 2px var(--accent);background:#f1e4d6!important;}
+.ex-component:has(.traced) .ex-index {color:var(--accent);font-weight:700;}
+.live-only {display:none;}
+.flow-ready .live-only {display:block;}
+.trace-status {font-family:var(--font-mono);color:var(--accent);}
+/* Word picker. */
+.word-picker {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:28px 0 0;}
+.word-picker[hidden] {display:none;}
+.word-picker button {font:12px var(--font-mono);min-height:36px;padding:6px 12px;}
+.word-picker button[aria-pressed=true] {background:var(--ink);color:#f6f3eb;border-color:var(--ink);}
+.word-picker+.split-example {border-top:0;margin-top:8px;}
+.compact-row {max-width:none!important;grid-template-columns:repeat(auto-fit,minmax(84px,120px))!important;justify-content:center;}
+/* Sampling playground. */
+.playground[hidden] {display:none;}
+.token-study .playground.visual-panel {padding:24px;margin:28px 0;}
+.pg-seed {display:flex;align-items:center;gap:14px;font:12px var(--font-mono);}
+.pg-seed output {min-width:3.5em;}
+.pg-seed input {flex:1;accent-color:var(--accent);}
+.pg-ribbon {margin:18px 0 30px;}
+.pg-pick {font:13px var(--font-mono);margin:6px 0 16px;}
+.pg-total {font:12px var(--font-mono);color:var(--muted);align-self:center;margin-left:auto;}
+.pg-hist {font:12px var(--font-mono);margin:18px 0 8px;}
+.pg-hist>div {display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center;margin:8px 0;}
+.pg-hist dd {display:flex;align-items:center;gap:10px;margin:0;min-width:0;}
+.pg-dots {position:relative;display:block;height:14px;width:min(100%,calc(var(--n) * 3px));flex-shrink:1;--dither:var(--bayer-8);--dither-color:var(--c);--dither-opacity:1;background:var(--bg);}
+.pg-hist small {color:var(--muted);white-space:nowrap;}
+@media(max-width:540px){
+ .pipeline .scrub {min-width:28px;padding:0 4px;}.phase-label{display:none;}
+ .pg-hist>div {grid-template-columns:90px 1fr;gap:8px;}.pg-total{margin-left:0;width:100%;}
+}
+.pg-ribbon .ribbon-needle {animation:none;}
+@media(max-width:540px){.pipeline ol{flex:1;min-width:0;flex-wrap:nowrap;justify-content:space-between;gap:0;}.pipeline li+li::before{display:none;}.pipeline a{padding:6px 3px;}}
