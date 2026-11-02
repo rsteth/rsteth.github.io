@@ -1,43 +1,48 @@
 import {decode,matricesFor,traceFor,distributionFor,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
-import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261102-tokencopy6';
-const TITLES={tokens:'Text becomes labeled pieces.',embedding:'Each piece gets a row of numbers.',layers:'The same row changes with context.',distribution:'The last row scores the next piece.',append:'One new piece joins the text.'};
-const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context. Follow the arithmetic from the starting row to the updated row.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
+// Presentation for the single scroll story: every section reads one shared state and one followed piece.
+// No values are produced here; pieces, rows, weights, probabilities and choices all come from the pinned mechanics.
 export function describeFlow(state,selected=1,previous=null){
  const selectedIndex=Math.max(0,Math.min(selected,state.ids.length-1)),matrices=matricesFor(state),last=state.ids.length-1;
- return {phase:state.phase,stage:PHASES.indexOf(state.phase)+1,title:TITLES[state.phase],purpose:PURPOSES[state.phase],context:state.text,
- pieces:state.ids.map((id,index)=>({id,index,text:decode([id]),label:decode([id]).replaceAll(' ','·'),input:matrices.input[index],contextual:matrices.contextual[index]})),
- trace:traceFor(state,selectedIndex),selectedIndex,lastIndex:last,distribution:distributionFor(previous??state),selection:state.selection,generated:state.generated,stopped:state.stopped,stopReason:state.stopReason};
+ return {phase:state.phase,stage:PHASES.indexOf(state.phase)+1,context:state.text,
+ pieces:state.ids.map((id,index)=>({id,index,text:decode([id]),label:decode([id]).replaceAll(' ','·'),input:matrices.input[index],contextual:matrices.contextual[index],generated:index>=state.ids.length-state.generated})),
+ trace:traceFor(state,selectedIndex),selectedIndex,lastIndex:last,distribution:distributionFor(previous??state),selection:state.selection,generated:state.generated,stopped:state.stopped,stopReason:state.stopReason,mode:state.mode};
 }
 function node(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}
-function pieceCard(piece,selected,onSelect){
- const b=node('button','flow-piece'+(selected?' selected':''));b.type='button';b.dataset.pieceIndex=piece.index;b.setAttribute('aria-pressed',String(selected));b.setAttribute('aria-label',piece.label+', token ID '+piece.id);
+const SLAB={sage:['#7f8b6e','#66745f','#c0c7ac','#dde1c9'],terra:['#b16c4f','#874d3a','#db9672','#f1c19a']};
+function slabArt(kind){
  const art=document.createElementNS('http://www.w3.org/2000/svg','svg');art.setAttribute('viewBox','0 0 80 58');art.setAttribute('class','flow-slab');art.setAttribute('aria-hidden','true');
- for(const [points,fill] of [['4,22 40,40 40,50 4,32','#7f8b6e'],['40,40 76,22 76,32 40,50','#66745f'],['4,22 40,4 76,22 40,40','#c0c7ac']]){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',points);p.setAttribute('fill',fill);art.append(p);}
- for(let x=12;x<70;x+=6)for(let y=10;y<36;y+=6)if(Math.abs(x-40)/32+Math.abs(y-22)/16<.9){const dot=document.createElementNS('http://www.w3.org/2000/svg','rect');dot.setAttribute('x',x);dot.setAttribute('y',y);dot.setAttribute('width','2');dot.setAttribute('height','2');dot.setAttribute('fill','#dde1c9');art.append(dot);}
- b.append(art,node('strong','',piece.label),node('small','','ID '+piece.id));b.addEventListener('click',()=>onSelect(piece.index));return b;
+ const [left,right,top,dot]=SLAB[kind];
+ for(const [points,fill] of [['4,22 40,40 40,50 4,32',left],['40,40 76,22 76,32 40,50',right],['4,22 40,4 76,22 40,40',top]]){const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',points);p.setAttribute('fill',fill);art.append(p);}
+ for(let x=12;x<70;x+=6)for(let y=10;y<36;y+=6)if(Math.abs(x-40)/32+Math.abs(y-22)/16<.9){const d=document.createElementNS('http://www.w3.org/2000/svg','rect');d.setAttribute('x',x);d.setAttribute('y',y);d.setAttribute('width','2');d.setAttribute('height','2');d.setAttribute('fill',dot);art.append(d);}
+ return art;
 }
-export function renderFlow(view,onSelect){
- const $=id=>document.getElementById(id),scene=$('flow-scene');scene.replaceChildren();
- $('flow-step').textContent=`${view.stage} / 5 · ${view.phase}`;$('flow-heading').textContent=view.title;$('flow-purpose').textContent=view.purpose;$('flow-context-text').textContent=view.context;
- let change='';const followed=view.pieces[view.selectedIndex];
- if(view.phase==='tokens'){
-  const grid=node('div','flow-pieces');view.pieces.forEach(p=>grid.append(pieceCard(p,p.index===view.selectedIndex,onSelect)));scene.append(grid,node('p','small','· marks a space. Every label stays attached to its piece.'));
-  change=`Following ${followed.label} / ID ${followed.id}. Next: look up its numbers.`;
- }else if(view.phase==='embedding'){
-  scene.innerHTML=renderLookup(view,{selectedIndex:view.selectedIndex,interactive:true});
-  for(const button of scene.querySelectorAll('[data-piece-index]'))button.addEventListener('click',()=>onSelect(Number(button.dataset.pieceIndex)));
-  change=`${followed.label} / ID ${followed.id} selects one stored row. The ID is a label, not a number used to calculate these values.`;
- }else if(view.phase==='layers'){
-  scene.innerHTML=renderTrace(view,{selectedIndex:view.selectedIndex,compact:true,includeCaveats:false});
-  change='The same row positions remain. Numbers change; the text does not.';
- }else if(view.phase==='distribution'){
-  const last=view.pieces[view.lastIndex];scene.append(node('p','flow-follow',`LAST POSITION · ${last.label} / ID ${last.id}`),node('p','small','In a real model this last row feeds vocabulary scores. The probabilities below are supplied separately; they are not calculated from this row.'));
-  const lastNumbers=node('div','explanation');lastNumbers.innerHTML=renderVector(last.contextual,{label:'Last position · updated numbers'});scene.append(lastNumbers);
-  const dl=node('dl','token-distribution');view.distribution.forEach(item=>{const div=node('div'),dt=node('dt','',item.aggregate?'all other tokens':decode([item.id]).replaceAll(' ','·')),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');div.append(dt,dd);dl.append(div);});scene.append(dl);
-  change=view.generated===1?'This second cycle scripts a period at 100%. It is not model output. Next step appends it.':'Next step chooses from these illustrative probabilities. Probability is not truth confidence.';
- }else{
-  if(view.selection?.aggregate){scene.append(node('p','text-box','All other tokens'),node('p','','This group has no single token ID. The small fixture stops here without inventing text.'));change='Nothing was appended. Reset to try another rule or seed.';}
-  else if(view.selection){const p=view.pieces.at(-1),strip=node('div','flow-append');strip.append(node('span','flow-id','ID '+p.id),node('span','flow-arrow','→'),node('span','flow-decoded',p.label));scene.append(strip);const out=node('p','text-box');out.append(view.pieces.slice(0,-1).map(p=>p.text).join(''));out.append(node('mark','',p.text));scene.append(node('p','eyebrow','DECODED TEXT'),out);change=view.stopped?'Stopped at the two-token demo limit. No model was run.':view.generated===1?'New piece added. Next cycle uses this longer text and scripts a period at 100%.':'Period added. Next step stops at this example’s two-token limit.';}
- }
- $('flow-change').textContent=change;
+/** Piece tiles. With onSelect they are toggle buttons (aria-pressed); without, a plain list. */
+export function renderPieces(view,onSelect=null,{highlight=-1}={}){
+ return view.pieces.map(piece=>{
+  const li=node('li','piece'+(piece.generated?' generated':'')+(piece.index===highlight?' appended':''));
+  const body=onSelect?node('button','flow-piece'+(piece.index===view.selectedIndex?' selected':'')):node('span','flow-piece');
+  if(onSelect){body.type='button';body.dataset.pieceIndex=piece.index;body.setAttribute('aria-pressed',String(piece.index===view.selectedIndex));body.setAttribute('aria-label',piece.label+', token ID '+piece.id);body.addEventListener('click',()=>onSelect(piece.index));}
+  body.append(slabArt(piece.generated?'terra':'sage'),node('strong','',piece.label),node('small','','ID '+piece.id));li.append(body);return li;
+ });
 }
+const LABEL=item=>item.aggregate?'all other tokens':decode([item.id]).replaceAll(' ','·');
+/** Probability ribbon (one 0–100% strip) plus accessible rows. In sampling mode the needle marks the seeded draw. */
+export function renderDistribution(view,result){
+ const $=id=>document.getElementById(id),chosen=result?.selection,draw=chosen&&result.mode==='sample'?chosen.seed/4294967296:null;
+ const same=item=>chosen&&(item.aggregate?chosen.aggregate:item.id===chosen.id);
+ const ribbon=$('ribbon');ribbon.replaceChildren(...view.distribution.map((item,i)=>{const seg=node('span','ribbon-seg seg-'+i+(same(item)?' chosen':''));seg.style.flexBasis=item.probability*100+'%';if(item.probability>=.12)seg.append(node('b','',LABEL(item)),node('small','',Math.round(item.probability*100)+'%'));return seg;}));
+ if(draw!==null){const needle=node('span','ribbon-needle');needle.style.left=draw*100+'%';needle.append(node('small','','draw '+draw.toFixed(3)));ribbon.append(needle);}
+ const dl=$('distribution');dl.replaceChildren(...view.distribution.map(item=>{const div=node('div',same(item)?'chosen':''),dt=node('dt','',LABEL(item)),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');if(same(item))dd.append(node('em','',result.mode==='sample'?' ← sampled':' ← greedy pick'));div.append(dt,dd);return div;}));
+ const last=view.pieces[view.lastIndex];$('last-position').textContent='Scored from the LAST POSITION · '+last.label+' / ID '+last.id+'.';
+ return view.generated===1?'This second cycle scripts a period at 100%. It is not model output.':'Illustrative probabilities. Probability is not truth confidence.';
+}
+/** The appended piece, its ID decoded, and the longer text that becomes the next cycle's input. */
+export function renderAppend(view){
+ const wrap=node('div','append-live');
+ if(view.selection?.aggregate){wrap.append(node('p','text-box','All other tokens'),node('p','','This group has no single token ID. The small fixture stops here without inventing text.'));return wrap;}
+ const last=view.pieces.at(-1),list=node('ol','token-list piece-row');list.append(...renderPieces(view,null,{highlight:last.index}));
+ const decodeRow=node('p','append-decode');decodeRow.append(node('span','flow-id','ID '+last.id),node('span','flow-arrow','→ decode →'),node('span','flow-decoded',last.label));
+ const out=node('p','text-box');out.append(view.pieces.slice(0,-1).map(p=>p.text).join(''));out.append(node('mark','',last.text));
+ wrap.append(list,decodeRow,out);return wrap;
+}
+export const STATUS={'outside-fixture':'Stopped: choice outside this fixture. No token was invented.','demo-limit':'Stopped at the two-token demo limit. No model was run.'};

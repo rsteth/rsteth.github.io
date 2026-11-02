@@ -1,8 +1,8 @@
 import {growth, architecture, illustrate, EVENTS} from './mechanics.mjs';
-import {context2d,paintGrowth,paintLayers,paintToy,contains} from './visuals.mjs';
+import {context2d,paintGrowth,paintLayers,paintToy,contains,layerStrip,groupOf} from './visuals.mjs';
 const $ = id => document.getElementById(id);
 const growthContext=context2d($('growth-canvas')),layerContext=context2d($('layer-canvas')),toyContext=context2d($('toy-canvas'));
-let layerPage=0,selectedLayer=0,layerHits=[];
+let selectedLayer=3,layerHits=[];
 const narrow=window.matchMedia('(max-width:540px)');
 const names={attention:'Full attention',gdn:'Original GDN',converted:'Converted to GDN',adapted:'Original GDN, later adapted'};
 const format = n => n.toLocaleString('en-US', {maximumFractionDigits:2});
@@ -30,14 +30,17 @@ function updateLayers() {
  }));
  $('layer-summary').textContent=converted?'All 64 layers are GDN: 16 converted (C), 48 original GDN later adapted (D).':'48 original GDN layers (G), 16 full-attention layers (A). Pattern: G G G A, repeated 16 times.';
  if(layerContext){
-  $('layer-canvas').width=narrow.matches?246:466;$('layer-canvas').height=narrow.matches?420:220;
-  layerHits=paintLayers(layerContext,layers,layerPage,selectedLayer,narrow.matches);$('layer-art').hidden=false;$('layers').hidden=true;
-  $('layer-ranges').replaceChildren(...Array.from({length:4},(_,g)=>{const span=document.createElement('span');span.textContent=(converted?'D D D C':'G G G A')+' · '+(layerPage*16+g*4+1)+'–'+(layerPage*16+g*4+4);return span;}));
-  $('layer-page').value='Layers '+(layerPage*16+1)+'–'+(layerPage*16+16)+' of 64';
-  $('layers-previous').disabled=layerPage===0;$('layers-next').disabled=layerPage===3;
+  const compact=narrow.matches,canvas=$('layer-canvas'),group=groupOf(selectedLayer),code={attention:'A',gdn:'G',converted:'C',adapted:'D'};
+  canvas.width=compact?246:466;canvas.height=compact?390:270;
+  layerHits=paintLayers(layerContext,layers,selectedLayer,compact);$('layer-art').hidden=false;$('layers').hidden=true;
+  // HTML labels sit over the pixel strip: layer numbers at each row's ends, the zoomed block's range under the inset.
+  const bars=layerStrip(layers,compact),label=(text,x,y,cls)=>{const span=document.createElement('span');span.textContent=text;span.className=cls;span.style.left=(x/canvas.width*100)+'%';span.style.top=(y/canvas.height*100)+'%';return span;};
+  const ends=compact?[0,31,32,63]:[0,15,31,47,63];
+  $('layer-ranges').replaceChildren(...ends.map(i=>label(String(i+1),bars[i].x+2.5,bars[i].top+65,'strip-tick')),
+   label('Layers '+(group[0]+1)+'–'+(group[3]+1)+' · '+group.map(i=>code[layers[i].kind]).join(' ')+' · bottom to top',canvas.width/2,canvas.height-2,'inset-label'));
   $('layer-focus').replaceChildren(...layers.map(({index,kind})=>{const option=document.createElement('option');option.value=index;option.textContent='Layer '+(index+1)+' · '+names[kind];return option;}));
   $('layer-focus').value=String(selectedLayer);
-  $('selected-layer').textContent='Layer '+(selectedLayer+1)+' · '+names[layers[selectedLayer].kind]+'. Each stack shows four consecutive layers, bottom to top.';
+  $('selected-layer').textContent='Layer '+(selectedLayer+1)+' · '+names[layers[selectedLayer].kind]+'. The viewfinder zooms into layers '+(group[0]+1)+'–'+(group[3]+1)+'.';
  }
 
 }
@@ -50,11 +53,13 @@ function updateToy() {
  if(!history.length){const li=document.createElement('li');li.textContent='No updates yet';$('history').append(li);}
  $('state').replaceChildren(...['door','cup'].map(key=>{const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=state[key]??'—';div.append(dt,dd);return div;}));
  $('previous').disabled=step===0;$('next').disabled=step===EVENTS.length;
+ const firstDoor=history.find(event=>event.key==='door')?.value;
+ $('recall-log').textContent=firstDoor??'—';
+ $('recall-state').textContent=state.door===undefined?'—':state.door===firstDoor?state.door:state.door+' — only the latest survives';
+ $('recall-card').dataset.outcome=state.door===undefined?'empty':state.door===firstDoor?'both':'lost';
  $('recall').textContent=step>=3?'The first door colour was blue. The log still contains it; the latest-state dictionary has overwritten it.':step?'The first door colour is blue. Both representations still retain it.':'Start with an empty log and two empty state slots.';
 }
-$('layers-previous').addEventListener('click',()=>{layerPage=Math.max(0,layerPage-1);selectedLayer=layerPage*16;updateLayers();});
-$('layers-next').addEventListener('click',()=>{layerPage=Math.min(3,layerPage+1);selectedLayer=layerPage*16;updateLayers();});
-$('layer-focus').addEventListener('change',()=>{selectedLayer=Number($('layer-focus').value);layerPage=Math.floor(selectedLayer/16);updateLayers();});
+$('layer-focus').addEventListener('change',()=>{selectedLayer=Number($('layer-focus').value);updateLayers();});
 $('layer-canvas').addEventListener('click',event=>{
  const rect=$('layer-canvas').getBoundingClientRect();
  const point=[(event.clientX-rect.left)/rect.width*$('layer-canvas').width,(event.clientY-rect.top)/rect.height*$('layer-canvas').height];

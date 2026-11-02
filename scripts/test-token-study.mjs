@@ -20,11 +20,11 @@ for(const s of [
 for(const old of ['final input position','The next pass predicts','Position information helps distinguish','PIN_COMMIT'])assert.ok(!html.includes(old));
 for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%','15%','unhappiness','not a model run','Text. Token IDs. Representations. Next-token probabilities. Text again.','00 / tokens'])assert.ok(html.includes(text),text);
 assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));assert.ok(html.includes('/commit/'+pin.commit));
-assert.equal((html.match(/<figure class="worked-example"/g)||[]).length,4);
+assert.equal((html.match(/<figure class="worked-example" id="worked-/g)||[]).length,4);
 assert.ok(!html.includes('<canvas'));
 for(const f of ['worked-output.svg','worked-output-narrow.svg'])assert.ok(read(f).includes('<svg'));
-for(const id of ['back','next','play','reset','mode','seed'])assert.match(html,new RegExp('disabled id="'+id+'"'));
-assert.match(html,/role="status" aria-live="polite"/);assert.match(page,/prefers-reduced-motion:reduce/);assert.match(page,/visibilitychange/);assert.match(page,/pagehide/);assert.match(css,/@media\(max-width:540px\)/);
+for(const id of ['choose','next-cycle','reset','mode','seed'])assert.match(html,new RegExp('disabled id="'+id+'"'));
+assert.match(html,/role="status" aria-live="polite"/);assert.match(page,/prefers-reduced-motion:reduce/);assert.ok(!/setInterval|setTimeout/.test(page),'No autoplay: every step is reader-initiated');assert.match(css,/@media\(max-width:540px\)/);
 assert.equal(context2d({getContext(){throw Error('blocked')}}),null);
 let state=createState();for(let i=0;i<20&&!state.stopped;i++)state=step(state);assert.equal(state.text,'The cat sat on the mat.');assert.equal(state.stopReason,'demo-limit');assert.equal(decode([389]),' on');
 for(const narrow of [false,true]){const ctx={canvas:{},fillStyle:'',strokeStyle:'',beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},fillRect(){},strokeRect(){}};const m=matricesFor(state);paintTokens(ctx,state.ids,1,narrow,state.generated);assert.equal(ctx.canvas.width,narrow?246:466);paintEmbedding(ctx,m.input,1,narrow);paintLayers(ctx,m.input,m.contextual,narrow);assert.equal(ctx.canvas.height,narrow?450:220);}

@@ -72,3 +72,35 @@
 .ex-compact>.ex-details {margin:12px 0 0;padding:0;}
 .ex-compact>.ex-details>summary {font-size:12px;padding:12px 0;}
 @media(max-width:540px){.ex-compact>.ex-vector-block .ex-cell{padding:7px 0;}.ex-compact-operation{font-size:11px;}.ex-source-chip{padding:5px 6px;font-size:9px;}.ex-source-chip small{font-size:8px;}.ex-compact>.ex-vector-block .ex-index{margin-bottom:4px;}}
+/* v2 dot-matrix numbers: dot area = magnitude, fill = sign; value printed beneath. */
+.ex-cell {display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 2px 8px;border:1px solid transparent;box-shadow:none;background:none!important;}
+.ex-cell b {font:400 11px var(--font-mono);color:#6b695f;}
+.ex-dot {--m:0;display:block;width:calc(6px + 22px * var(--m));height:calc(6px + 22px * var(--m));border-radius:50%;margin:calc((28px - (6px + 22px * var(--m))) / 2) 0;box-sizing:border-box;}
+.positive .ex-dot {background:var(--ink);}
+.negative .ex-dot {border:2px solid var(--ink);background:transparent;}
+.zero .ex-dot {width:12px;height:2px;border-radius:0;background:#aaa596;margin:13px 0;}
+.ex-vector {background:linear-gradient(90deg,var(--hair,#e6e1d4) 1px,transparent 1px) 0 0/calc(100% / 6) 100%;border-block:1px solid var(--hair,#e6e1d4);}
+.ex-key {display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;}
+.ex-key .ex-dot {--m:.45!important;}
+.explanation .ex-focused {outline:0;--vf:var(--ex-focus);--vf-len:10px;background:
+  linear-gradient(var(--vf),var(--vf)) 0 0/var(--vf-len) 2px no-repeat,linear-gradient(var(--vf),var(--vf)) 0 0/2px var(--vf-len) no-repeat,
+  linear-gradient(var(--vf),var(--vf)) 100% 0/var(--vf-len) 2px no-repeat,linear-gradient(var(--vf),var(--vf)) 100% 0/2px var(--vf-len) no-repeat,
+  linear-gradient(var(--vf),var(--vf)) 0 100%/var(--vf-len) 2px no-repeat,linear-gradient(var(--vf),var(--vf)) 0 100%/2px var(--vf-len) no-repeat,
+  linear-gradient(var(--vf),var(--vf)) 100% 100%/var(--vf-len) 2px no-repeat,linear-gradient(var(--vf),var(--vf)) 100% 100%/2px var(--vf-len) no-repeat;padding:10px;}
+.ex-focus-key {border:0;background:linear-gradient(var(--ex-focus),var(--ex-focus)) 0 0/8px 2px no-repeat,linear-gradient(var(--ex-focus),var(--ex-focus)) 0 0/2px 8px no-repeat,linear-gradient(var(--ex-focus),var(--ex-focus)) 100% 100%/8px 2px no-repeat,linear-gradient(var(--ex-focus),var(--ex-focus)) 100% 100%/2px 8px no-repeat;}
+/* Arcs: context weights as thickness. */
+.ex-arcs {margin:20px 0 8px;}
+.ex-arcs svg {display:block;width:100%;height:auto;overflow:visible;}
+.ex-arc path {fill:none;stroke:var(--ex-focus);stroke-linecap:round;opacity:.85;}
+.ex-arc text,.ex-arc-masked text {font:12px var(--font-mono);fill:var(--ink);}
+.ex-arc-masked text {fill:#aaa596;}
+.ex-arc-piece rect {fill:#f6f3eb;stroke:#c7c4b7;}
+.ex-arc-piece text {font:15px var(--font-mono);fill:var(--ink);}
+.ex-arc-piece .ex-arc-id {font-size:10px;fill:#6b695f;}
+.ex-arc-target rect {stroke:var(--ex-focus);stroke-width:2;}
+.ex-arc-future rect {stroke-dasharray:3 3;}.ex-arc-future text {fill:#aaa596;}
+.ex-arcs figcaption {font:11px var(--font-mono);color:#6b695f;text-align:center;margin-top:8px;}
+@media(max-width:540px){.ex-dot{width:calc(5px + 16px * var(--m));height:calc(5px + 16px * var(--m));margin:calc((21px - (5px + 16px * var(--m))) / 2) 0;}.ex-cell b{font-size:9px;}.ex-arc text,.ex-arc-masked text{font-size:16px;}.ex-arc-piece text{font-size:19px;}.ex-arc-piece .ex-arc-id{font-size:13px;}}
+.ex-arc text {paint-order:stroke;stroke:#f6f3eb;stroke-width:5px;stroke-linejoin:round;}
+.explanation .ex-key {background:none;}
+@media(max-width:540px){.ex-arc text,.ex-arc-masked text{font-size:24px;}.ex-arc-piece text{font-size:24px;}.ex-arc-piece .ex-arc-id{font-size:17px;}}

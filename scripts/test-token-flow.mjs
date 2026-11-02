@@ -1,17 +1,25 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createState,step} from '../learning-machines/tokens/mechanics.mjs';
-import {describeFlow} from '../learning-machines/tokens/flow.mjs';
-let state=createState(),previous=null;const views=[];
-for(let i=0;i<5;i++){views.push(describeFlow(state,3,previous));previous=state;state=step(state);}
-assert.equal(new Set(views.map(v=>v.title)).size,5);
-for(const v of views){assert.equal(v.pieces[v.selectedIndex].id,389);assert.equal(v.pieces[v.selectedIndex].label,'·on');}
-assert.equal(views[3].pieces[views[3].lastIndex].id,279);
-assert.notDeepEqual(views[2].pieces[3].input,views[2].pieces[3].contextual);
-assert.equal(views[4].context,'The cat sat on the mat');assert.equal(views[4].selection.id,5634);
-assert.deepEqual(views[3].distribution.map(p=>p.probability),[.45,.25,.15,.15]);
+import {describeFlow,STATUS} from '../learning-machines/tokens/flow.mjs';
+// One scroll story: a cycle's state drives every section; the followed piece survives a new cycle.
+const toAppend=s=>{let t=s;while(t.phase!=='append'&&!t.stopped)t=step(t);return t;};
+let cycle=createState();const first=describeFlow(cycle,3);
+assert.equal(first.pieces[first.selectedIndex].id,389);assert.equal(first.pieces[first.selectedIndex].label,'·on');
+assert.ok(first.pieces.every(p=>!p.generated));assert.deepEqual(first.distribution.map(p=>p.probability),[.45,.25,.15,.15]);
+const appended=toAppend(cycle),shown=describeFlow(appended,3);
+assert.equal(shown.context,'The cat sat on the mat');assert.equal(shown.selection.id,5634);assert.equal(shown.pieces.at(-1).generated,true);
+assert.notDeepEqual(first.pieces[3].input,first.pieces[3].contextual);
+cycle=step(appended);const second=describeFlow(cycle,3);
+assert.equal(second.phase,'tokens');assert.equal(second.pieces[second.selectedIndex].label,'·on');
+assert.deepEqual(second.distribution.map(p=>[p.id,p.probability]),[[13,1]]);
+const done=step(toAppend(cycle));assert.equal(done.text,'The cat sat on the mat.');assert.equal(done.stopReason,'demo-limit');assert.ok(STATUS[done.stopReason]);
+assert.ok(STATUS['outside-fixture'].includes('No token was invented'));
 const root=new URL('../learning-machines/tokens/',import.meta.url),read=f=>readFileSync(new URL(f,root),'utf8');
-assert.match(read('index.html'),/id="flow-controls"/);assert.match(read('page.mjs'),/\$\('flow-controls'\)\.append\(\$\('experiment-controls'\)\)/);
-assert.match(read('flow.mjs'),/LAST POSITION/);assert.match(read('flow.mjs'),/scripts a period at 100%/);assert.match(read('flow.mjs'),/two-token demo limit/);assert.match(read('flow.mjs'),/Earlier pieces provide context/);
-assert.match(read('flow.mjs'),/aria-pressed/);assert.match(read('page.mjs'),/preventScroll:true/);assert.match(read('tokens.css'),/@media\(max-width:540px\)/);
-console.log('PASS: distinct active scenes, selected-token continuity, last-position prediction, supplied probabilities, bounded stop, attached controls and focus retention');
+const html=read('index.html'),page=read('page.mjs'),flow=read('flow.mjs');
+for(const id of ['tokens','embedding','layers','distribution','append'])assert.match(html,new RegExp('<a href="#stage-'+id+'">'));
+assert.match(html,/<nav class="pipeline" aria-label=/);assert.match(page,/aria-current/);assert.match(page,/IntersectionObserver/);
+assert.match(flow,/LAST POSITION/);assert.match(flow,/scripts a period at 100%/);assert.match(flow,/two-token demo limit/);assert.match(flow,/aria-pressed/);
+assert.match(page,/preventScroll:true/);assert.match(read('tokens.css'),/@media\(max-width:540px\)/);
+assert.match(flow,/chosen\.seed\/4294967296/,'Needle shows the pinned sampler draw, not an invented value');
+console.log('PASS: one shared cycle drives all sections, followed piece persists across cycles, appended pieces marked, supplied probabilities, bounded stop, pipeline nav and pinned sampler draw');
