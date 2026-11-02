@@ -17,7 +17,7 @@ for(let selected=0;selected<state.ids.length;selected++){
   assert.ok(html.includes(`Check component ${c+1}`));
  }
  assert.match(html,/not learned attention scores/);assert.match(html,/supplied separately/);assert.match(html,/rounded to three decimals/);
- const lookup=renderLookup(view,{selectedIndex:selected,interactive:true});assert.match(lookup,/one token’s vector, not six layers/);assert.match(lookup,/hand-authored/);assert.match(lookup,/data-piece-index/);
+ const lookup=renderLookup(view,{selectedIndex:selected,interactive:true});assert.match(lookup,/one token’s vector, not six layers/);assert.match(lookup,/Component numbers are positions/);assert.match(lookup,/data-piece-index/);
 }
 const vector=renderVector([-1,0,1,.25,-.25,.5]);assert.equal((vector.match(/class="ex-component"/g)||[]).length,6);assert.match(vector,/negative/);assert.match(vector,/positive/);assert.match(vector,/zero/);
 const compact=renderTrace(describeFlow(state,4),{selectedIndex:4,compact:true});assert.match(compact,/ex-compact/);assert.match(compact,/Show updates and calculations/);assert.match(compact,/data-weight="0.5"/);
@@ -27,5 +27,5 @@ assert.deepEqual(distributionFor(state).map(x=>x.probability),[.45,.25,.15,.15])
 const base=new URL('../learning-machines/tokens/',import.meta.url),html=readFileSync(new URL('index.html',base),'utf8');
 assert.ok(html.includes(renderLookup(describeFlow(state,1),{selectedIndex:1})));
 assert.ok(html.includes(renderTrace(describeFlow(state,4),{selectedIndex:4})));
-for(const text of ['Starting representations → contextual processing → updated representations','Numbers and dimensions shown here are illustrative, not extracted from a model.','This is one tiny, hand-authored teaching block'])assert.ok(html.includes(text));
+for(const text of ['Starting representations → contextual processing → updated representations'])assert.ok(html.includes(text));
 console.log('PASS: shared static/active math, explicit ID lookup, scalar/vector labels, six stable components, causal weights and exact contributions, residual sums, sign/focus separation and independent probabilities');

@@ -18,7 +18,7 @@ for(const s of [
 'The chosen token is added to the context. The model runs again and predicts another piece.'
 ])assert.ok(html.includes(s),s);
 for(const old of ['final input position','The next pass predicts','Position information helps distinguish','PIN_COMMIT'])assert.ok(!html.includes(old));
-for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%','15%','unhappiness','not a model run','not extracted from a model','Text. Token IDs. Representations. Next-token probabilities. Text again.','00 / tokens'])assert.ok(html.includes(text),text);
+for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%','15%','unhappiness','not a model run','Text. Token IDs. Representations. Next-token probabilities. Text again.','00 / tokens'])assert.ok(html.includes(text),text);
 assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));assert.ok(html.includes('/commit/'+pin.commit));
 assert.equal((html.match(/<figure class="worked-example"/g)||[]).length,4);
 assert.ok(!html.includes('<canvas'));

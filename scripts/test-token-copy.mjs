@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const html=readFileSync(new URL('../learning-machines/tokens/index.html',import.meta.url),'utf8');
+const sha=s=>createHash('sha256').update(s).digest('hex');
+const checks=[{"label": "Sources", "pattern": "<details><summary>Sources, assumptions &amp; limits</summary>[\\s\\S]*?</details>", "hash": "933b6167f00df5a575bca2acb2562c9c9ab54fc684bb02e71a776b4f0a142a71"}, {"label": "controls", "pattern": "<div class=\"token-controls\"[\\s\\S]*?</details><p id=\"motion-note\"[\\s\\S]*?</div>", "hash": "15f5c0f71784e3c88a800d8cb77aa8edb8003619ba92aa652c49e922847e496a"}, {"label": "section03", "pattern": "<section id=\"stage-distribution\"[\\s\\S]*?</section>", "hash": "d28cb843b8df81d14b3f15e4b8d3d8879598f65df27230eef154455dec4e77d7"}, {"label": "tables", "pattern": "<table>[\\s\\S]*?</table>", "hash": "cef0ea2a525c9dad8a5bf8d4f96654779b8c74366cac31c756835bf83beafa1e"}, {"label": "equations", "pattern": "<p class=\"ex-exact\">[\\s\\S]*?</p>", "hash": "fd5abae8b60f0f1a7ea8093b5c1fc1fdd72dd1dfc7780756b7a6dc8544456546"}, {"label": "headings", "pattern": "<h[1-4][^>]*>[\\s\\S]*?</h[1-4]>", "hash": "b5cf35df5fd6fff4c63af1ac526d6fdf86f4e117aa9a0fbb81fa55f1b3c24149"}];
+for(const c of checks)assert.equal(sha((html.match(new RegExp(c.pattern,'g'))||[]).join('\n')),c.hash,c.label+' must remain byte-identical');
+assert.ok(html.includes("The percentages below are this example's fixed recipe, not learned attention scores."));
+assert.ok(html.includes('Stored arithmetic is rounded to ten decimal places. All six components use the same stated recipe; this is a transparent teaching calculation, not trained attention or a model prediction.'));
+assert.ok(html.includes('This example generates at most two tokens, then stops at its demo limit.'));
+for(const gone of ['Six dimensions and all values are hand-authored','Numbers and dimensions shown here are illustrative','All six components use the same stated recipe. This is','This tiny calculation uses','These exact operations are a hand-authored','This is one tiny, hand-authored teaching block'])assert.ok(!html.includes(gone),gone);
+console.log('PASS: exact disclaimer edits and protected Sources, controls, section03, tables, equations and headings');

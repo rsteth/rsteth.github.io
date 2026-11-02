@@ -1,5 +1,5 @@
 import {decode,matricesFor,traceFor,distributionFor,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
-import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261101-tokenmath4';
+import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261102-tokencopy5';
 const TITLES={tokens:'Text becomes labeled pieces.',embedding:'Each piece gets a row of numbers.',layers:'The same row changes with context.',distribution:'The last row scores the next piece.',append:'One new piece joins the text.'};
 const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context. Follow the actual arithmetic of this hand-authored toy, not a trained model.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
 export function describeFlow(state,selected=1,previous=null){
