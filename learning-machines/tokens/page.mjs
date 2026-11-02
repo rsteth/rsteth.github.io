@@ -1,6 +1,6 @@
-import {describeFlow,renderPieces,renderDistribution,renderAppend,renderRibbon,renderHistogram,STATUS,STOPS,startPosition,forward,canForward,PLAYGROUND_DISTRIBUTION,preview,drawMany,WORDS} from './flow.mjs?v=20261102-play1';
+import {describeFlow,renderPieces,renderDistribution,renderAppend,renderRibbon,renderHistogram,STATUS,STOPS,startPosition,forward,canForward,PLAYGROUND_DISTRIBUTION,preview,drawMany,WORDS,SAME_WORD} from './flow.mjs?v=20261102-src1';
 import {createState} from './mechanics.mjs?v=20261101-tokenmath4';
-import {renderLookup,renderTrace} from './explanation.mjs?v=20261102-play1';
+import {renderLookup,renderTrace} from './explanation.mjs?v=20261102-src1';
 // One scroll story. `pos` = {cycle, result, phase}: the text being processed, its chosen token (if any)
 // and which of the five stops the reader has reached. History makes every step reversible.
 const $=id=>document.getElementById(id);
@@ -76,16 +76,18 @@ function configure(){const seed=Number($('seed').value);if($('seed').value===''|
 $('mode').addEventListener('change',configure);$('seed').addEventListener('change',configure);
 
 /* Sampling playground: same distribution, the pinned sampler, as many seeds as you like. */
-let counts=PLAYGROUND_DISTRIBUTION.map(()=>0),chain=null;
+let counts=PLAYGROUND_DISTRIBUTION.map(()=>0),chain=null,chainStart=null;
 function renderPlayground(){
  const seed=Number($('pg-seed').value),{pick,draw}=preview(seed);
  $('pg-seed-out').value=seed;renderRibbon($('pg-ribbon'),PLAYGROUND_DISTRIBUTION,{chosen:pick,draw});
  $('pg-pick').textContent='Seed '+seed+' draws '+draw.toFixed(3)+' → '+(pick.aggregate?'all other tokens (outside this fixture)':pick.piece.replaceAll(' ','·'))+'.';
- renderHistogram($('pg-hist'),counts);$('pg-total').textContent=counts.reduce((a,b)=>a+b,0)+' draws';
+ const total=counts.reduce((a,b)=>a+b,0);renderHistogram($('pg-hist'),counts);$('pg-total').textContent=total+' draws';
+ // The same draws from the terminal: run.mjs in the pinned learning-machines commit.
+ $('pg-cmd').textContent='node experiments/tokens/run.mjs '+(total?'--seed '+chainStart+' --draws '+total:'--sample --seed '+seed);
 }
-$('pg-seed').addEventListener('input',()=>{chain=null;renderPlayground();});
-$('pg-draw').addEventListener('click',()=>{const r=drawMany(chain??Number($('pg-seed').value),100);r.counts.forEach((n,i)=>counts[i]+=n);chain=r.seed;renderPlayground();});
-$('pg-clear').addEventListener('click',()=>{counts=counts.map(()=>0);chain=null;renderPlayground();});
+$('pg-seed').addEventListener('input',()=>{chain=null;if(!counts.some(Boolean))chainStart=null;renderPlayground();});
+$('pg-draw').addEventListener('click',()=>{if(chain===null){counts=counts.map(()=>0);chainStart=Number($('pg-seed').value);}const r=drawMany(chain??chainStart,100);r.counts.forEach((n,i)=>counts[i]+=n);chain=r.seed;renderPlayground();});
+$('pg-clear').addEventListener('click',()=>{counts=counts.map(()=>0);chain=null;chainStart=null;renderPlayground();});
 $('pg-use').addEventListener('click',()=>{$('mode').value='sample';$('seed').value=$('pg-seed').value;configure();$('experiment-controls').scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'center'});});
 
 /* Word picker: real splits from the same tokenizer fixture. */
@@ -95,8 +97,9 @@ function showWord(i){
  $('split-caption').textContent='Real cl100k_base split · '+word.pieces.length+' pieces.';
  document.querySelectorAll('#word-picker button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===i)));
 }
+if(SAME_WORD.length)$('same-word').textContent='Same word, different token: '+SAME_WORD.map(group=>group.map(p=>p.label+' = '+p.id).join(' vs ')).join('; ')+'. Case and a leading space each change the ID.';
 $('word-picker').replaceChildren(...WORDS.map((w,i)=>{const b=document.createElement('button');b.type='button';b.textContent=w.text;b.addEventListener('click',()=>showWord(i));return b;}));
 
 for(const id of ['choose','reset','mode','seed','pg-seed','pg-draw','pg-clear','pg-use'])$(id).disabled=false;
 $('playground').hidden=false;$('word-picker').hidden=false;
-document.body.classList.add('flow-ready');showWord(WORDS.findIndex(w=>w.text==='unhappiness'));render();renderPlayground();
+document.body.classList.add('flow-ready');showWord(Math.max(0,WORDS.findIndex(w=>w.text==='unhappiness')));render();renderPlayground();

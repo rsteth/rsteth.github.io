@@ -193,4 +193,13 @@
  .pg-hist>div {grid-template-columns:90px 1fr;gap:8px;}.pg-total{margin-left:0;width:100%;}
 }
 .pg-ribbon .ribbon-needle {animation:none;}
+/* Provenance: where the IDs come from. */
+.same-word {font-family:var(--font-mono);text-align:center;margin-top:4px;}
+.provenance {margin:28px 0 0;padding-top:16px;}
+.provenance summary {font:13px var(--font-mono);color:var(--ink);}
+.provenance p {font-size:14px;line-height:1.7;color:var(--ink);}
+.provenance-code {background:#efe9dc;padding:14px 16px;overflow-x:auto;font:12px/1.7 var(--font-mono);color:var(--ink);margin:12px 0;}
+.provenance-code code {white-space:pre;}
+.pg-repro {font-size:13px;margin:16px 0 0;}
+.pg-repro code {display:block;margin-top:6px;background:#efe9dc;padding:10px 14px;font:12px var(--font-mono);overflow-x:auto;white-space:pre;}
 @media(max-width:540px){.pipeline ol{flex:1;min-width:0;flex-wrap:nowrap;justify-content:space-between;gap:0;}.pipeline li+li::before{display:none;}.pipeline a{padding:6px 3px;}}

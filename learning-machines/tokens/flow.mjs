@@ -36,7 +36,11 @@ export function drawMany(seed,n,distribution=PLAYGROUND_DISTRIBUTION){
 }
 
 /* ---------- Word picker: real cl100k_base splits from the fixture ---------- */
-export const WORDS=FIXTURE.examples.filter(e=>['unhappiness','antidisestablishmentarianism','The cat sat on the mat.'].includes(e.text)).map(e=>({text:e.text,pieces:e.pieces.map((p,i)=>({id:e.ids[i],label:p.replaceAll(' ','·')}))}));
+// Every multi-piece example in the fixture appears; add one upstream, sync, and it shows up here.
+export const WORDS=FIXTURE.examples.filter(e=>e.ids.length>1).map(e=>({text:e.text,pieces:e.pieces.map((p,i)=>({id:e.ids[i],label:p.replaceAll(' ','·')}))}));
+/** Pieces that read as the same word but are different tokens (case or a leading space), found in the fixture. */
+export const SAME_WORD=(()=>{const seen=new Map();for(const e of FIXTURE.examples)e.pieces.forEach((p,i)=>{const key=p.trim().toLowerCase(),ids=seen.get(key)??new Map();ids.set(e.ids[i],p.replaceAll(' ','·'));seen.set(key,ids);});
+ return [...seen.values()].filter(ids=>ids.size>1).map(ids=>[...ids].map(([id,label])=>({id,label})));})();
 
 /* ---------- DOM renderers ---------- */
 function node(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}

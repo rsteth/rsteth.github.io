@@ -11,7 +11,11 @@ assert.equal(createHash('sha256').update(read(pin.licenseFile)).digest('hex'),pi
 const html=read('index.html'),page=read('page.mjs'),css=read('tokens.css');
 assert.ok(!html.includes('PIN_COMMIT'));
 for(const text of ['cl100k_base','tiktoken 0.14.0','ID 389','ID 5634','45%','25%','15%','unhappiness','not a model run','00 / tokens'])assert.ok(html.includes(text),text);
-assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));assert.ok(html.includes('/commit/'+pin.commit));
+assert.ok(html.includes('/tree/'+pin.commit+'/experiments/tokens'));
+{const {FIXTURE}=await import('../learning-machines/tokens/fixture.mjs');
+ for(const f of ['regenerate_fixture.py','fixture.mjs'])assert.ok(html.includes('/blob/'+pin.commit+'/experiments/tokens/'+f),'provenance link '+f);
+ assert.ok(html.includes('<strong>'+FIXTURE.package+' '+FIXTURE.version+'</strong>')&&html.includes('<strong>'+FIXTURE.encoding+'</strong>'),'provenance matches fixture metadata');
+ assert.ok(html.includes('Pinned to commit <code>'+pin.commit.slice(0,7)+'</code>'));}assert.ok(html.includes('/commit/'+pin.commit));
 assert.equal((html.match(/<figure class="worked-example" id="worked-/g)||[]).length,4);
 assert.ok(!html.includes('<canvas'));
 for(const f of ['worked-output.svg','worked-output-narrow.svg'])assert.ok(read(f).includes('<svg'));
