@@ -1,4 +1,4 @@
-import {describeFlow,renderFlow} from './flow.mjs?v=20261102-tokencopy5';
+import {describeFlow,renderFlow} from './flow.mjs?v=20261102-tokencopy6';
 import {createState,step,reset,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
 const $=id=>document.getElementById(id);
 const narrow=window.matchMedia('(max-width:540px)'),reduced=window.matchMedia('(prefers-reduced-motion:reduce)');

@@ -1,7 +1,7 @@
 import {decode,matricesFor,traceFor,distributionFor,PHASES} from './mechanics.mjs?v=20261101-tokenmath4';
-import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261102-tokencopy5';
+import {renderLookup,renderTrace,renderVector} from './explanation.mjs?v=20261102-tokencopy6';
 const TITLES={tokens:'Text becomes labeled pieces.',embedding:'Each piece gets a row of numbers.',layers:'The same row changes with context.',distribution:'The last row scores the next piece.',append:'One new piece joins the text.'};
-const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context. Follow the actual arithmetic of this hand-authored toy, not a trained model.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
+const PURPOSES={tokens:'Read a piece and its vocabulary ID together. Select one to follow it through the next steps.',embedding:'Follow the selected piece into its six-number row. The other pieces get rows too.',layers:'Compare the selected row before and after processing. Earlier pieces provide context. Follow the arithmetic from the starting row to the updated row.',distribution:'Prediction uses the last position in the current text. This teaching distribution is supplied, not calculated by a model.',append:'The chosen ID decodes to text and is appended. That longer text becomes the input for the next cycle.'};
 export function describeFlow(state,selected=1,previous=null){
  const selectedIndex=Math.max(0,Math.min(selected,state.ids.length-1)),matrices=matricesFor(state),last=state.ids.length-1;
  return {phase:state.phase,stage:PHASES.indexOf(state.phase)+1,title:TITLES[state.phase],purpose:PURPOSES[state.phase],context:state.text,
@@ -28,16 +28,16 @@ export function renderFlow(view,onSelect){
   for(const button of scene.querySelectorAll('[data-piece-index]'))button.addEventListener('click',()=>onSelect(Number(button.dataset.pieceIndex)));
   change=`${followed.label} / ID ${followed.id} selects one stored row. The ID is a label, not a number used to calculate these values.`;
  }else if(view.phase==='layers'){
-  scene.innerHTML=renderTrace(view,{selectedIndex:view.selectedIndex,compact:true});
-  change='The same row positions remain. Numbers change; the text does not. These operations are a hand-authored teaching toy.';
+  scene.innerHTML=renderTrace(view,{selectedIndex:view.selectedIndex,compact:true,includeCaveats:false});
+  change='The same row positions remain. Numbers change; the text does not.';
  }else if(view.phase==='distribution'){
-  const last=view.pieces[view.lastIndex];scene.append(node('p','flow-follow',`LAST POSITION · ${last.label} / ID ${last.id}`),node('p','small','In a real model this last row feeds vocabulary scores. The probabilities below are supplied separately; our toy does not calculate them.'));
+  const last=view.pieces[view.lastIndex];scene.append(node('p','flow-follow',`LAST POSITION · ${last.label} / ID ${last.id}`),node('p','small','In a real model this last row feeds vocabulary scores. The probabilities below are supplied separately; they are not calculated from this row.'));
   const lastNumbers=node('div','explanation');lastNumbers.innerHTML=renderVector(last.contextual,{label:'Last position · updated numbers'});scene.append(lastNumbers);
   const dl=node('dl','token-distribution');view.distribution.forEach(item=>{const div=node('div'),dt=node('dt','',item.aggregate?'all other tokens':decode([item.id]).replaceAll(' ','·')),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');div.append(dt,dd);dl.append(div);});scene.append(dl);
   change=view.generated===1?'This second cycle scripts a period at 100%. It is not model output. Next step appends it.':'Next step chooses from these illustrative probabilities. Probability is not truth confidence.';
  }else{
   if(view.selection?.aggregate){scene.append(node('p','text-box','All other tokens'),node('p','','This group has no single token ID. The small fixture stops here without inventing text.'));change='Nothing was appended. Reset to try another rule or seed.';}
-  else if(view.selection){const p=view.pieces.at(-1),strip=node('div','flow-append');strip.append(node('span','flow-id','ID '+p.id),node('span','flow-arrow','→'),node('span','flow-decoded',p.label));scene.append(strip);const out=node('p','text-box');out.append(view.pieces.slice(0,-1).map(p=>p.text).join(''));out.append(node('mark','',p.text));scene.append(node('p','eyebrow','DECODED TEXT'),out);change=view.stopped?'Stopped at the two-token demo limit. No model was run.':view.generated===1?'New piece added. Next cycle uses this longer text and scripts a period at 100%.':'Period added. Next step stops at this toy’s two-token limit.';}
+  else if(view.selection){const p=view.pieces.at(-1),strip=node('div','flow-append');strip.append(node('span','flow-id','ID '+p.id),node('span','flow-arrow','→'),node('span','flow-decoded',p.label));scene.append(strip);const out=node('p','text-box');out.append(view.pieces.slice(0,-1).map(p=>p.text).join(''));out.append(node('mark','',p.text));scene.append(node('p','eyebrow','DECODED TEXT'),out);change=view.stopped?'Stopped at the two-token demo limit. No model was run.':view.generated===1?'New piece added. Next cycle uses this longer text and scripts a period at 100%.':'Period added. Next step stops at this example’s two-token limit.';}
  }
  $('flow-change').textContent=change;
 }
