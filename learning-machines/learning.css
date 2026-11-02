@@ -150,3 +150,9 @@
 /* No graph paper: panels keep the viewfinder corners and the faint dither only. */
 .learning-study .visual-panel {background-size:var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),var(--vf-len) 1px,1px var(--vf-len),0 0,0 0;}
 .learning-study .visual-panel canvas {outline:0;}
+
+/* Arrows drawn as SVG so phones show the same thin glyph as desktop instead of a colour emoji. */
+.arrow {display:inline-block;fill:none;stroke:currentColor;stroke-linecap:butt;stroke-linejoin:miter;overflow:visible;}
+.arrow-ne {width:.6em;height:.6em;vertical-align:0;stroke-width:3.1;margin-left:.3em;}
+.arrow-w {width:.62em;height:.36em;vertical-align:-.03em;stroke-width:1.5;margin-right:1ch;}
+/* Margins, not a space, so a link underline runs under the words only. */
