@@ -27,5 +27,5 @@ assert.deepEqual(distributionFor(state).map(x=>x.probability),[.45,.25,.15,.15])
 const base=new URL('../learning-machines/tokens/',import.meta.url),html=readFileSync(new URL('index.html',base),'utf8');
 assert.ok(html.includes(renderLookup(describeFlow(state,1),{selectedIndex:1})));
 assert.ok(html.includes(renderTrace(describeFlow(state,4),{selectedIndex:4})));
-for(const text of ['Starting representations → contextual processing → updated representations'])assert.ok(html.includes(text));
+assert.match(html,/Starting representations <svg class="arrow arrow-e"[^>]*aria-label="then"[\s\S]*?contextual processing <svg class="arrow arrow-e"[\s\S]*?updated representations<\/p>/);
 console.log('PASS: shared static/active math, explicit ID lookup, scalar/vector labels, six stable components, causal weights and exact contributions, residual sums, sign/focus separation and independent probabilities');

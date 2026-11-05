@@ -1,4 +1,5 @@
 import {growth, architecture, illustrate, EVENTS} from './mechanics.mjs';
+import {arrowNode} from '../arrows.mjs?v=20261105-arrows';
 import {context2d,paintGrowth,paintLayers,paintToy,contains,layerStrip,groupOf,tileAt} from './visuals.mjs';
 const reducedMotion=window.matchMedia('(prefers-reduced-motion:reduce)');
 const $ = id => document.getElementById(id);
@@ -70,7 +71,7 @@ function updateToy() {
  const {history,state}=illustrate(step);
  if(toyContext){paintToy(toyContext,history,state);$('toy-art').hidden=false;}
  $('step-status').value=step+' / '+EVENTS.length+' updates';
- $('history').replaceChildren(...history.map(({key,value})=>{const li=document.createElement('li');li.textContent=key+' → '+value;return li;}));
+ $('history').replaceChildren(...history.map(({key,value})=>{const li=document.createElement('li');li.append(key+' ',arrowNode('e',{label:'to'}),' '+value);return li;}));
  if(!history.length){const li=document.createElement('li');li.textContent='No updates yet';$('history').append(li);}
  $('state').replaceChildren(...['door','cup'].map(key=>{const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=state[key]??'—';div.append(dt,dd);return div;}));
  $('previous').disabled=step===0;$('next').disabled=step===EVENTS.length;

@@ -1,6 +1,7 @@
-import {describeFlow,renderPieces,renderDistribution,renderAppend,renderRibbon,renderHistogram,STATUS,STOPS,startPosition,forward,canForward,PLAYGROUND_DISTRIBUTION,preview,drawMany,WORDS,SAME_WORD} from './flow.mjs?v=20261102-src1';
+import {describeFlow,renderPieces,renderDistribution,renderAppend,renderRibbon,renderHistogram,STATUS,STOPS,startPosition,forward,canForward,PLAYGROUND_DISTRIBUTION,preview,drawMany,WORDS,SAME_WORD} from './flow.mjs?v=20261105-arrows';
 import {createState} from './mechanics.mjs?v=20261101-tokenmath4';
-import {renderLookup,renderTrace} from './explanation.mjs?v=20261102-src1';
+import {renderLookup,renderTrace} from './explanation.mjs?v=20261105-arrows';
+import {arrowNode} from '../arrows.mjs?v=20261105-arrows';
 // One scroll story. `pos` = {cycle, result, phase}: the text being processed, its chosen token (if any)
 // and which of the five stops the reader has reached. History makes every step reversible.
 const $=id=>document.getElementById(id);
@@ -40,7 +41,7 @@ function render(){
  $('token-list').replaceChildren(...renderPieces(view,select));
  $('piece-hint').textContent='Following '+piece.label+' / ID '+piece.id+'. Pick another piece; every section follows it.';
  // 01 · lookup and 02 · context, both live and traceable
- $('embedding-value').textContent=piece.label+' / '+piece.id+' → ['+piece.input.map(fmt).join(', ')+']';
+ $('embedding-value').replaceChildren(piece.label+' / '+piece.id+' ',arrowNode('e',{label:'to'}),' ['+piece.input.map(fmt).join(', ')+']');
  $('live-embedding').innerHTML=renderLookup(view,{selectedIndex:view.selectedIndex,interactive:true});
  for(const b of $('live-embedding').querySelectorAll('[data-piece-index]'))b.addEventListener('click',()=>select(Number(b.dataset.pieceIndex)));
  $('live-layers').innerHTML=renderTrace(view,{selectedIndex:view.selectedIndex,includeCaveats:false});
@@ -56,7 +57,7 @@ function render(){
  $('choose').disabled=!!result||cycle.stopped||!configValid;
  $('choose').textContent=phase<3?'Skip to choosing':'Choose the next piece';
  $('next-cycle').disabled=!result||stopped;
- $('next-cycle').textContent=result&&result.generated>=2?'Finish':'Run the next cycle ↺';
+ $('next-cycle').replaceChildren(...(result&&result.generated>=2?['Finish']:['Run the next cycle ',arrowNode('ccw')]));
  $('status').textContent=!configValid?'Enter a valid whole-number seed, or Reset, to continue.':stopped?STATUS[(result??cycle).stopReason]:result?'Appended “'+describeFlow(result).pieces.at(-1).label+'” — see 04, then run the next cycle.':(cycle.generated?'Cycle '+(cycle.generated+1)+' · the text now ends in '+view.pieces.at(-1).label+'.':'Cycle 1 · choose the next piece.');
 }
 
@@ -80,7 +81,7 @@ let counts=PLAYGROUND_DISTRIBUTION.map(()=>0),chain=null,chainStart=null;
 function renderPlayground(){
  const seed=Number($('pg-seed').value),{pick,draw}=preview(seed);
  $('pg-seed-out').value=seed;renderRibbon($('pg-ribbon'),PLAYGROUND_DISTRIBUTION,{chosen:pick,draw});
- $('pg-pick').textContent='Seed '+seed+' draws '+draw.toFixed(3)+' → '+(pick.aggregate?'all other tokens (outside this fixture)':pick.piece.replaceAll(' ','·'))+'.';
+ $('pg-pick').replaceChildren('Seed '+seed+' draws '+draw.toFixed(3)+' ',arrowNode('e',{label:'to'}),' '+(pick.aggregate?'all other tokens (outside this fixture)':pick.piece.replaceAll(' ','·'))+'.');
  const total=counts.reduce((a,b)=>a+b,0);renderHistogram($('pg-hist'),counts);$('pg-total').textContent=total+' draws';
  // The same draws from the terminal: run.mjs in the pinned learning-machines commit.
  $('pg-cmd').textContent='node experiments/tokens/run.mjs '+(total?'--seed '+chainStart+' --draws '+total:'--sample --seed '+seed);

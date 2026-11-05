@@ -1,4 +1,5 @@
 import {decode,matricesFor,traceFor,distributionFor,chooseToken,createState,step,PHASES,FIXTURE} from './mechanics.mjs?v=20261101-tokenmath4';
+import {arrowNode} from '../arrows.mjs?v=20261105-arrows';
 // Presentation for the scroll story. No values are produced here: pieces, rows, weights,
 // probabilities, draws and choices all come from the pinned mechanics.
 export function describeFlow(state,selected=1,previous=null){
@@ -74,7 +75,7 @@ export function renderRibbon(ribbon,distribution,{chosen=null,draw=null,pending=
 export function renderDistribution(view,result,{pending=false}={}){
  const $=id=>document.getElementById(id),chosen=result?.selection,draw=chosen&&result.mode==='sample'?chosen.seed/4294967296:null;
  renderRibbon($('ribbon'),view.distribution,{chosen,draw,pending});
- const dl=$('distribution');dl.replaceChildren(...view.distribution.map(item=>{const div=node('div',same(item,chosen)?'chosen':''),dt=node('dt','',LABEL(item)),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');if(same(item,chosen))dd.append(node('em','',result.mode==='sample'?' ← sampled':' ← greedy pick'));div.append(dt,dd);return div;}));
+ const dl=$('distribution');dl.replaceChildren(...view.distribution.map(item=>{const div=node('div',same(item,chosen)?'chosen':''),dt=node('dt','',LABEL(item)),dd=node('dd'),bar=node('span');bar.style.setProperty('--probability',item.probability*100+'%');bar.setAttribute('aria-hidden','true');dd.append(bar,Math.round(item.probability*100)+'%');if(same(item,chosen)){const em=node('em','',result.mode==='sample'?' sampled':' greedy pick');em.prepend(' ',arrowNode('w'));dd.append(em);};div.append(dt,dd);return div;}));
  const last=view.pieces[view.lastIndex];$('last-position').textContent='Scored from the last position · '+last.label+' / ID '+last.id+'.';
  return view.generated===1?'This second cycle scripts a period at 100%. It is not model output.':'Illustrative probabilities. Probability is not truth confidence.';
 }
@@ -88,7 +89,7 @@ export function renderAppend(view){
  const wrap=node('div','append-live');
  if(view.selection?.aggregate){wrap.append(node('p','text-box','All other tokens'),node('p','','This group has no single token ID. The small fixture stops here without inventing text.'));return wrap;}
  const last=view.pieces.at(-1),list=node('ol','token-list piece-row');list.append(...renderPieces(view,null,{highlight:view.pieces.length-1}));
- const decodeRow=node('p','append-decode');decodeRow.append(node('span','flow-id','ID '+last.id),node('span','flow-arrow','→ decode →'),node('span','flow-decoded',last.label));
+ const decodeRow=node('p','append-decode');decodeRow.append(node('span','flow-id','ID '+last.id),(()=>{const s=node('span','flow-arrow',' decode ');s.prepend(arrowNode('e'));s.append(arrowNode('e'));return s;})(),node('span','flow-decoded',last.label));
  const out=node('p','text-box');out.append(view.pieces.slice(0,-1).map(p=>p.text).join(''));out.append(node('mark','',last.text));
  wrap.append(list,decodeRow,out);return wrap;
 }
