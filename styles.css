@@ -796,3 +796,14 @@ button:focus-visible,
  .project-card:has(.project-card__link:hover) .learning-thumb-slab,
  .project-card:has(.project-card__link:focus-visible) .learning-thumb-slab {transform:translateY(var(--slab-lift));}
 }
+
+/* Arrows (SVG, see learning-machines/arrows.mjs). Thin by default, like the text glyphs they replace. */
+.arrow {display:inline-block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;overflow:visible;flex-shrink:0;}
+.arrow-w,.arrow-e {width:.62em;height:.28em;vertical-align:.03em;}
+.arrow-n,.arrow-s {width:.38em;height:.56em;vertical-align:.07em;stroke-width:2;}
+.arrow-ne {width:.6em;height:.6em;vertical-align:0;stroke-width:3.1;}
+.arrow-ccw {width:.74em;height:.88em;vertical-align:-.02em;stroke-width:2.1;}
+.arrow-ccw .arrow-head {fill:currentColor;stroke:none;}
+/* Next to link text, margins stand in for the space so the underline covers words only. */
+.arrow-before {margin-right:1ch;}
+.arrow-after {margin-left:.3em;}
