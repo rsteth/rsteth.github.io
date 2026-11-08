@@ -12,6 +12,8 @@ Contact: robin@stethem.com · GitHub: https://github.com/rsteth · LinkedIn: htt
 - [Verbosele](https://stethem.com/verbosele/): Wordle with levels. Words from 5 to 9 letters across five rounds on one shared pool of 18 lives, with optional thesaurus hints. Source: https://github.com/rsteth/Verbosele
 - [Focus Speed Reader](https://stethem.com/focus-speed-reader/): A browser speed reader for EPUBs and plain text, with a library stored on your device.
 
+- [Design System](https://stethem.com/design-system/): A static workbench for app design tokens, components, and screen fixtures, alongside attributed independent reference studies. Capture generation remains local. Source: https://github.com/rsteth/design-system
+
 ## Invisible Objects (speculative design)
 
 - [Mysterious Modular Device](https://stethem.com/objects/mysterious-modular-device/index.md): A self-assembled device whose pieces have unclear functions; a commentary on opaque consumer electronics, after Albert Borgmann.
