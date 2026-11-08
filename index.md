@@ -18,6 +18,12 @@ It comes in pieces. You assemble it yourself. You aren't quite sure what all the
 
 [Read more](https://stethem.com/objects/mysterious-modular-device/index.md)
 
+## Design System
+
+A workbench for exploring my apps' design tokens, components, and screen fixtures, alongside independent reference studies.
+
+https://stethem.com/design-system/
+
 ## Fischer Price Revolutionary Device
 
 A toy-like speculative design object about the risks designers take when they make new technology feel familiar, from physical and environmental harms to a culture of yearly upgrades.
@@ -29,6 +35,8 @@ A toy-like speculative design object about the risks designers take when they ma
 Generative art driven by live stock market data. At the open, midday, and close, market and volatility moods become a river landscape through versioned templates, not ad-hoc prompts. Every image traces back to the market snapshot that made it. One visual style, systematically varied.
 
 [Read more](https://stethem.com/market-river/index.md)
+
+Learning Machines: https://stethem.com/learning-machines/ — small ML teaching experiments. First: attention and memory.
 
 ## Great Circle
 
@@ -53,11 +61,3 @@ https://stethem.com/focus-speed-reader/
 Use your phone as a spoon. It works best on a phone you can fit in your mouth.
 
 [Read more](https://stethem.com/objects/the-spoon-app/index.md)
-
-Learning Machines: https://stethem.com/learning-machines/ — small ML teaching experiments. First: attention and memory.
-
-## Design System
-
-A workbench for exploring my apps' design tokens, components, and screen fixtures, alongside independent reference studies.
-
-https://stethem.com/design-system/

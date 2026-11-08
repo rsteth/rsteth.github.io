@@ -13,8 +13,12 @@ const data = JSON.parse(home.match(/<script type="application\/ld\+json">([\s\S]
 const projects = data['@graph'].find(item => item['@type'] === 'ItemList').itemListElement;
 assert.equal(projects.length, 10);
 projects.forEach((project, index) => assert.equal(project.position, index + 1));
-assert.equal(projects.at(-1).name, 'Design System');
-assert.equal(projects.at(-1).url, 'https://stethem.com/design-system/');
+const cardNames = cards.map(value => value.match(/<h2><a[^>]+>([^<]+)<\/a><\/h2>/)[1]);
+assert.deepEqual(projects.map(project => project.name), cardNames);
+assert.equal(projects[2].name, 'Design System');
+assert.equal(projects[2].url, 'https://stethem.com/design-system/');
+assert.equal(projects[4].name, 'Market River');
+assert.equal(projects[5].name, 'Learning Machines');
 for (const file of ['index.md', 'llms.txt']) assert.match(read(file), /https:\/\/stethem.com\/design-system\//);
 const svg = read('images/apps/design-system.svg');
 assert.match(svg, /viewBox="0 0 800 600"/);
