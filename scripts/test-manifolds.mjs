@@ -45,13 +45,14 @@ assert.ok(page.includes(`forward y, ${F.landscape.axes.y[0].toFixed(2)} to ${F.l
 const css=readFileSync(resolve(base,'manifolds.css'),'utf8');assert.match(css,/\.map text\{font-size:18px\}/);assert.match(script,/map-axis-caption/);
 assert.equal((page.match(/class="static-rig"/g)||[]).length,4);assert.equal((page.match(/data-reset=/g)||[]).length,4);
 assert.ok(page.includes(pin.repository+'/tree/'+pin.commit+'/experiments/manifolds'));
+assert.ok(page.includes(pin.repository+'/commit/'+pin.commit));
 for(const match of page.matchAll(/(?:href|src)="([^"]+)"/g)){const url=match[1];if(/^(https?:|#|mailto:)/.test(url))continue;assert.ok(existsSync(resolve(base,url.split('?')[0])),url);}
 assert.ok(readFileSync(resolve(root,'learning-machines/index.html'),'utf8').includes('an open notebook / 03'));
 assert.ok(readFileSync(resolve(root,'learning-machines/attention-and-memory/index.html'),'utf8').includes('../manifolds/'));
 assert.ok(F.landscape.exampleRoutes.lowCost.ok);assert.ok(F.scores.holdoutProjected.failed===0);
 assert.ok(F.canonical.rank.rank===6);assert.ok(M.relativeGraspError(F.canonical.q).positionResidualM<.001);
 // Direction correction is presentation-only: physical forward +Y and Reach stay unchanged.
-assert.equal(pin.commit,'f4d873cea71a195fd35f596b80b9bb946aa82137');
+assert.equal(pin.commit,'5713c037b08b013d0404e190c8bb48a06cd4ef18');
 assert.equal(pin.files['mechanics.mjs'].sha256,'749142a983fe6ef1026e5a44406ea018a4aa7a9e40593df61b11e9fe5d5639b4');
 assert.equal(pin.files['fixtures.mjs'].sha256,'75576664f0cdffc32152a8be073e2446727857cf6b26244ce285832d064290e9');
 // Screen-right/down/toward-camera preserves camera chirality after the 180° yaw.

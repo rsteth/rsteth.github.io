@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/rsteth/learning-machines",
-  "commit": "f4d873cea71a195fd35f596b80b9bb946aa82137",
+  "commit": "5713c037b08b013d0404e190c8bb48a06cd4ef18",
   "files": {
     "mechanics.mjs": {
       "path": "experiments/manifolds/mechanics.mjs",
