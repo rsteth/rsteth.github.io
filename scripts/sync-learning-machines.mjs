@@ -1,12 +1,26 @@
 import {execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
-const [repo,revision]=process.argv.slice(2);
+const [repo,revision,experiment="attention-memory"]=process.argv.slice(2);
+if(!["attention-memory","manifolds"].includes(experiment)) throw Error("Unknown experiment");
 if(!repo || !/^[a-f0-9]{40}$/.test(revision??'')) throw Error('Usage: node scripts/sync-learning-machines.mjs <repo-path> <full-commit-sha>');
-const git=(...args)=>execFileSync('git',['-C',repo,...args]);
+const git=(...args)=>execFileSync('git',['-C',repo,...args],{maxBuffer:16*1024*1024});
 const remote=git('remote','get-url','origin').toString().trim();
 if(!/^https:\/\/github.com\/rsteth\/learning-machines(?:\.git)?$|^git@github.com:rsteth\/learning-machines(?:\.git)?$/.test(remote)) throw Error('Unexpected mechanics repository origin');
 const resolved=git('rev-parse',revision+'^{commit}').toString().trim();
+if(experiment==='manifolds') {
+ const dest=new URL('../learning-machines/manifolds/',import.meta.url);mkdirSync(dest,{recursive:true});
+ const files={};
+ for(const name of ['mechanics.mjs','fixtures.mjs']) {
+  const path='experiments/manifolds/'+name, bytes=git('show',resolved+':'+path);
+  writeFileSync(new URL(name,dest),bytes);
+  files[name]={path,sha256:createHash('sha256').update(bytes).digest('hex')};
+ }
+ const license=git('show',resolved+':LICENSE');writeFileSync(new URL('mechanics-LICENSE.txt',dest),license);
+ writeFileSync(new URL('mechanics-pin.json',dest),JSON.stringify({repository:'https://github.com/rsteth/learning-machines',commit:resolved,files,license:'MIT',licenseFile:'mechanics-LICENSE.txt',licenseSha256:createHash('sha256').update(license).digest('hex')},null,2)+'\n');
+ const page=new URL('index.html',dest);writeFileSync(page,readFileSync(page,'utf8').replace(/data-source href="[^"]+"/,'data-source href="https://github.com/rsteth/learning-machines/tree/'+resolved+'/experiments/manifolds"').replace(/data-commit href="[^"]+"/,'data-commit href="https://github.com/rsteth/learning-machines/commit/'+resolved+'"'));
+ console.log('Pinned manifolds '+resolved);
+} else {
 const sourcePath='experiments/attention-memory/mechanics.mjs';
 const bytes=git('show',resolved+':'+sourcePath);
 const dest=new URL('../learning-machines/attention-and-memory/',import.meta.url);mkdirSync(dest,{recursive:true});
@@ -18,3 +32,5 @@ const pageUrl=new URL('index.html',dest);
 const html=readFileSync(pageUrl,'utf8').replace(/https:\/\/github.com\/rsteth\/learning-machines\/tree\/[a-f0-9]{40}\/experiments\/attention-memory/g,'https://github.com/rsteth/learning-machines/tree/'+resolved+'/experiments/attention-memory').replace(/https:\/\/github.com\/rsteth\/learning-machines\/commit\/[a-f0-9]{40}/g,'https://github.com/rsteth/learning-machines/commit/'+resolved);
 writeFileSync(pageUrl,html);
 console.log('Pinned '+resolved);
+
+}

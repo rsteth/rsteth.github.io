@@ -77,3 +77,9 @@ JavaScript or canvas. Rebuild it with `node scripts/render-token-examples.mjs`;
 verify with `node scripts/render-token-examples.mjs --check`.
 
 Token teaching diagrams: run `node scripts/render-token-explanations.mjs --check` and `node scripts/test-token-explanations.mjs`. Sections 01–02 use server-generated HTML from the same pinned, explicitly hand-authored causal toy as the interactive. No model is run; next-token probabilities remain separately supplied.
+
+### Learning Machines / 03
+
+The manifolds article is at `learning-machines/manifolds/`. See its README for
+panel semantics, offline/static fallbacks and the committed-source sync command.
+Run `node scripts/test-manifolds.mjs` alongside the existing regression scripts.
