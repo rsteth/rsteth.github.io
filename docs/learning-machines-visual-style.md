@@ -18,9 +18,9 @@ This is a house style, not a contract. The **commitments** are the few things th
 
 **Illustrations.** Small fixed-resolution canvases enlarged with nearest-neighbour scaling; isometric 2:1 slabs. Redraw on state changes; short transitions are fine when they explain a change, and are skipped under reduced motion.
 
-**Token study.** One scroll story with a sticky pipeline that doubles as a scrubber (back/next, arrow keys). Every section follows one selected piece. Vectors are dots (area = magnitude, filled = positive, ring = negative, tick = zero). Context weights are arcs. Tap a column to trace one component through every row. The next-token distribution is one 100% ribbon; the sampling playground shows where any seed's draw lands and what many draws add up to. The word picker shows real fixture splits.
+**Token study.** One scroll story with a sticky pipeline, following the last piece. A piece's row is a card: six stored numbers as dots (area = magnitude, filled = positive, ring = negative, tick = zero) beside the eight notes that can be read from them. One colour per leg of the card's journey: ochre = heard from ·on, sage = heard from the verb, terracotta = heard from who, charcoal = worked out. Listening shares are arcs. The journey is drawn as a path in a three-number view on a plain floor grid, with words and legs lighting each other up, a dashed ghost for the other subject and dotted rays for candidate directions. Scores are bars split by leg; the next-token distribution is one 100% ribbon. The word picker shows real fixture splits.
 
-**Attention and memory.** Linear, countable growth tiles (one tile = the whole stack's state at 1,024 tokens), with a readout for any tile. All 64 layers in one strip with a zoom on the selected block of four. The record-versus-state toy ends on a recall question both representations answer.
+**Attention and memory.** Opens on the row of cards from study 01. Linear, countable growth tiles (one tile = the whole stack's state at 1,024 tokens), with a readout for any tile. All 64 layers in one strip with a zoom on the selected block of four. The record-versus-summary toy retells study 01's sentences and ends on a recall question both representations answer.
 
 ## Before shipping a visual change
 

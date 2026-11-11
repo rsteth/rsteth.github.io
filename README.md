@@ -44,17 +44,21 @@ When updating mechanics, run the sync command; it also updates both experiment/c
 ### Token study (#1)
 
 `/learning-machines/tokens/` uses a fixed, verified `cl100k_base` token fixture,
-not an arbitrary-input tokenizer or a live model. Embeddings and probabilities
-are explicitly illustrative. The page is one scroll story: every section follows one
-selected piece, and section 03 chooses the next piece (greedy or seeded
-sampling, at most two new tokens); the grouped “all other tokens” result stops
-outside the fixture without inventing a token ID. Every step is reader-initiated;
-there is no autoplay.
-HTML explanations and the worked example remain readable without JavaScript
-or canvas. Attention and memory is study #2; its URL is unchanged.
+not an arbitrary-input tokenizer or a live model. Everything after the IDs is a
+hand-authored teaching model, and every number shown is computed from the step
+before it: a piece's card of notes, what the last piece hears from earlier
+pieces, what it works out, the score of each candidate and the next-token
+probabilities. The page is one scroll story that follows the last piece. The
+reader can swap who is in the sentence and what they did, cover words, turn the
+path figure and choose the next piece (greedy or seeded sampling, at most two
+new tokens); the grouped “all other tokens” result stops outside the fixture
+without inventing a token ID. Every step is reader-initiated; there is no
+autoplay. The default worked example remains readable without JavaScript.
+Attention and memory is study #2 and picks up the same cards.
 
 ```sh
 node scripts/sync-token-study.mjs /path/to/learning-machines <full-commit-sha>
+node scripts/render-token-study.mjs --check
 node scripts/test-token-study.mjs
 node scripts/test-learning-machines.mjs
 node scripts/test-learning-visuals.mjs
@@ -64,19 +68,11 @@ The token integrity manifest pins both `mechanics.mjs` and `fixture.mjs`, plus
 the MIT notice. Regenerate token fixtures in the experiment repository first;
 never hand-edit token IDs in the website copy.
 
-The token study keeps the active diagram, context strip and controls in one
-card. The five stages visibly change the scene; selected token labels remain
-attached to their rows, while next-token prediction explicitly uses the last
-position. The longer approved explanation remains below. Run
-`node scripts/test-token-flow.mjs` for flow/provenance-boundary regressions.
-
-Section 00 owns the token interactive. Sections 01–04 retain fixed worked
-examples independently of the stepper. Section 04’s SVG artwork is generated from
-the pinned fixture through the existing renderer and remains visible without
-JavaScript or canvas. Rebuild it with `node scripts/render-token-examples.mjs`;
-verify with `node scripts/render-token-examples.mjs --check`.
-
-Token teaching diagrams: run `node scripts/render-token-explanations.mjs --check` and `node scripts/test-token-explanations.mjs`. Sections 01–02 use server-generated HTML from the same pinned, explicitly hand-authored causal toy as the interactive. No model is run; next-token probabilities remain separately supplied.
+`render.mjs` turns mechanics values into HTML strings and never touches the
+DOM, so the same code draws the live page and the static blocks between the
+`<!--R:name-->` markers in `index.html`. The sync script re-renders those
+blocks; run `node scripts/render-token-study.mjs` after editing `render.mjs`.
+`page.mjs` only holds reader state and events.
 
 ### Learning Machines / 03
 

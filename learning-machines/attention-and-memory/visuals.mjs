@@ -6,7 +6,7 @@ export const PALETTES = Object.freeze({
  converted:['#d9c48d','#ae9560','#8a774e','#efe2ba'],
  hybrid:['#d9c48d','#ae9560','#8a774e','#efe2ba']
 });
-export const COLORS=Object.freeze({blue:'#6d91ad',red:'#bd7664',green:'#8caa7a',white:'#e1ddcc',yellow:'#c9ad58',black:'#454841'});
+export const COLORS=Object.freeze({cat:'#bd7664',mat:'#8caa7a',king:'#c9ad58',throne:'#6d91ad',bed:'#e1ddcc'});
 // One tile = the whole 64-layer stack's state at 1,024 tokens (1× baseline). Linear, countable.
 export const TILE_COLUMNS=16,TILE=9;
 export function growthTiles(data) {
@@ -26,8 +26,8 @@ export function layerStrip(layers,compact=false) {
  });
 }
 export function groupOf(index) {const start=Math.floor(index/4)*4;return [start,start+1,start+2,start+3];}
-export function toyTiles(history,state) {
- return {history:history.map(({key,value},index)=>({key,value,index,color:COLORS[value]})),state:['door','cup'].map(key=>({key,value:state[key]??null,color:COLORS[state[key]]??null}))};
+export function toyTiles(history,state,slots=['who','where']) {
+ return {history:history.map(({key,value},index)=>({key,value,index,color:COLORS[value]})),state:slots.map(key=>({key,value:state[key]??null,color:COLORS[state[key]]??null}))};
 }
 export function contains(point,polygon) {
  let inside=false;

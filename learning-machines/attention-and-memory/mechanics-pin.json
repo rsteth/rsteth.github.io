@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/rsteth/learning-machines",
-  "commit": "32f31a531c75fbe40dc226c139293e630af4227e",
+  "commit": "14939b37bcd93c293bfe4aa6d10ca0cadc620471",
   "path": "experiments/attention-memory/mechanics.mjs",
-  "sha256": "1bf483c77945e1be9b332a742efd908262171fdc49b76fa9865ad47460eaa69c",
+  "sha256": "cb4dc79823630744388638692a09d7a1548fa2e903eb9d9a37b3129eaa6c082e",
   "license": "MIT",
   "licensePath": "LICENSE",
   "licenseFile": "mechanics-LICENSE.txt",

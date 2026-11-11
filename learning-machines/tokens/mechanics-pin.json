@@ -1,16 +1,16 @@
 {
   "repository": "https://github.com/rsteth/learning-machines",
-  "commit": "8384f753fd08ee2d6bc631e416ccb0a4078e6c93",
+  "commit": "14939b37bcd93c293bfe4aa6d10ca0cadc620471",
   "files": [
     {
       "file": "mechanics.mjs",
       "path": "experiments/tokens/mechanics.mjs",
-      "sha256": "e2b8fb84725911a41db3b0b1f6c256571de7a43e0485fb67bdc6b5f5603523c7"
+      "sha256": "f07767f5dfbdd45f168eb4605ac27568f8188c4ab789706416c207f62a2d47df"
     },
     {
       "file": "fixture.mjs",
       "path": "experiments/tokens/fixture.mjs",
-      "sha256": "d46f4bd2d68bfac4a8ff59386d74d5778076920049b101a5c336c2b781c33381"
+      "sha256": "4ff3328acb67f6443fc29bbeaf11ff968a4c2da486c130b92e3d21b2c8770391"
     }
   ],
   "license": "MIT",

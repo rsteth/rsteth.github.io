@@ -22,7 +22,7 @@ for(const mode of [false,true]) {
 }
 for(let step=0;step<=6;step++) {
  const {history,state}=illustrate(step),tiles=toyTiles(history,state);assert.equal(tiles.history.length,step);assert.equal(tiles.state.length,2);
- assert.deepEqual(tiles.state.map(x=>x.value),[state.door??null,state.cup??null]);
+ assert.deepEqual(tiles.state.map(x=>x.value),[state.who??null,state.where??null]);
 }
 assert.equal(context2d({getContext(){return null}}),null);assert.equal(context2d({getContext(){throw Error('off')}}),null);
 const ctx={fillStyle:'',strokeStyle:'',lineWidth:1,beginPath(){},moveTo(){},lineTo(){},closePath(){},fill(){},fillRect(){},strokeRect(){}};

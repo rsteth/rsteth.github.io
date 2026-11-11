@@ -1,4 +1,4 @@
-import {growth, architecture, illustrate, EVENTS} from './mechanics.mjs';
+import {growth, architecture, illustrate, EVENTS, SLOTS, RECALL} from './mechanics.mjs';
 import {arrowNode} from '../arrows.mjs?v=20261105-arrows';
 import {context2d,paintGrowth,paintLayers,paintToy,contains,layerStrip,groupOf,tileAt} from './visuals.mjs';
 const reducedMotion=window.matchMedia('(prefers-reduced-motion:reduce)');
@@ -73,13 +73,13 @@ function updateToy() {
  $('step-status').value=step+' / '+EVENTS.length+' updates';
  $('history').replaceChildren(...history.map(({key,value})=>{const li=document.createElement('li');li.append(key+' ',arrowNode('e',{label:'to'}),' '+value);return li;}));
  if(!history.length){const li=document.createElement('li');li.textContent='No updates yet';$('history').append(li);}
- $('state').replaceChildren(...['door','cup'].map(key=>{const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=state[key]??'—';div.append(dt,dd);return div;}));
+ $('state').replaceChildren(...SLOTS.map(key=>{const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=state[key]??'—';div.append(dt,dd);return div;}));
  $('previous').disabled=step===0;$('next').disabled=step===EVENTS.length;
- const firstDoor=history.find(event=>event.key==='door')?.value;
- $('recall-log').textContent=firstDoor??'—';
- $('recall-state').textContent=state.door===undefined?'—':state.door===firstDoor?state.door:state.door+' — only the latest survives';
- $('recall-card').dataset.outcome=state.door===undefined?'empty':state.door===firstDoor?'both':'lost';
- $('recall').textContent=step>=3?'The first door colour was blue. The log still contains it; the latest-state dictionary has overwritten it.':step?'The first door colour is blue. Both representations still retain it.':'Start with an empty log and two empty state slots.';
+ const first=history.find(event=>event.key===RECALL.key)?.value,now=state[RECALL.key];
+ $('recall-log').textContent=first===undefined?'—':'the '+first;
+ $('recall-state').textContent=now===undefined?'—':now===first?'the '+now:'the '+now+' — only the latest survives';
+ $('recall-card').dataset.outcome=now===undefined?'empty':now===first?'both':'lost';
+ $('recall').textContent=!step?'Start with an empty table and an empty summary.':first===undefined?'The story has not said where yet.':now===first?'The cat sat on the '+first+'. Both still hold it.':'The cat first sat on the '+first+'. The record still holds that card; the summary has written over it.';
 }
 $('layer-focus').addEventListener('change',()=>{selectedLayer=Number($('layer-focus').value);updateLayers();});
 $('layer-canvas').addEventListener('click',event=>{
