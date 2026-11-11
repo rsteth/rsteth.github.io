@@ -18,7 +18,15 @@ export function threadData(F,M){
  const outside=locate(F.outsideSkill.q),all=[...threads.flatMap(t=>t.points),outside];
  const span=k=>{const v=all.map(p=>p[k]);return [Math.floor((Math.min(...v)-.03)*10)/10,Math.ceil((Math.max(...v)+.03)*10)/10];};
  const [x0,x1]=span(0),[y0,y1]=span(1),present=threads.map(t=>t.present);
- return {threads,outside,locate,bounds:{x0,x1,y0,y1},presentRange:[Math.min(...present),Math.max(...present)],centre:[(x0+x1)/2,(y0+y1)/2,outside[2]*.35]};
+ // The hand-designed Reach / Present lines, solved with the pinned IK and located in the same fitted coordinates.
+ const solve=(reach,present,q)=>{const r=M.solveGrasp({...M.encodeTaskCoordinates(reach,present),initialQ:q});return r.ok?r.q:null;};
+ const line=at=>{
+  const mid=solve(...at(0),F.canonical.q);if(!mid)return [];
+  const half=dir=>{const points=[];let q=mid;for(let i=1;i<=8;i++){q=solve(...at(dir*i/8),q);if(!q)break;points.push(locate(q));}return points;};
+  return [...half(-1).reverse(),locate(mid),...half(1)];
+ };
+ const levels=[-1,-.5,0,.5,1],designed=[...levels.map(v=>line(s=>[v,s])),...levels.map(v=>line(s=>[s,v]))];
+ return {threads,outside,locate,designed,bounds:{x0,x1,y0,y1},presentRange:[Math.min(...present),Math.max(...present)],centre:[(x0+x1)/2,(y0+y1)/2,outside[2]*.35]};
 }
 // Orthographic camera: yaw about the off-plane axis, then elevation above the sheet. Third value = nearness.
 export function projector(W,H,view,data){
@@ -35,6 +43,11 @@ export function paintThreads(c,W,H,data,view,style={}){
  for(let i=0,n=Math.round((x1-x0)*10);i<=n;i++)seg(P([x0+i/10,y0,0]),P([x0+i/10,y1,0]));
  for(let j=0,n=Math.round((y1-y0)*10);j<=n;j++)seg(P([x0,y0+j/10,0]),P([x1,y0+j/10,0]));
  c.globalAlpha=.45;c.beginPath();[[x0,y0],[x1,y0],[x1,y1],[x0,y1]].forEach(([x,y],i)=>{const p=P([x,y,0]);c[i?'lineTo':'moveTo'](p[0],p[1]);});c.closePath();c.stroke();
+ if(view.designed){
+  c.globalAlpha=.6;c.lineWidth=1.3;c.setLineDash([1,4]);
+  for(const points of data.designed){if(points.length<2)continue;c.beginPath();points.map(P).forEach((p,i)=>c[i?'lineTo':'moveTo'](p[0],p[1]));c.stroke();}
+  c.setLineDash([]);c.lineWidth=1;
+ }
  const [lo,hi]=data.presentRange,mid=Math.floor(data.threads[0].points.length/2);
  const order=data.threads.map((thread,index)=>{const pts=thread.points.map(P);return {thread,index,pts,near:pts[mid][2]};}).sort((a,b)=>a.near-b.near);
  for(const {thread,index,pts} of order){
@@ -69,22 +82,23 @@ export function paintThreads(c,W,H,data,view,style={}){
   c.save();c.translate(at[0],at[1]);c.rotate(angle);c.fillText(text,-dir*14,offset);
   c.strokeStyle=muted;c.lineWidth=1;c.beginPath();c.moveTo(from,offset);c.lineTo(tip,offset);c.moveTo(tip-dir*5,offset-3.5);c.lineTo(tip,offset);c.lineTo(tip-dir*5,offset+3.5);c.stroke();c.restore();
  };
- const a=P([x0,y0,0]);
- along('PC1 · farther forward',a,P([x1,y0,0]),P([(x0+x1)/2,y0,0]),16);
+ const a=P([x0,y0,0]),low=view.designed?Math.min(y0,...data.designed.flat().map(p=>p[1])):y0;
+ along('PC1 · farther forward',a,P([x1,y0,0]),P([(x0+x1)/2,low,0]),16);
  along('PC2 · higher',a,P([x0,y1,0]),P([x0,(y0+y1)/2,0]),-12);
  return hits;
 }
 // Live figure: view buttons, drag or arrow keys to turn, hover to read a handoff, click a pose to load it.
-export function threadFigure(parent,data,{onPick=()=>{}}={}){
- const wrap=document.createElement('div');wrap.className='thread-wrap';
- wrap.innerHTML='<div class="toolbar thread-views"><span>View</span><button type="button" data-view="quarter">Three-quarter</button><button type="button" data-view="edge">Edge-on</button><button type="button" data-view="above">From above</button></div><canvas class="thread-figure" tabindex="0" role="img" aria-label="Synthetic handoffs drawn as threads lying almost flat on the fitted two-component plane, with the sideward presentation well above it. Arrow keys turn the view; the sliders below move the pose."></canvas><p class="thread-readout"></p><p class="map-legend">Solid = training handoff · dashed = held-out handoff · colour = peak Present, low (sage) to high (terracotta) · ring = current pose. Height = joint-space distance from the fitted plane, drawn at the same scale as PC1 and PC2. PCA signs are a display convention.</p>';
- parent.append(wrap);
- const canvas=wrap.querySelector('canvas'),readout=wrap.querySelector('.thread-readout'),c=canvas.getContext('2d');
- const view={yaw:VIEWS.quarter[0],el:VIEWS.quarter[1],scale:275,hot:null,current:null},still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+export function threadFigure(data,{onPick=()=>{}}={}){
+ const make=(tag,name,html='')=>{const node=document.createElement(tag);node.className=name;node.innerHTML=html;return node;};
+ const stage=make('div','thread-stage','<canvas class="thread-figure" tabindex="0" role="img" aria-label="Synthetic handoffs drawn as threads lying almost flat on the fitted two-component plane, with the sideward presentation well above it. Arrow keys turn the view; the sliders move the pose."></canvas>');
+ const views=make('div','toolbar thread-views','<span>View</span><button type="button" data-view="quarter">Three-quarter</button><button type="button" data-view="edge">Edge-on</button><button type="button" data-view="above">From above</button>');
+ const readout=make('p','thread-readout'),legend=make('p','map-legend','Solid = training handoff · dashed = held-out handoff · colour = peak Present, low (sage) to high (terracotta) · ring = current pose · dotted grid (hand-designed controller) = Reach and Present at -1, -0.5, 0, 0.5 and 1. Height = joint-space distance from the fitted plane, drawn at the same scale as PC1 and PC2. PCA signs are a display convention.');
+ const canvas=stage.querySelector('canvas'),c=canvas.getContext('2d');
+ const view={yaw:VIEWS.quarter[0],el:VIEWS.quarter[1],scale:275,hot:null,current:null,designed:false},still=matchMedia('(prefers-reduced-motion: reduce)').matches;
  let hits=[],hotStep=0,W=640,H=420,frame=0,drag=null;
  const clampEl=v=>Math.max(0,Math.min(Math.PI/2,v));
  function paint(){
-  const ratio=devicePixelRatio||1;W=canvas.clientWidth||640;H=Math.round(Math.max(280,Math.min(440,W*.66)));canvas.style.height=H+'px';
+  const ratio=devicePixelRatio||1;W=canvas.clientWidth||640;H=Math.round(Math.max(250,Math.min(440,W*.7)));canvas.style.height=H+'px';
   if(canvas.width!==Math.round(W*ratio)||canvas.height!==Math.round(H*ratio)){canvas.width=Math.round(W*ratio);canvas.height=Math.round(H*ratio);}
   c.setTransform(ratio,0,0,ratio,0,0);view.scale=Math.min(300,W*.405);
   hits=paintThreads(c,W,H,data,view,{font:getComputedStyle(canvas).fontFamily||'monospace'});
@@ -107,7 +121,7 @@ export function threadFigure(parent,data,{onPick=()=>{}}={}){
   const hot=best?best[2]:null,step=best?best[3]:0;
   if(hot!==view.hot||step!==hotStep){view.hot=hot;hotStep=step;paint();say();}
  }
- wrap.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>turnTo(b.dataset.view)));
+ views.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>turnTo(b.dataset.view)));
  canvas.addEventListener('pointerdown',event=>{cancelAnimationFrame(frame);pick(event);drag={x:event.clientX,y:event.clientY,yaw:view.yaw,el:view.el,moved:false};canvas.setPointerCapture?.(event.pointerId);});
  canvas.addEventListener('pointermove',event=>{
   if(!drag){pick(event);return;}
@@ -127,7 +141,8 @@ export function threadFigure(parent,data,{onPick=()=>{}}={}){
  if(typeof ResizeObserver==='function')new ResizeObserver(paint).observe(canvas);else addEventListener('resize',paint);
  paint();say();
  return {
-  setPose(q){view.current=data.locate(q);paint();say();},
+  stage,views,readout,legend,
+  setPose(q,designed=false){view.current=data.locate(q);view.designed=designed;paint();say();},
   reset(){cancelAnimationFrame(frame);view.yaw=VIEWS.quarter[0];view.el=VIEWS.quarter[1];view.hot=null;paint();say();}
  };
 }

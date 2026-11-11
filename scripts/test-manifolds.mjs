@@ -133,6 +133,7 @@ for(const thread of threads.threads){assert.equal(thread.points.length,F.demonst
 assert.ok(Math.abs(rmsDegrees(threads.outside[2])-F.outsideSkill.reconstructionRmsRad*180/Math.PI)<1e-9);
 assert.deepEqual(threads.outside.slice(0,2),F.outsideSkill.encoded);
 for(const [yaw,el] of Object.values(VIEWS)){const seen=[];const threadContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);seen.push(k);},set:()=>true});
- const hits=paintThreads(threadContext,640,420,threads,{yaw,el,scale:260,hot:0,current:threads.locate(F.canonical.q)});assert.equal(hits.length,trajectoryCount*F.demonstrations.sampleMetadata.samplesPerTrajectory+1);assert.ok(hits.every(h=>h.every(Number.isFinite)));assert.ok(seen.includes('quadraticCurveTo'));}
-assert.match(script,/threadFigure\(p\.controls,threadData\(F,M\)/);assert.match(script,/figure\.setPose\(p\.q\)/);
+ const hits=paintThreads(threadContext,640,420,threads,{yaw,el,scale:260,hot:0,current:threads.locate(F.canonical.q),designed:true});assert.equal(hits.length,trajectoryCount*F.demonstrations.sampleMetadata.samplesPerTrajectory+1);assert.ok(hits.every(h=>h.every(Number.isFinite)));assert.ok(seen.includes('quadraticCurveTo'));}
+assert.match(script,/threadFigure\(threadData\(F,M\)/);assert.match(script,/figure\.setPose\(p\.q,mode==='task'\)/);assert.match(script,/sideBySide\(p\)/);
+assert.equal(threads.designed.length,10);for(const points of threads.designed){assert.equal(points.length,17,'every designed Reach / Present line solves across its whole range');assert.ok(points.flat().every(Number.isFinite));}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration');
