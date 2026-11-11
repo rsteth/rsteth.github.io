@@ -29,9 +29,14 @@ export function threadData(F,M){
  return {threads,outside,locate,designed,bounds:{x0,x1,y0,y1},presentRange:[Math.min(...present),Math.max(...present)],centre:[(x0+x1)/2,(y0+y1)/2,outside[2]*.35]};
 }
 // Orthographic camera: yaw about the off-plane axis, then elevation above the sheet. Third value = nearness.
+// The sheet, the outside pose and the designed lines are fitted inside the canvas at every angle; view.scale is only a ceiling.
 export function projector(W,H,view,data){
- const cy=Math.cos(view.yaw),sy=Math.sin(view.yaw),ce=Math.cos(view.el),se=Math.sin(view.el),s=view.scale,c=data.centre;
- return p=>{const x=p[0]-c[0],y=p[1]-c[1],z=p[2]-c[2],xr=x*cy-y*sy,yr=x*sy+y*cy;return [W*.47+s*xr,H*.54-s*(yr*se+z*ce),-yr*ce+z*se];};
+ const cy=Math.cos(view.yaw),sy=Math.sin(view.yaw),ce=Math.cos(view.el),se=Math.sin(view.el),c=data.centre,{x0,x1,y0,y1}=data.bounds;
+ const raw=p=>{const x=p[0]-c[0],y=p[1]-c[1],z=p[2]-c[2],xr=x*cy-y*sy,yr=x*sy+y*cy;return [xr,-(yr*se+z*ce),-yr*ce+z*se];};
+ const key=[[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],data.outside,...data.designed.flat()].map(raw),xs=key.map(p=>p[0]),ys=key.map(p=>p[1]);
+ const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+ const s=Math.min(view.scale,(W-56)/Math.max(1e-9,maxX-minX),(H-76)/Math.max(1e-9,maxY-minY)),ox=W/2-s*(minX+maxX)/2,oy=30+(H-76)/2-s*(minY+maxY)/2;
+ return p=>{const r=raw(p);return [ox+s*r[0],oy+s*r[1],r[2]];};
 }
 export function paintThreads(c,W,H,data,view,style={}){
  const {ink='#302e28',muted='#6b695f',font='monospace'}=style,{x0,x1,y0,y1}=data.bounds,P=projector(W,H,view,data),hits=[];
@@ -59,9 +64,11 @@ export function paintThreads(c,W,H,data,view,style={}){
   pts.forEach((p,step)=>{dot(p,on?2.4:1.5);c.fill();hits.push([p[0],p[1],index,step]);});
  }
  c.font='12px '+font;c.textBaseline='middle';
+ // Two-line label beside a point: right of it when it fits, else left, else pinned inside the canvas just above or below the point.
  const note=(p,lines)=>{
-  const width=Math.max(...lines.map(text=>c.measureText(text).width)),left=p[0]+12+width>W-4;
-  c.textAlign=left?'right':'left';lines.forEach((text,i)=>{c.fillStyle=i?muted:ink;c.fillText(text,p[0]+(left?-12:12),p[1]-7+16*i);});
+  const width=Math.max(...lines.map(text=>c.measureText(text).width)),right=p[0]+12+width<=W-4,left=!right&&p[0]-12-width>=4;
+  const x=right?p[0]+12:left?p[0]-12:Math.max(4,Math.min(W-4-width,p[0]-width/2)),y=right||left?p[1]-7:p[1]>=50?p[1]-38:p[1]+20;
+  c.textAlign=left?'right':'left';lines.forEach((text,i)=>{c.fillStyle=i?muted:ink;c.fillText(text,x,y+16*i);});
  };
  const foot=P([data.outside[0],data.outside[1],0]),top=P(data.outside),drop=length(foot,top);
  c.globalAlpha=view.hot!=null&&view.hot!==-1?.3:1;c.strokeStyle=ink;c.lineWidth=1;
@@ -100,7 +107,7 @@ export function threadFigure(data,{onPick=()=>{}}={}){
  function paint(){
   const ratio=devicePixelRatio||1;W=canvas.clientWidth||640;H=Math.round(Math.max(250,Math.min(440,W*.7)));canvas.style.height=H+'px';
   if(canvas.width!==Math.round(W*ratio)||canvas.height!==Math.round(H*ratio)){canvas.width=Math.round(W*ratio);canvas.height=Math.round(H*ratio);}
-  c.setTransform(ratio,0,0,ratio,0,0);view.scale=Math.min(300,W*.405);
+  c.setTransform(ratio,0,0,ratio,0,0);view.scale=320;
   hits=paintThreads(c,W,H,data,view,{font:getComputedStyle(canvas).fontFamily||'monospace'});
  }
  function say(){

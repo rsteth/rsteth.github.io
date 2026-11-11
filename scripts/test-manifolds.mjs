@@ -9,7 +9,7 @@ import {pcaDirectionNote,VIEW_DIRECTION_NOTE,CHART_DIRECTION_NOTE} from '../lear
 import {routeSVG,sameRoute} from '../learning-machines/manifolds/routes.mjs';
 import {formatResidual,formatSliderValue} from '../learning-machines/manifolds/format.mjs';
 import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/manifolds/visuals.mjs';
-import {threadData,paintThreads,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
+import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
 const contrast=(a,b)=>(Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
@@ -137,4 +137,7 @@ for(const [yaw,el] of Object.values(VIEWS)){const seen=[];const threadContext=ne
  const hits=paintThreads(threadContext,640,420,threads,{yaw,el,scale:260,hot:0,current:threads.locate(F.canonical.q),designed:true});assert.equal(hits.length,trajectoryCount*F.demonstrations.sampleMetadata.samplesPerTrajectory+1);assert.ok(hits.every(h=>h.every(Number.isFinite)));assert.ok(seen.includes('quadraticCurveTo'));}
 assert.match(script,/threadFigure\(threadData\(F,M\)/);assert.match(script,/figure\.setPose\(p\.q,mode==='task'\)/);assert.match(script,/sideBySide\(p\)/);
 assert.equal(threads.designed.length,10);for(const points of threads.designed){assert.equal(points.length,17,'every designed Reach / Present line solves across its whole range');assert.ok(points.flat().every(Number.isFinite));}
+// The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
+for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
+ for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration');
