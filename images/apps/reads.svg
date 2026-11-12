@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none">
+  <title>Reads illustration</title>
+  <desc>An original illustration of a page of text turning into a sound wave. Not a screenshot.</desc>
+  <rect width="800" height="600" fill="#1d1b1a"/>
+  <rect x="150" y="140" width="230" height="320" rx="8" fill="#f6f3eb"/>
+  <g stroke="#b9b1a1" stroke-width="8" stroke-linecap="round">
+    <path d="M186 200h158M186 240h158M186 280h120M186 320h158M186 360h158M186 400h90"/>
+  </g>
+  <g stroke="#db9672" stroke-width="12" stroke-linecap="round">
+    <path d="M440 270v60M476 230v140M512 190v220M548 245v110M584 215v170M620 265v70M656 285v30"/>
+  </g>
+</svg>

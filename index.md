@@ -12,6 +12,24 @@ I started the Museum of Other Realities as a social space for creatives prototyp
 
 https://museumor.com
 
+## Prosocial Design
+
+A design lab for healthier social spaces, co-founded with Andy Moore. We build small research vehicles, like VanChat, to test how timing, size, and lightness affect trust and talk.
+
+https://prosocial.design
+
+## Reads
+
+Bring a story, an essay or a letter, and hear it read in the voice of someone you love. With their permission, a short recording becomes a voice in your private library.
+
+https://reads.sh
+
+## Shortform Bandit
+
+Human-directed video production built around reusable content profiles. Plan, review, and assemble short-form video in a local studio.
+
+https://bandit.stethem.com
+
 ## Mysterious Modular Device
 
 It comes in pieces. You assemble it yourself. You aren't quite sure what all the pieces do.

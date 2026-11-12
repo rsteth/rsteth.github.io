@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none">
+  <title>Shortform Bandit illustration</title>
+  <desc>An original illustration of three vertical video frames on a timeline, the middle one marked for review. Not a screenshot.</desc>
+  <rect width="800" height="600" fill="#f6f3eb"/>
+  <rect x="150" y="130" width="140" height="250" rx="10" fill="#c0c7ac"/>
+  <rect x="330" y="110" width="140" height="250" rx="10" fill="#db9672" stroke="#24211f" stroke-width="4"/>
+  <rect x="510" y="130" width="140" height="250" rx="10" fill="#ddd6c6"/>
+  <path d="M382 205v60l48 -30z" fill="#24211f"/>
+  <path d="M120 450h560" stroke="#24211f" stroke-width="4" stroke-linecap="round"/>
+  <rect x="150" y="436" width="140" height="28" rx="4" fill="#7f8b6e"/>
+  <rect x="330" y="436" width="140" height="28" rx="4" fill="#b16c4f"/>
+  <rect x="510" y="436" width="140" height="28" rx="4" fill="#b9b1a1"/>
+  <path d="M400 410v80" stroke="#24211f" stroke-width="4" stroke-linecap="round"/>
+</svg>

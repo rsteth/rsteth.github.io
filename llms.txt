@@ -7,6 +7,9 @@ Contact: robin@stethem.com · GitHub: https://github.com/rsteth · LinkedIn: htt
 ## Projects
 
 - [Museum of Other Realities](https://museumor.com): A social VR space for creatives prototyping new forms of cultural production; finalist for Immersive Reality Technical Achievement at the D.I.C.E. Awards.
+- [Prosocial Design](https://prosocial.design): A design lab for healthier social spaces, co-founded with Andy Moore; research vehicles like VanChat test how timing, size, and lightness affect trust and talk.
+- [Reads](https://reads.sh): Hear a story, essay or letter read in the voice of someone you love, added with their permission. Currently by invitation.
+- [Shortform Bandit](https://bandit.stethem.com): Human-directed short-form video production built around reusable content profiles.
 - [Market River](https://stethem.com/market-river/index.md): Generative art driven by live stock market data. River landscapes made at the open, midday, and close of each trading day from versioned templates, each traceable to its market snapshot. Source: https://github.com/rsteth/market-river-generator
 - [Great Circle](https://stethem.com/great_circle/): A cycling loop planner. Pick a start point and distance, get a near-circular route, and export it as GPX.
 - [Verbosele](https://stethem.com/verbosele/): Wordle with levels. Words from 5 to 9 letters across five rounds on one shared pool of 18 lives, with optional thesaurus hints. Source: https://github.com/rsteth/Verbosele
