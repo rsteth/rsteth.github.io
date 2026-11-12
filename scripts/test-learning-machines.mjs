@@ -21,7 +21,7 @@ const {growth,illustrate,architecture}=await import('../learning-machines/attent
 assert.equal(growth(262144).recurrent,64);assert.equal(illustrate(6).state.where,'bed');assert.equal(architecture(true).length,64);
 const home=readFileSync(resolve(root,'index.html'),'utf8');
 const cards=[...home.matchAll(/<h2><a class="project-card__link"[^>]*>([^<]+)<\/a><\/h2>/g)].map(match=>match[1]);
-assert.deepEqual(cards,["Museum of Other Realities","Mysterious Modular Device","Design System","Fischer Price Revolutionary Device","Market River","Learning Machines","Great Circle","Verbosele","Focus Speed Reader","The Spoon App"]);
+assert.deepEqual(cards,["Museum of Other Realities","Prosocial Design","Reads","Shortform Bandit","Mysterious Modular Device","Design System","Fischer Price Revolutionary Device","Market River","Learning Machines","Great Circle","Verbosele","Focus Speed Reader","The Spoon App"]);
 const page=readFileSync(resolve(base,'index.html'),'utf8');
 assert.ok(page.includes(pin.repository+'/tree/'+pin.commit+'/experiments/attention-memory'),'Experiment link must match mechanics pin');
 assert.ok(page.includes(pin.repository+'/commit/'+pin.commit),'Commit link must match mechanics pin');
