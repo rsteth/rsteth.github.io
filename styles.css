@@ -32,6 +32,9 @@
     --accent-hover: #783326;
     --page-background: #fff;
     --header-background: #f3f1ed;
+    --portfolio-gutter: clamp(36px, 5vw, 72px);
+    --portfolio-column-gap: clamp(40px, 4vw, 64px);
+    --portfolio-row-gap: 88px;
 }
 
 body {
@@ -95,13 +98,13 @@ samp {
 }
 
 .container.portfolio {
-    max-width: 1080px;
-    padding: 48px 28px;
+    max-width: 1024px;
+    padding: 64px var(--portfolio-gutter) 80px;
 }
 
 .portfolio-intro {
-    margin: 0 -28px 48px;
-    padding: 40px 28px 32px;
+    margin: 0 calc(-1 * var(--portfolio-gutter)) 64px;
+    padding: 40px var(--portfolio-gutter) 32px;
     background: var(--header-background);
 }
 
@@ -116,7 +119,7 @@ samp {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
-    gap: 64px 32px;
+    gap: var(--portfolio-row-gap) var(--portfolio-column-gap);
     text-align: left;
 }
 
@@ -262,14 +265,14 @@ samp {
     }
 
     .container.portfolio {
-        padding: 56px 20px 40px;
+        --portfolio-gutter: 28px;
+        --portfolio-row-gap: 64px;
+        padding: 56px var(--portfolio-gutter) 64px;
     }
 
     .portfolio-intro {
-        margin-right: -20px;
-        margin-left: -20px;
-        padding: 32px 20px 24px;
-        margin-bottom: 36px;
+        padding: 32px var(--portfolio-gutter) 24px;
+        margin-bottom: 48px;
     }
 
     .portfolio-intro h1 {
@@ -278,7 +281,15 @@ samp {
 
     .project-grid {
         grid-template-columns: minmax(0, 1fr);
-        gap: 48px;
+    }
+
+    .project-thumbnail {
+        width: calc(100% + 2 * var(--portfolio-gutter));
+        margin-inline: calc(-1 * var(--portfolio-gutter));
+    }
+
+    .project-card__link::after {
+        inset-inline: calc(-1 * var(--portfolio-gutter));
     }
 
     .project-card--last {
