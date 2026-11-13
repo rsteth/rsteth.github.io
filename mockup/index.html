@@ -46,7 +46,7 @@ a { color: inherit; }
 .wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
 .mono { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; letter-spacing: 0.01em; }
 
-/* ---------- fig. 0: the opening wall ---------- */
+/* ---------- the opening wall ---------- */
 .hero {
     display: flex;
     flex-direction: column;
@@ -65,13 +65,17 @@ a { color: inherit; }
 .hero__foot { margin-top: auto; }
 .hero__label {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: flex-end;
     gap: 24px;
     color: var(--muted);
 }
 .hero__label p { margin: 0; }
 .hero__label b { font-weight: 400; color: var(--ink); }
+.hero__down { text-decoration: none; white-space: nowrap; }
+.hero__down:hover { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) { .frame::after, .counter { transition: none !important; } }
 .hero h1 {
     margin: 10px 0 0 -0.045em;
     font-family: var(--font-heading);
@@ -90,7 +94,7 @@ a { color: inherit; }
 .band--out { background: linear-gradient(var(--room), var(--paper)); }
 
 /* ---------- 01: the dark room ---------- */
-.room { background: var(--room); color: var(--room-ink); padding: 40px 0 72px; }
+.room { background: var(--room); color: var(--room-ink); padding: 40px 0 72px; overflow: clip; scroll-margin-top: 96px; }
 .room__hang {
     position: relative;
     display: grid;
@@ -162,6 +166,15 @@ a { color: inherit; }
 .frame--paper > img { mix-blend-mode: multiply; }
 .frame--square { aspect-ratio: 1; }
 .frame--square > img { object-fit: contain; }
+.frame > .feather > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.frame > .feather {
+    display: block; width: 100%; height: 100%; mix-blend-mode: multiply;
+    --f: 8%;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--f), #000 calc(100% - var(--f)), transparent), linear-gradient(to bottom, transparent, #000 var(--f), #000 calc(100% - var(--f)), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 var(--f), #000 calc(100% - var(--f)), transparent), linear-gradient(to bottom, transparent, #000 var(--f), #000 calc(100% - var(--f)), transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+}
 .frame--phone { aspect-ratio: 5 / 9; }
 /* viewfinder corners, as in the learning machines panels */
 .frame::after {
@@ -273,8 +286,7 @@ a { color: inherit; }
     </div>
     <div class="hero__foot">
         <div class="hero__label mono">
-            <p><b>fig. 0</b> — a portfolio, ongoing.<br>html, css and some javascript on screen. dimensions variable<span data-dims></span>.</p>
-            <p>thirteen works<svg class="arrow arrow--s" viewBox="0 0 24 11" aria-hidden="true"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></p>
+            <p><a class="hero__down" href="mockup/#works">thirteen works<svg class="arrow arrow--s" viewBox="0 0 24 11" aria-hidden="true"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></a></p>
         </div>
         <h1>robin stethem</h1>
     </div>
@@ -282,7 +294,7 @@ a { color: inherit; }
 
 <div class="band band--in" aria-hidden="true"><canvas data-band="in"></canvas></div>
 
-<section class="room" aria-label="Museum of Other Realities">
+<section class="room" id="works" aria-label="Museum of Other Realities">
     <div class="wrap">
         <article class="work room__hang" data-no="01">
             <figure class="film">
@@ -373,7 +385,7 @@ a { color: inherit; }
         </article>
 
         <article class="work w08" data-no="08">
-            <figure class="frame frame--square frame--paper"><img src="images/market-river/2026-10-23-close-353a8248769a-sunny.webp" alt="A snowy floating island city with skyscrapers, a mountain waterfall, and a winding river — Market River, October 23 closing snapshot" width="1008" height="1008" loading="lazy"></figure>
+            <figure class="frame frame--square"><span class="feather"><img src="images/market-river/2026-10-23-close-353a8248769a-sunny.webp" alt="A snowy floating island city with skyscrapers, a mountain waterfall, and a winding river — Market River, October 23 closing snapshot" width="1008" height="1008" loading="lazy"></span></figure>
             <div class="placard">
                 <span class="placard__no mono">08</span>
                 <h2><a class="work__link" href="market-river/">Market River</a></h2>
@@ -487,12 +499,10 @@ a { color: inherit; }
     const drawBands = () => bands.forEach(drawBand);
 
     /* the label measures the work */
-    const dims = document.querySelector("[data-dims]");
     const dimsPlain = document.querySelector("[data-dims-plain]");
     const scrolled = document.querySelector("[data-scrolled]");
     function measure() {
         const size = innerWidth + " × " + innerHeight;
-        dims.textContent = " (currently " + size + ")";
         dimsPlain.textContent = size;
     }
     let far = 0;
@@ -521,7 +531,7 @@ a { color: inherit; }
         el.style.webkitMaskSize = el.style.maskSize = v ? 4 * CELL + "px" : "";
     }
     if (!reduced && "IntersectionObserver" in window) {
-        const frames = [...document.querySelectorAll(".frame > img, .frame > svg")];
+        const frames = [...document.querySelectorAll(".frame > img, .frame > svg, .frame > .feather > img")];
         const io = new IntersectionObserver((entries) => {
             for (const e of entries) {
                 if (!e.isIntersecting) continue;
