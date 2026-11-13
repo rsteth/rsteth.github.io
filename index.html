@@ -29,9 +29,8 @@
     <link rel="preload" href="fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="fonts/space-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="styles.css?v=20261111-mmd">
-    <script src="script.js?v=20261029-1" defer></script>
-    <script src="museum-video.js?v=20261025-1" defer></script>
+    <link rel="stylesheet" href="homepage.css?v=20261113-1">
+    <script src="homepage.js?v=20261113-1" defer></script>
 
     <script type="application/ld+json">
     {
@@ -98,119 +97,199 @@
     </script>
 </head>
 <body>
-    <main class="container portfolio">
-        <header class="portfolio-intro">
-            <h1 id="page-title">robin stethem</h1>
-        <nav class="social-links" aria-label="Social and contact links">
-            <a href="https://github.com/rsteth" target="_blank" rel="me noopener">github</a>
-            <a href="https://x.com/robinstethem" target="_blank" rel="me noopener">twitter</a>
-            <a href="https://instagram.com/rsteth" target="_blank" rel="me noopener">instagram</a>
-            <a href="https://www.linkedin.com/in/stethem" target="_blank" rel="me noopener">linkedin</a>
-            <a href="mailto:robin@stethem.com" rel="me">email robin@stethem.com</a>
+
+<header class="hero">
+    <div class="hero__bar mono">
+        <span>stethem.com</span>
+        <nav aria-label="Social and contact links">
+            <a href="https://github.com/rsteth">github</a>
+            <a href="https://x.com/robinstethem">twitter</a>
+            <a href="https://instagram.com/rsteth">instagram</a>
+            <a href="https://www.linkedin.com/in/stethem">linkedin</a>
+            <a href="mailto:robin@stethem.com">robin@stethem.com</a>
         </nav>
-        </header>
+    </div>
+    <div class="hero__foot">
+        <div class="hero__label mono">
+            <p><a class="hero__down" href="#works">thirteen works<svg class="arrow arrow--s" viewBox="0 0 24 11" aria-hidden="true"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></a></p>
+        </div>
+        <h1>robin stethem</h1>
+    </div>
+</header>
 
-        <section class="project-grid" aria-label="Projects">
-            <article class="project-card project-card--featured">
-                <div class="project-thumbnail museum-animation">
-                    <img src="museum-poster.jpg" alt="An immersive exhibition in the Museum of Other Realities" width="640" height="360" loading="eager" fetchpriority="high" decoding="async">
-                    <video class="museum-animation__video" data-src="museum.mp4" width="640" height="360" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" hidden></video>
-                </div>
-                <h2><a class="project-card__link" href="https://museumor.com">Museum of Other Realities</a></h2>
-                <p>i started the museum of other realities as a social space for creatives prototyping new forms of cultural production. the museum was the official virtual platform for Cannes xr, tribeca, newimages, and viff immersed. mor was also a finalist for immersive reality technical achievement at the d.i.c.e. awards.
-                </p>
-                <span class="project-card__action" aria-hidden="true">Explore the museum<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-                <button class="museum-animation__toggle" type="button" aria-label="Play museum animation" hidden>play</button>
-            </article>
+<div class="band band--in" aria-hidden="true"><canvas data-band="in"></canvas></div>
 
+<section class="room" id="works" aria-label="Museum of Other Realities">
+    <div class="wrap">
+        <article class="work room__hang" data-no="01">
+            <figure class="film">
+                <img src="museum-poster.jpg" alt="An immersive exhibition in the Museum of Other Realities" width="640" height="360">
+                <video src="museum.mp4" poster="museum-poster.jpg" muted loop playsinline preload="metadata" aria-hidden="true" tabindex="-1"></video>
+                <button class="film__toggle" type="button" hidden>pause</button>
+            </figure>
+            <div class="placard">
+                <span class="placard__no mono">01</span>
+                <h2><a class="work__link" href="https://museumor.com">Museum of Other Realities</a></h2>
+                <span class="placard__medium mono">social vr, other people</span>
+                <p>i started the museum of other realities as a social space for creatives prototyping new forms of cultural production. the museum was the official virtual platform for Cannes xr, tribeca, newimages, and viff immersed. mor was also a finalist for immersive reality technical achievement at the d.i.c.e. awards.</p>
+                <span class="placard__action mono" aria-hidden="true">Explore the museum<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
+    </div>
+</section>
 
-            <article class="project-card" data-project="prosocial">
-                <div class="project-thumbnail"><img src="images/apps/prosocial.svg" alt="An illustration of two small groups of connected circles, joined by one circle that belongs to both" width="800" height="600" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://prosocial.design">Prosocial Design</a></h2>
+<div class="band band--out" aria-hidden="true"><canvas data-band="out"></canvas></div>
+
+<main class="works">
+    <div class="wrap hang">
+
+        <article class="work w02" data-no="02">
+            <figure class="frame"><img src="images/apps/prosocial.svg" alt="An illustration of two small groups of connected circles, joined by one circle that belongs to both" width="800" height="600" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">02</span>
+                <h2><a class="work__link" href="https://prosocial.design">Prosocial Design</a></h2>
+                <span class="placard__medium mono">design lab, small groups</span>
                 <p>A design lab for healthier social spaces, co-founded with Andy Moore. We build small research vehicles, like VanChat, to test how timing, size, and lightness affect trust and talk.</p>
-                <span class="project-card__action" aria-hidden="true">Visit the lab<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Visit the lab<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card" data-project="reads">
-                <div class="project-thumbnail"><img src="images/apps/reads.svg" alt="An illustration of a page of text turning into a sound wave" width="800" height="600" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://reads.sh">Reads</a></h2>
+        <article class="work w03" data-no="03">
+            <figure class="frame"><img src="images/apps/reads.svg" alt="An illustration of a page of text turning into a sound wave" width="800" height="600" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">03</span>
+                <h2><a class="work__link" href="https://reads.sh">Reads</a></h2>
+                <span class="placard__medium mono">text, a borrowed voice</span>
                 <p>Bring a story, an essay or a letter, and hear it read in the voice of someone you love. With their permission, a short recording becomes a voice in your private library.</p>
-                <span class="project-card__action" aria-hidden="true">Visit Reads<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Visit Reads<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card" data-project="shortform-bandit">
-                <div class="project-thumbnail"><img src="images/apps/shortform-bandit.svg" alt="An illustration of three vertical video frames on a timeline, the middle one marked for review" width="800" height="600" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://bandit.stethem.com">Shortform Bandit</a></h2>
+        <article class="work w04" data-no="04">
+            <figure class="frame"><img src="images/apps/shortform-bandit.svg" alt="An illustration of three vertical video frames on a timeline, the middle one marked for review" width="800" height="600" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">04</span>
+                <h2><a class="work__link" href="https://bandit.stethem.com">Shortform Bandit</a></h2>
+                <span class="placard__medium mono">local studio software</span>
                 <p>Human-directed video production built around reusable content profiles. Plan, review, and assemble short-form video in a local studio.</p>
-                <span class="project-card__action" aria-hidden="true">Open the studio<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Open the studio<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card">
-                <div class="project-thumbnail project-thumbnail--mmd" role="img" aria-label="The Mysterious Modular Device's colored modules stacked as a tower in the wrong order, with a yellow antenna on top and one spare grey part"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-199.3 -232 438.7 329" fill="none" aria-hidden="true" class="mmd-thumbnail-art" shape-rendering="crispEdges"><defs><pattern id="mmd-dl" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" opacity=".4"/></pattern><pattern id="mmd-dd" width="4" height="4" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="1" height="1" fill="#000" opacity=".25"/></pattern><pattern id="mmd-mesh" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><circle cx=".8" cy=".8" r=".55" fill="#9a9a96"/></pattern></defs><rect x="-199.3" y="-232" width="438.7" height="329" fill="#f6f3eb"/><path d="M20,-23L126,30L20,83L-86,30z" fill="#ddd6c6" opacity=".6"/><g class="mmd-piece" style="--mmd-x:-7px;--mmd-y:-3.5px"><g stroke="#1d3f88" stroke-width=".7" stroke-linejoin="round"><path d="M0,-40L68,-6L38,9L-30,-25z" fill="#7aa2f2"/><path d="M68,-6L38,9L38,49L68,34z" fill="#2a56b4"/><path d="M-30,-25L38,9L38,49L-30,15z" fill="#3f78e8"/></g><path d="M0,-40L68,-6L38,9L-30,-25z" fill="url(#mmd-dl)"/><path d="M68,-6L38,9L38,49L68,34z" fill="url(#mmd-dd)"/><path d="M-30 -25L38 9" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M68 -6L38 9" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M38 9L38 49" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-30,-25)"><circle cx="20" cy="20" r="13.5" fill="#2a56b4"/><circle cx="20" cy="20" r="12.5" fill="#e6e4de"/><circle cx="20" cy="20" r="10.5" fill="#a9a7a0"/><circle cx="20" cy="20" r="8.5" fill="#262a27"/><circle cx="20" cy="20" r="5" fill="#4c6b58"/><circle cx="17" cy="17" r="2" fill="#fff" opacity=".8"/><circle cx="50" cy="18" r="10.5" fill="#2a56b4"/><circle cx="50" cy="18" r="9.5" fill="#dddbd4"/><circle cx="50" cy="18" r="7.8" fill="#b9b7b0"/><circle cx="50" cy="18" r="6.2" fill="#93918a"/><circle cx="50" cy="18" r="4.6" fill="#262a27"/><circle cx="50" cy="18" r="2.6" fill="#4c6b58"/><circle cx="48.6" cy="16.6" r="1" fill="#fff" opacity=".8"/></g></g><g class="mmd-piece" style="--mmd-x:7px;--mmd-y:3.5px"><g stroke="#1d3f88" stroke-width=".7" stroke-linejoin="round"><path d="M6,-73L74,-39L32,-18L-36,-52z" fill="#3f78e8"/><path d="M74,-39L32,-18L32,12L74,-9z" fill="#2a56b4"/><path d="M-36,-52L32,-18L32,12L-36,-22z" fill="#7aa2f2"/></g><path d="M6,-73L74,-39L32,-18L-36,-52z" fill="url(#mmd-dl)"/><path d="M74,-39L32,-18L32,12L74,-9z" fill="url(#mmd-dd)"/><path d="M-36 -52L32 -18" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M74 -39L32 -18" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M32 -18L32 12" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,6,-73)"><rect x="7" y="10" width="54" height="22" rx="11" fill="#2a56b4"/><rect x="8" y="11" width="52" height="20" rx="10" fill="#e6e4de"/><rect x="10" y="13" width="48" height="16" rx="8" fill="#4a4a48"/><rect x="10" y="13" width="48" height="16" rx="8" fill="url(#mmd-mesh)"/><rect x="31" y="39.5" width="6" height="2.5" fill="#1d3f88"/></g></g><g class="mmd-piece" style="--mmd-x:-8px;--mmd-y:-4px"><g stroke="#8a6a10" stroke-width=".7" stroke-linejoin="round"><path d="M0,-112L34,-95L4,-80L-30,-97z" fill="#fbdc74"/><path d="M34,-95L4,-80L4,-38L34,-53z" fill="#c9991c"/><path d="M-30,-97L4,-80L4,-38L-30,-55z" fill="#f6c531"/></g><path d="M0,-112L34,-95L4,-80L-30,-97z" fill="url(#mmd-dl)"/><path d="M34,-95L4,-80L4,-38L34,-53z" fill="url(#mmd-dd)"/><path d="M-30 -97L4 -80" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M34 -95L4 -80" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M4 -80L4 -38" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-30,-97)"><circle cx="17" cy="21.6" r="2" fill="#fbe596"/><circle cx="17" cy="21" r="2" fill="#6e540a"/></g></g><g class="mmd-piece" style="--mmd-x:8px;--mmd-y:-4px"><g stroke="#1a5229" stroke-width=".7" stroke-linejoin="round"><path d="M38,-95L68,-80L34,-63L4,-78z" fill="#72c68a"/><path d="M68,-80L34,-63L34,-21L68,-38z" fill="#3aa65a"/><path d="M4,-78L34,-63L34,-21L4,-36z" fill="#287a40"/></g><path d="M38,-95L68,-80L34,-63L4,-78z" fill="url(#mmd-dl)"/><path d="M68,-80L34,-63L34,-21L68,-38z" fill="url(#mmd-dd)"/><path d="M4 -78L34 -63" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M68 -80L34 -63" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M34 -63L34 -21" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,-.5,0,1,34,-63)"><circle cx="12" cy="22" r="6.2" fill="#287a40"/><circle cx="12" cy="22" r="5.4" fill="#dddbd4"/><circle cx="12" cy="22" r="3.6" fill="#262a27"/><circle cx="12" cy="22" r="1.8" fill="#4c6b58"/><rect x="21" y="15" width="6.5" height="14" rx="2.5" fill="#287a40"/><rect x="23" y="20.5" width="2.6" height="4.5" rx="1" fill="#143d1e"/></g></g><g class="mmd-piece" style="--mmd-x:-7px;--mmd-y:3.5px"><g stroke="#7c261a" stroke-width=".7" stroke-linejoin="round"><path d="M26,-155L94,-121L12,-80L-56,-114z" fill="#e4533f"/><path d="M94,-121L12,-80L12,-50L94,-91z" fill="#b03a2a"/><path d="M-56,-114L12,-80L12,-50L-56,-84z" fill="#f08a78"/></g><path d="M26,-155L94,-121L12,-80L-56,-114z" fill="url(#mmd-dl)"/><path d="M94,-121L12,-80L12,-50L94,-91z" fill="url(#mmd-dd)"/><path d="M-56 -114L12 -80" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M94 -121L12 -80" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M12 -80L12 -50" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,26,-155)"><rect x="4" y="4" width="60" height="74" rx="2.5" fill="#b03a2a"/><rect x="5.5" y="5.5" width="57" height="71" rx="2" fill="#101010"/><path d="M5.5 7.5q0-2 2-2h53q2 0 2 2V52L5.5 26z" fill="#5a5a5a"/></g></g><g class="mmd-piece" style="--mmd-x:-6px;--mmd-y:-3px"><g stroke="#8a6a10" stroke-width=".7" stroke-linejoin="round"><path d="M4,-180L38,-163L8,-148L-26,-165z" fill="#fbdc74"/><path d="M38,-163L8,-148L8,-108L38,-123z" fill="#c9991c"/><path d="M-26,-165L8,-148L8,-108L-26,-125z" fill="#f6c531"/></g><path d="M4,-180L38,-163L8,-148L-26,-165z" fill="url(#mmd-dl)"/><path d="M38,-163L8,-148L8,-108L38,-123z" fill="url(#mmd-dd)"/><path d="M-26 -165L8 -148" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M38 -163L8 -148" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M8 -148L8 -108" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-26,-165)"><rect x="6" y="9" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="8" width="22" height="4.5" rx="2.2" fill="#3b3320"/><rect x="6" y="18" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="17" width="22" height="4.5" rx="2.2" fill="#3b3320"/><rect x="6" y="27" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="26" width="22" height="4.5" rx="2.2" fill="#3b3320"/></g><g shape-rendering="geometricPrecision" transform="matrix(1,-.5,0,1,8,-148)"><rect x="3" y="8" width="17" height="4.5" rx="2.2" fill="#3b3320"/><rect x="3" y="17" width="17" height="4.5" rx="2.2" fill="#3b3320"/><rect x="3" y="26" width="17" height="4.5" rx="2.2" fill="#3b3320"/></g></g><g class="mmd-piece" style="--mmd-x:6px;--mmd-y:3px"><g stroke="#1a5229" stroke-width=".7" stroke-linejoin="round"><path d="M41,-156.5L75,-139.5L35,-119.5L1,-136.5z" fill="#3aa65a"/><path d="M75,-139.5L35,-119.5L35,-89.5L75,-109.5z" fill="#287a40"/><path d="M1,-136.5L35,-119.5L35,-89.5L1,-106.5z" fill="#72c68a"/></g><path d="M41,-156.5L75,-139.5L35,-119.5L1,-136.5z" fill="url(#mmd-dl)"/><path d="M75,-139.5L35,-119.5L35,-89.5L75,-109.5z" fill="url(#mmd-dd)"/><path d="M1 -136.5L35 -119.5" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M75 -139.5L35 -119.5" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M35 -119.5L35 -89.5" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,41,-156.5)"><rect x="10.8" y="7" width="3.2" height="26" rx="1.6" fill="#72c68a"/><rect x="10" y="7" width="3.2" height="26" rx="1.6" fill="#143d1e"/><circle cx="24" cy="30" r="2.4" fill="#143d1e"/></g></g><g class="mmd-piece" style="--mmd-x:-6px;--mmd-y:-3px"><g shape-rendering="geometricPrecision" stroke-linecap="round"><path d="M6 -164L6 -218" stroke="#8a6a10" stroke-width="6.4"/><path d="M6 -164L6 -218" stroke="#f6c531" stroke-width="5"/><path d="M5 -165L5 -219" stroke="#fbe596" stroke-width="1.2"/></g></g><g class="mmd-piece" style="--mmd-x:6px;--mmd-y:3px"><g stroke="#4a4740" stroke-width=".7" stroke-linejoin="round"><path d="M36,-162L52,-154L36,-146L20,-154z" fill="#a19c91"/><path d="M52,-154L36,-146L36,-130L52,-138z" fill="#7b766d"/><path d="M20,-154L36,-146L36,-130L20,-138z" fill="#c9c5ba"/></g><path d="M36,-162L52,-154L36,-146L20,-154z" fill="url(#mmd-dl)"/><path d="M52,-154L36,-146L36,-130L52,-138z" fill="url(#mmd-dd)"/><path d="M20 -154L36 -146" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M52 -154L36 -146" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M36 -146L36 -130" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,36,-162)"><circle cx="8" cy="8" r="3.5" fill="#3a3732"/><circle cx="7" cy="7" r="1" fill="#8a867c"/></g></g></svg></div>
-                <h2><a class="project-card__link" href="objects/mysterious-modular-device/">Mysterious Modular Device</a></h2>
+        <article class="work w05" data-no="05">
+            <figure class="frame" role="img" aria-label="The Mysterious Modular Device's colored modules stacked as a tower in the wrong order"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-199.3 -232 438.7 329" fill="none" aria-hidden="true" class="mmd-thumbnail-art" shape-rendering="crispEdges"><defs><pattern id="mmd-dl" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#fff" opacity=".4"/></pattern><pattern id="mmd-dd" width="4" height="4" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="1" height="1" fill="#000" opacity=".25"/></pattern><pattern id="mmd-mesh" width="2.4" height="2.4" patternUnits="userSpaceOnUse"><circle cx=".8" cy=".8" r=".55" fill="#9a9a96"/></pattern></defs><rect x="-199.3" y="-232" width="438.7" height="329" fill="#f6f3eb"/><path d="M20,-23L126,30L20,83L-86,30z" fill="#ddd6c6" opacity=".6"/><g class="mmd-piece" style="--mmd-x:-7px;--mmd-y:-3.5px"><g stroke="#1d3f88" stroke-width=".7" stroke-linejoin="round"><path d="M0,-40L68,-6L38,9L-30,-25z" fill="#7aa2f2"/><path d="M68,-6L38,9L38,49L68,34z" fill="#2a56b4"/><path d="M-30,-25L38,9L38,49L-30,15z" fill="#3f78e8"/></g><path d="M0,-40L68,-6L38,9L-30,-25z" fill="url(#mmd-dl)"/><path d="M68,-6L38,9L38,49L68,34z" fill="url(#mmd-dd)"/><path d="M-30 -25L38 9" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M68 -6L38 9" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M38 9L38 49" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-30,-25)"><circle cx="20" cy="20" r="13.5" fill="#2a56b4"/><circle cx="20" cy="20" r="12.5" fill="#e6e4de"/><circle cx="20" cy="20" r="10.5" fill="#a9a7a0"/><circle cx="20" cy="20" r="8.5" fill="#262a27"/><circle cx="20" cy="20" r="5" fill="#4c6b58"/><circle cx="17" cy="17" r="2" fill="#fff" opacity=".8"/><circle cx="50" cy="18" r="10.5" fill="#2a56b4"/><circle cx="50" cy="18" r="9.5" fill="#dddbd4"/><circle cx="50" cy="18" r="7.8" fill="#b9b7b0"/><circle cx="50" cy="18" r="6.2" fill="#93918a"/><circle cx="50" cy="18" r="4.6" fill="#262a27"/><circle cx="50" cy="18" r="2.6" fill="#4c6b58"/><circle cx="48.6" cy="16.6" r="1" fill="#fff" opacity=".8"/></g></g><g class="mmd-piece" style="--mmd-x:7px;--mmd-y:3.5px"><g stroke="#1d3f88" stroke-width=".7" stroke-linejoin="round"><path d="M6,-73L74,-39L32,-18L-36,-52z" fill="#3f78e8"/><path d="M74,-39L32,-18L32,12L74,-9z" fill="#2a56b4"/><path d="M-36,-52L32,-18L32,12L-36,-22z" fill="#7aa2f2"/></g><path d="M6,-73L74,-39L32,-18L-36,-52z" fill="url(#mmd-dl)"/><path d="M74,-39L32,-18L32,12L74,-9z" fill="url(#mmd-dd)"/><path d="M-36 -52L32 -18" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M74 -39L32 -18" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M32 -18L32 12" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,6,-73)"><rect x="7" y="10" width="54" height="22" rx="11" fill="#2a56b4"/><rect x="8" y="11" width="52" height="20" rx="10" fill="#e6e4de"/><rect x="10" y="13" width="48" height="16" rx="8" fill="#4a4a48"/><rect x="10" y="13" width="48" height="16" rx="8" fill="url(#mmd-mesh)"/><rect x="31" y="39.5" width="6" height="2.5" fill="#1d3f88"/></g></g><g class="mmd-piece" style="--mmd-x:-8px;--mmd-y:-4px"><g stroke="#8a6a10" stroke-width=".7" stroke-linejoin="round"><path d="M0,-112L34,-95L4,-80L-30,-97z" fill="#fbdc74"/><path d="M34,-95L4,-80L4,-38L34,-53z" fill="#c9991c"/><path d="M-30,-97L4,-80L4,-38L-30,-55z" fill="#f6c531"/></g><path d="M0,-112L34,-95L4,-80L-30,-97z" fill="url(#mmd-dl)"/><path d="M34,-95L4,-80L4,-38L34,-53z" fill="url(#mmd-dd)"/><path d="M-30 -97L4 -80" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M34 -95L4 -80" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M4 -80L4 -38" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-30,-97)"><circle cx="17" cy="21.6" r="2" fill="#fbe596"/><circle cx="17" cy="21" r="2" fill="#6e540a"/></g></g><g class="mmd-piece" style="--mmd-x:8px;--mmd-y:-4px"><g stroke="#1a5229" stroke-width=".7" stroke-linejoin="round"><path d="M38,-95L68,-80L34,-63L4,-78z" fill="#72c68a"/><path d="M68,-80L34,-63L34,-21L68,-38z" fill="#3aa65a"/><path d="M4,-78L34,-63L34,-21L4,-36z" fill="#287a40"/></g><path d="M38,-95L68,-80L34,-63L4,-78z" fill="url(#mmd-dl)"/><path d="M68,-80L34,-63L34,-21L68,-38z" fill="url(#mmd-dd)"/><path d="M4 -78L34 -63" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M68 -80L34 -63" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M34 -63L34 -21" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,-.5,0,1,34,-63)"><circle cx="12" cy="22" r="6.2" fill="#287a40"/><circle cx="12" cy="22" r="5.4" fill="#dddbd4"/><circle cx="12" cy="22" r="3.6" fill="#262a27"/><circle cx="12" cy="22" r="1.8" fill="#4c6b58"/><rect x="21" y="15" width="6.5" height="14" rx="2.5" fill="#287a40"/><rect x="23" y="20.5" width="2.6" height="4.5" rx="1" fill="#143d1e"/></g></g><g class="mmd-piece" style="--mmd-x:-7px;--mmd-y:3.5px"><g stroke="#7c261a" stroke-width=".7" stroke-linejoin="round"><path d="M26,-155L94,-121L12,-80L-56,-114z" fill="#e4533f"/><path d="M94,-121L12,-80L12,-50L94,-91z" fill="#b03a2a"/><path d="M-56,-114L12,-80L12,-50L-56,-84z" fill="#f08a78"/></g><path d="M26,-155L94,-121L12,-80L-56,-114z" fill="url(#mmd-dl)"/><path d="M94,-121L12,-80L12,-50L94,-91z" fill="url(#mmd-dd)"/><path d="M-56 -114L12 -80" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M94 -121L12 -80" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M12 -80L12 -50" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,26,-155)"><rect x="4" y="4" width="60" height="74" rx="2.5" fill="#b03a2a"/><rect x="5.5" y="5.5" width="57" height="71" rx="2" fill="#101010"/><path d="M5.5 7.5q0-2 2-2h53q2 0 2 2V52L5.5 26z" fill="#5a5a5a"/></g></g><g class="mmd-piece" style="--mmd-x:-6px;--mmd-y:-3px"><g stroke="#8a6a10" stroke-width=".7" stroke-linejoin="round"><path d="M4,-180L38,-163L8,-148L-26,-165z" fill="#fbdc74"/><path d="M38,-163L8,-148L8,-108L38,-123z" fill="#c9991c"/><path d="M-26,-165L8,-148L8,-108L-26,-125z" fill="#f6c531"/></g><path d="M4,-180L38,-163L8,-148L-26,-165z" fill="url(#mmd-dl)"/><path d="M38,-163L8,-148L8,-108L38,-123z" fill="url(#mmd-dd)"/><path d="M-26 -165L8 -148" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M38 -163L8 -148" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M8 -148L8 -108" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,0,1,-26,-165)"><rect x="6" y="9" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="8" width="22" height="4.5" rx="2.2" fill="#3b3320"/><rect x="6" y="18" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="17" width="22" height="4.5" rx="2.2" fill="#3b3320"/><rect x="6" y="27" width="22" height="4.5" rx="2.2" fill="#fbe596"/><rect x="6" y="26" width="22" height="4.5" rx="2.2" fill="#3b3320"/></g><g shape-rendering="geometricPrecision" transform="matrix(1,-.5,0,1,8,-148)"><rect x="3" y="8" width="17" height="4.5" rx="2.2" fill="#3b3320"/><rect x="3" y="17" width="17" height="4.5" rx="2.2" fill="#3b3320"/><rect x="3" y="26" width="17" height="4.5" rx="2.2" fill="#3b3320"/></g></g><g class="mmd-piece" style="--mmd-x:6px;--mmd-y:3px"><g stroke="#1a5229" stroke-width=".7" stroke-linejoin="round"><path d="M41,-156.5L75,-139.5L35,-119.5L1,-136.5z" fill="#3aa65a"/><path d="M75,-139.5L35,-119.5L35,-89.5L75,-109.5z" fill="#287a40"/><path d="M1,-136.5L35,-119.5L35,-89.5L1,-106.5z" fill="#72c68a"/></g><path d="M41,-156.5L75,-139.5L35,-119.5L1,-136.5z" fill="url(#mmd-dl)"/><path d="M75,-139.5L35,-119.5L35,-89.5L75,-109.5z" fill="url(#mmd-dd)"/><path d="M1 -136.5L35 -119.5" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M75 -139.5L35 -119.5" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M35 -119.5L35 -89.5" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,41,-156.5)"><rect x="10.8" y="7" width="3.2" height="26" rx="1.6" fill="#72c68a"/><rect x="10" y="7" width="3.2" height="26" rx="1.6" fill="#143d1e"/><circle cx="24" cy="30" r="2.4" fill="#143d1e"/></g></g><g class="mmd-piece" style="--mmd-x:-6px;--mmd-y:-3px"><g shape-rendering="geometricPrecision" stroke-linecap="round"><path d="M6 -164L6 -218" stroke="#8a6a10" stroke-width="6.4"/><path d="M6 -164L6 -218" stroke="#f6c531" stroke-width="5"/><path d="M5 -165L5 -219" stroke="#fbe596" stroke-width="1.2"/></g></g><g class="mmd-piece" style="--mmd-x:6px;--mmd-y:3px"><g stroke="#4a4740" stroke-width=".7" stroke-linejoin="round"><path d="M36,-162L52,-154L36,-146L20,-154z" fill="#a19c91"/><path d="M52,-154L36,-146L36,-130L52,-138z" fill="#7b766d"/><path d="M20,-154L36,-146L36,-130L20,-138z" fill="#c9c5ba"/></g><path d="M36,-162L52,-154L36,-146L20,-154z" fill="url(#mmd-dl)"/><path d="M52,-154L36,-146L36,-130L52,-138z" fill="url(#mmd-dd)"/><path d="M20 -154L36 -146" stroke="#fff" stroke-width="1.3" opacity="0.55"/><path d="M52 -154L36 -146" stroke="#fff" stroke-width="1.3" opacity="0.4"/><path d="M36 -146L36 -130" stroke="#fff" stroke-width="1" opacity="0.3"/><g shape-rendering="geometricPrecision" transform="matrix(1,.5,-1,.5,36,-162)"><circle cx="8" cy="8" r="3.5" fill="#3a3732"/><circle cx="7" cy="7" r="1" fill="#8a867c"/></g></g></svg></figure>
+            <div class="placard">
+                <span class="placard__no mono">05</span>
+                <h2><a class="work__link" href="objects/mysterious-modular-device/">Mysterious Modular Device</a></h2>
+                <span class="placard__medium mono">seven modules, one spare part</span>
                 <p>It comes in pieces. You assemble it yourself. You aren't quite sure what all the pieces do.</p>
-                <span class="project-card__action" aria-hidden="true">See the work<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">See the work<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card" data-project="design-system">
-                <div class="project-thumbnail"><img src="images/apps/design-system.svg" alt="An illustration of design tokens: color swatches, type, spacing, and component shapes" width="800" height="600" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://stethem.com/design-system/">Design System</a></h2>
+        <article class="work w06" data-no="06">
+            <figure class="frame"><img src="images/apps/design-system.svg" alt="An illustration of design tokens: color swatches, type, spacing, and component shapes" width="800" height="600" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">06</span>
+                <h2><a class="work__link" href="https://stethem.com/design-system/">Design System</a></h2>
+                <span class="placard__medium mono">tokens, components, fixtures</span>
                 <p>A workbench for exploring my apps' design tokens, components, and screen fixtures, alongside independent reference studies.</p>
-                <span class="project-card__action" aria-hidden="true">Explore the workbench<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Explore the workbench<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card">
-                <div class="project-thumbnail"><img src="images/invisible-objects/IMG_8485.jpeg" alt="The blue, yellow, orange, and green Fischer Price Revolutionary Device" width="1440" height="1080" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="objects/fischer-price-revolutionary-device/">Fischer Price Revolutionary Device</a></h2>
+        <article class="work w07" data-no="07">
+            <figure class="frame frame--paper"><img src="images/invisible-objects/IMG_8485.jpeg" alt="The blue, yellow, orange, and green Fischer Price Revolutionary Device" width="1440" height="1080" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">07</span>
+                <h2><a class="work__link" href="objects/fischer-price-revolutionary-device/">Fischer Price Revolutionary Device</a></h2>
+                <span class="placard__medium mono">speculative object</span>
                 <p>A toy-like speculative design object about the risks designers take when they make new technology feel familiar, from physical and environmental harms to a culture of yearly upgrades.</p>
-                <span class="project-card__action" aria-hidden="true">See the work<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">See the work<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card">
-                <div class="project-thumbnail project-thumbnail--market-river"><img src="images/market-river/2026-10-23-close-353a8248769a-sunny.webp" alt="A snowy floating island city with skyscrapers, a mountain waterfall, and a winding river — Market River, October 23 closing snapshot" width="1008" height="1008" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="market-river/">Market River</a></h2>
+        <article class="work w08" data-no="08">
+            <figure class="frame frame--square"><span class="feather"><img src="images/market-river/2026-10-23-close-353a8248769a-sunny.webp" alt="A snowy floating island city with skyscrapers, a mountain waterfall, and a winding river — Market River, October 23 closing snapshot" width="1008" height="1008" loading="lazy" decoding="async"></span></figure>
+            <div class="placard">
+                <span class="placard__no mono">08</span>
+                <h2><a class="work__link" href="market-river/">Market River</a></h2>
+                <span class="placard__medium mono">the stock market, three times a day</span>
                 <p>Generative art driven by live stock market data. At the open, midday, and close, market and volatility moods become a river landscape through versioned templates, not ad-hoc prompts. Every image traces back to the market snapshot that made it. One visual style, systematically varied.</p>
-                <span class="project-card__action" aria-hidden="true">Explore the snapshots<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Explore the snapshots<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-
-
-            <article class="project-card">
-                <div class="project-thumbnail project-thumbnail--learning" role="img" aria-label="Two isometric layer stacks, each with three sage slabs beneath one terracotta slab"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 266 200" fill="none" aria-hidden="true" class="learning-thumbnail-art"><defs><pattern id="lm-sage-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#dde1c9"/><rect x="2" y="2" width="1" height="1" fill="#7f8b6e"/></pattern><pattern id="lm-terra-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#f1c19a"/><rect x="2" y="2" width="1" height="1" fill="#b16c4f"/></pattern></defs><path fill="#f6f3eb" d="M0 0h266v200H0z"/><path d="M35 170l45 -23 48 24 -45 23z" fill="#ddd6c6" opacity=".6"/><g class="learning-thumb-slab" style="--slab-lift:0px" shape-rendering="crispEdges"><path d="M39 150l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 169l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 131l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 131l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 150l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-3px" shape-rendering="crispEdges"><path d="M39 128l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 147l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 109l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 109l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 128l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-6px" shape-rendering="crispEdges"><path d="M39 106l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 125l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 87l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 87l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 106l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-9px" shape-rendering="crispEdges"><path d="M39 84l39 19v7l-39 -19z" fill="#b16c4f"/><path d="M78 103l39 -19v7l-39 19z" fill="#874d3a"/><path d="M78 65l39 19 -39 19 -39 -19z" fill="#db9672"/><path d="M78 65l39 19 -39 19 -39 -19z" fill="url(#lm-terra-dither)"/><path d="M72 84l6 -3 6 3 -6 3z" fill="#f1c19a"/></g><path d="M141 155l45 -23 48 24 -45 23z" fill="#ddd6c6" opacity=".6"/><g class="learning-thumb-slab" style="--slab-lift:0px" shape-rendering="crispEdges"><path d="M145 135l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 154l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 116l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 116l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 135l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-3px" shape-rendering="crispEdges"><path d="M145 113l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 132l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 94l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 94l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 113l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-6px" shape-rendering="crispEdges"><path d="M145 91l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 110l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 72l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 72l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 91l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-9px" shape-rendering="crispEdges"><path d="M145 69l39 19v7l-39 -19z" fill="#b16c4f"/><path d="M184 88l39 -19v7l-39 19z" fill="#874d3a"/><path d="M184 50l39 19 -39 19 -39 -19z" fill="#db9672"/><path d="M184 50l39 19 -39 19 -39 -19z" fill="url(#lm-terra-dither)"/><path d="M178 69l6 -3 6 3 -6 3z" fill="#f1c19a"/></g></svg></div>
-                <h2><a class="project-card__link" href="learning-machines/">Learning Machines</a></h2>
+        <article class="work w09" data-no="09">
+            <figure class="frame" role="img" aria-label="Two isometric layer stacks, each with three sage slabs beneath one terracotta slab"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 266 200" fill="none" aria-hidden="true" class="learning-thumbnail-art"><defs><pattern id="lm-sage-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#dde1c9"/><rect x="2" y="2" width="1" height="1" fill="#7f8b6e"/></pattern><pattern id="lm-terra-dither" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="1" fill="#f1c19a"/><rect x="2" y="2" width="1" height="1" fill="#b16c4f"/></pattern></defs><path fill="#f6f3eb" d="M0 0h266v200H0z"/><path d="M35 170l45 -23 48 24 -45 23z" fill="#ddd6c6" opacity=".6"/><g class="learning-thumb-slab" style="--slab-lift:0px" shape-rendering="crispEdges"><path d="M39 150l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 169l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 131l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 131l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 150l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-3px" shape-rendering="crispEdges"><path d="M39 128l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 147l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 109l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 109l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 128l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-6px" shape-rendering="crispEdges"><path d="M39 106l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M78 125l39 -19v7l-39 19z" fill="#66745f"/><path d="M78 87l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M78 87l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M72 106l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-9px" shape-rendering="crispEdges"><path d="M39 84l39 19v7l-39 -19z" fill="#b16c4f"/><path d="M78 103l39 -19v7l-39 19z" fill="#874d3a"/><path d="M78 65l39 19 -39 19 -39 -19z" fill="#db9672"/><path d="M78 65l39 19 -39 19 -39 -19z" fill="url(#lm-terra-dither)"/><path d="M72 84l6 -3 6 3 -6 3z" fill="#f1c19a"/></g><path d="M141 155l45 -23 48 24 -45 23z" fill="#ddd6c6" opacity=".6"/><g class="learning-thumb-slab" style="--slab-lift:0px" shape-rendering="crispEdges"><path d="M145 135l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 154l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 116l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 116l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 135l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-3px" shape-rendering="crispEdges"><path d="M145 113l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 132l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 94l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 94l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 113l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-6px" shape-rendering="crispEdges"><path d="M145 91l39 19v7l-39 -19z" fill="#7f8b6e"/><path d="M184 110l39 -19v7l-39 19z" fill="#66745f"/><path d="M184 72l39 19 -39 19 -39 -19z" fill="#c0c7ac"/><path d="M184 72l39 19 -39 19 -39 -19z" fill="url(#lm-sage-dither)"/><path d="M178 91l6 -3 6 3 -6 3z" fill="#dde1c9"/></g><g class="learning-thumb-slab" style="--slab-lift:-9px" shape-rendering="crispEdges"><path d="M145 69l39 19v7l-39 -19z" fill="#b16c4f"/><path d="M184 88l39 -19v7l-39 19z" fill="#874d3a"/><path d="M184 50l39 19 -39 19 -39 -19z" fill="#db9672"/><path d="M184 50l39 19 -39 19 -39 -19z" fill="url(#lm-terra-dither)"/><path d="M178 69l6 -3 6 3 -6 3z" fill="#f1c19a"/></g></svg></figure>
+            <div class="placard">
+                <span class="placard__no mono">09</span>
+                <h2><a class="work__link" href="learning-machines/">Learning Machines</a></h2>
+                <span class="placard__medium mono">pinned mechanics, small numbers</span>
                 <p>Small experiments for understanding what happens inside a model.</p>
-                <span class="project-card__action" aria-hidden="true">Explore the experiments<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Explore the experiments<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card" data-project="great-circle">
-                <div class="project-thumbnail project-thumbnail--great-circle"><img src="images/apps/great-circle.jpeg" alt="Great Circle's loop planner: a circle over a city street grid by the water, with the center padlock, a round Size handle and the Start point" width="1200" height="900" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://stethem.com/great_circle/">Great Circle</a></h2>
+        <article class="work w10" data-no="10">
+            <figure class="frame frame--shot"><img src="images/apps/great-circle.jpeg" alt="Great Circle's loop planner: a circle over a city street grid by the water" width="1200" height="900" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">10</span>
+                <h2><a class="work__link" href="https://stethem.com/great_circle/">Great Circle</a></h2>
+                <span class="placard__medium mono">a circle, roads permitting</span>
                 <p>A cycling loop planner: pick a start point and distance, get a near-circular route, and export it as GPX for your bike computer.</p>
-                <span class="project-card__action" aria-hidden="true">Plan a route<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Plan a route<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card">
-                <div class="project-thumbnail"><img src="images/apps/verbosele.jpeg" alt="Verbosele level one with the word THREE ready to guess" width="1200" height="896" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="verbosele/">Verbosele</a></h2>
+        <article class="work w11" data-no="11">
+            <figure class="frame frame--shot"><img src="images/apps/verbosele.jpeg" alt="Verbosele level one with the word THREE ready to guess" width="1200" height="896" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">11</span>
+                <h2><a class="work__link" href="verbosele/">Verbosele</a></h2>
+                <span class="placard__medium mono">five rounds, eighteen lives, one mom</span>
                 <p>Wordle with levels. Solve words from 5 to 9 letters across five rounds on one shared pool of 18 lives, with optional thesaurus hints. Made for my mom.</p>
-                <span class="project-card__action" aria-hidden="true">Play Verbosele<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
-            <article class="project-card" data-project="speed-reader">
-                <div class="project-thumbnail"><img src="images/apps/focus-speed-reader.jpeg" alt="Focus Speed Reader on a phone showing the word one, its middle letter highlighted, above the playback controls" width="750" height="562" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="https://stethem.com/focus-speed-reader/">Focus Speed Reader</a></h2>
+                <span class="placard__action mono" aria-hidden="true">Play Verbosele<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
+
+        <article class="work w12" data-no="12">
+            <figure class="frame frame--shot"><img src="images/apps/focus-speed-reader.jpeg" alt="Focus Speed Reader on a phone showing the word one, its middle letter highlighted" width="750" height="562" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">12</span>
+                <h2><a class="work__link" href="https://stethem.com/focus-speed-reader/">Focus Speed Reader</a></h2>
+                <span class="placard__medium mono">one word at a time</span>
                 <p>A browser speed reader for EPUBs and plain text. Words flash one at a time at the WPM you choose, and your library stays on your device.</p>
-                <span class="project-card__action" aria-hidden="true">Open the reader<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
+                <span class="placard__action mono" aria-hidden="true">Open the reader<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
-            <article class="project-card project-card--last">
-                <div class="project-thumbnail project-thumbnail--spoon"><img src="images/apps/spoon-app.jpeg" alt="A phone screen showing a spoon on a black background" width="500" height="900" loading="lazy" decoding="async"></div>
-                <h2><a class="project-card__link" href="objects/the-spoon-app/">The Spoon App</a></h2>
+        <article class="work w13" data-no="13">
+            <figure class="frame frame--phone frame--paper"><img src="images/apps/spoon-app.jpeg" alt="A phone screen showing a spoon on a black background" width="500" height="900" loading="lazy" decoding="async"></figure>
+            <div class="placard">
+                <span class="placard__no mono">13</span>
+                <h2><a class="work__link" href="objects/the-spoon-app/">The Spoon App</a></h2>
+                <span class="placard__medium mono">phone, mouth</span>
                 <p>Use your phone as a spoon. It works best on a phone you can fit in your mouth.</p>
-                <span class="project-card__action" aria-hidden="true">See the work<svg class="arrow arrow-e arrow-after" viewBox="0 0 24 11" aria-hidden="true" focusable="false"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
-            </article>
-        </section>
+                <span class="placard__action mono" aria-hidden="true">See the work<svg class="arrow" viewBox="0 0 24 11"><path d="M0 5.5h22.8M18 1l4.8 4.5L18 10"/></svg></span>
+            </div>
+        </article>
 
+    </div>
 
-    </main>
+    <footer class="colophon">
+        <div class="wrap">
+            <div class="colophon__grid mono">
+                <p class="colophon__a">colophon</p>
+                <p class="colophon__b">set in space grotesk, inter and space mono. the texture is ordered 4×4 bayer dither, it's deterministic so this page looks the same every time with no build step or dependencies.</p>
+                <p class="colophon__c">you are viewing it at <b data-dims-plain>your window's size</b>, you scrolled <b data-scrolled>some distance</b> to read this.</p>
+                <p class="colophon__d"><a href="mailto:robin@stethem.com">robin@stethem.com</a></p>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<div class="counter mono" aria-hidden="true"><span data-count>01</span> / 13</div>
+
 </body>
 </html>
