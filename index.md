@@ -24,11 +24,11 @@ Bring a story, an essay or a letter, and hear it read in the voice of someone yo
 
 https://reads.sh
 
-## Shortform Bandit
+## Gather Motion
 
 Human-directed video production built around reusable content profiles. Plan, review, and assemble short-form video in a local studio.
 
-https://bandit.stethem.com
+https://gathermotion.io
 
 ## Mysterious Modular Device
 
