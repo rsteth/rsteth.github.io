@@ -36,6 +36,12 @@ It comes in pieces. You assemble it yourself. You aren't quite sure what all the
 
 [Read more](https://stethem.com/objects/mysterious-modular-device/index.md)
 
+## CVE Compass
+
+Vulnerability context for agents. Over MCP, your agent compares the dependency files you choose with the last 24 hours of GitHub reviewed advisories and CISA KEV. The matching happens on your machine.
+
+https://cve-compass.org
+
 ## Design System
 
 A workbench for exploring my apps' design tokens, components, and screen fixtures, alongside independent reference studies.
@@ -68,14 +74,12 @@ Wordle with levels. Solve words from 5 to 9 letters across five rounds on one sh
 
 https://stethem.com/verbosele/
 
-## Focus Speed Reader
-
-A browser speed reader for EPUBs and plain text. Words flash one at a time at the WPM you choose, and your library stays on your device.
-
-https://stethem.com/focus-speed-reader/
-
 ## The Spoon App
 
 Use your phone as a spoon. It works best on a phone you can fit in your mouth.
 
 [Read more](https://stethem.com/objects/the-spoon-app/index.md)
+
+## Also
+
+Focus Speed Reader: https://stethem.com/focus-speed-reader/ — a browser speed reader for EPUBs and plain text. Words flash one at a time at the WPM you choose, and your library stays on your device.

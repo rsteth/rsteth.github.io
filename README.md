@@ -19,6 +19,10 @@ the display to nine snapshots.
 
 Run the manifest and rendering regression checks with `node scripts/test-market-river.cjs`.
 
+Run the dependency-free canvas regression checks with `node scripts/test-homepage-dither.cjs`.
+They cover color fallbacks, unchanged Bayer pixels and simulated restoration/failure paths.
+The dither remains generated on canvas; repainting follows page, visibility, context and size restoration.
+
 Preview locally with `python3 -m http.server 8765 --bind 127.0.0.1` from the
 repository root. The site has no build step or package dependencies.
 
