@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" fill="none">
+  <title>Verbosele illustration</title>
+  <desc>An original illustration of five rows of letter tiles growing from five to nine, two solved and one part-guessed, above a row of eighteen lives with five spent. Not a screenshot.</desc>
+  <rect width="800" height="600" fill="#f6f3eb"/>
+  <rect x="108" y="103" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="174" y="103" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="240" y="103" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="306" y="103" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="372" y="103" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="108" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="174" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="240" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="306" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="372" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="438" y="173" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="108" y="243" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="174" y="243" width="56" height="56" rx="6" fill="#ddd6c6"/>
+  <rect x="240" y="243" width="56" height="56" rx="6" fill="#db9672"/>
+  <rect x="306" y="243" width="56" height="56" rx="6" fill="#7f8b6e"/>
+  <rect x="372" y="243" width="56" height="56" rx="6" fill="#ddd6c6"/>
+  <rect x="438" y="243" width="56" height="56" rx="6" fill="#ddd6c6"/>
+  <rect x="504" y="243" width="56" height="56" rx="6" fill="#db9672"/>
+  <rect x="109.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="175.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="241.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="307.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="373.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="439.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="505.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="571.5" y="314.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="109.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="175.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="241.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="307.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="373.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="439.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="505.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="571.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <rect x="637.5" y="384.5" width="53" height="53" rx="4.5" stroke="#cfc7b6" stroke-width="3"/>
+  <circle cx="115" cy="490" r="7" fill="#24211f"/>
+  <circle cx="139" cy="490" r="7" fill="#24211f"/>
+  <circle cx="163" cy="490" r="7" fill="#24211f"/>
+  <circle cx="187" cy="490" r="7" fill="#24211f"/>
+  <circle cx="211" cy="490" r="7" fill="#24211f"/>
+  <circle cx="235" cy="490" r="7" fill="#24211f"/>
+  <circle cx="259" cy="490" r="7" fill="#24211f"/>
+  <circle cx="283" cy="490" r="7" fill="#24211f"/>
+  <circle cx="307" cy="490" r="7" fill="#24211f"/>
+  <circle cx="331" cy="490" r="7" fill="#24211f"/>
+  <circle cx="355" cy="490" r="7" fill="#24211f"/>
+  <circle cx="379" cy="490" r="7" fill="#24211f"/>
+  <circle cx="403" cy="490" r="7" fill="#24211f"/>
+  <circle cx="427" cy="490" r="5.5" stroke="#b9b1a1" stroke-width="3"/>
+  <circle cx="451" cy="490" r="5.5" stroke="#b9b1a1" stroke-width="3"/>
+  <circle cx="475" cy="490" r="5.5" stroke="#b9b1a1" stroke-width="3"/>
+  <circle cx="499" cy="490" r="5.5" stroke="#b9b1a1" stroke-width="3"/>
+  <circle cx="523" cy="490" r="5.5" stroke="#b9b1a1" stroke-width="3"/>
+</svg>

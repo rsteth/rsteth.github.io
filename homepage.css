@@ -191,14 +191,14 @@ a { color: inherit; }
 .w04 { grid-column: 2 / span 5; margin-top: 120px; }
 .w05 { grid-column: 7 / span 6; }
 .w06 { grid-column: 1 / span 5; }
-.w07 { grid-column: 6 / span 7; margin-top: 144px; }
-.w08 { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: end; }
-.w08 .frame { grid-column: 1 / span 7; margin: 0; }
-.w08 .placard { grid-column: 9 / -1; padding-bottom: 6%; }
-.w09 { grid-column: 2 / span 5; margin-top: 132px; }
-.w10 { grid-column: 7 / span 6; }
-.w11 { grid-column: 1 / span 6; }
-.w12 { grid-column: 8 / span 4; margin-top: 156px; }
+.w07 { grid-column: 8 / span 5; margin-top: 144px; }
+.w08 { grid-column: 4 / span 7; }
+.w09 { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: end; }
+.w09 .frame { grid-column: 1 / span 7; margin: 0; }
+.w09 .placard { grid-column: 9 / -1; padding-bottom: 6%; }
+.w10 { grid-column: 2 / span 5; margin-top: 132px; }
+.w11 { grid-column: 7 / span 6; }
+.w12 { grid-column: 1 / span 6; }
 .w13 { grid-column: 5 / span 4; margin-top: clamp(40px, 9vw, 150px); text-align: center; }
 .w13 .frame { width: min(230px, 62%); margin-inline: auto; }
 .w13 .placard p { margin-inline: auto; max-width: 30ch; }
@@ -218,14 +218,14 @@ a { color: inherit; }
     display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; row-gap: 28px;
     border-top: 1px solid var(--rule); padding-top: 18px;
 }
-.colophon p { margin: 0; }
-.colophon b { font-weight: 400; color: var(--ink); white-space: nowrap; }
+.colophon p, .colophon ul { margin: 0; }
+.colophon ul { padding: 0; list-style: none; }
 .colophon__a { grid-column: 1 / span 2; color: var(--ink); }
-.colophon__b { grid-column: 3 / span 4; }
-.colophon__c { grid-column: 8 / span 3; }
+.colophon__b { grid-column: 3 / span 8; }
 .colophon__d { grid-column: 11 / span 2; text-align: right; }
 .colophon a { text-decoration: none; }
 .colophon a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 0.3em; }
+.colophon__b a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.3em; }
 
 /* ---------- the counter ---------- */
 .counter {
@@ -248,16 +248,17 @@ a { color: inherit; }
     .hero__label { flex-direction: column; align-items: flex-start; gap: 6px; }
     .hero h1 { font-size: 23.5vw; white-space: normal; line-height: 0.84; margin-top: 16px; }
     .room { padding: 24px 0 56px; }
-    .room__hang, .hang, .w08 { display: block; }
+    .room__hang, .hang, .w09 { display: block; }
     .film { margin-inline: calc(-1 * var(--gutter)); }
     .film::before { display: none; }
     .film__toggle { right: var(--gutter); bottom: -34px; }
     .room .placard { padding: 44px 0 0; }
     .hang > .work { margin-top: 0; margin-bottom: 88px; }
-    .w08 .frame { margin-bottom: 20px; }
-    .w08 .placard { padding-bottom: 0; }
+    .w09 .frame { margin-bottom: 20px; }
+    .w09 .placard { padding-bottom: 0; }
     .w13 { margin-top: 120px !important; margin-bottom: 0 !important; }
     .counter { display: none; }
     .colophon__grid { display: block; }
-    .colophon__grid p { margin-bottom: 18px; text-align: left; }
+    .colophon__grid p, .colophon__grid ul { margin-bottom: 18px; text-align: left; }
+    .colophon__grid .colophon__a { margin-bottom: 0; }
 }
