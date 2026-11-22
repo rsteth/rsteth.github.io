@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+  Source for images/og/home.png, the homepage link preview (1200 × 630).
+  The name is the homepage's own, and one work is hung above it: the drawing
+  and its wall label are read from index.html when this page renders, so the
+  card follows the homepage. Change WORK below to hang a different one.
+
+  Render from the repository root:
+    python3 -m http.server 8765 --bind 127.0.0.1
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new \
+      --window-size=1200,630 --force-device-scale-factor=1 --hide-scrollbars \
+      --virtual-time-budget=4000 --screenshot=images/og/home.png \
+      http://127.0.0.1:8765/scripts/og-home.html
+
+  Link previews are cached by URL, so publish a changed image under a new
+  filename and update og:image and the JSON-LD image in index.html to match.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<title>og: home</title>
+<style>
+    @font-face { font-family: "Space Grotesk"; src: url("../fonts/space-grotesk-latin.woff2") format("woff2"); font-weight: 300 700; }
+    @font-face { font-family: "Space Mono"; src: url("../fonts/space-mono-latin.woff2") format("woff2"); font-weight: 400; }
+    :root { --paper: #f6f3eb; --ink: #24211f; --muted: #6b625d; --gutter: 56px; }
+    html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: var(--paper); }
+    body { position: relative; color: var(--ink); text-transform: lowercase; -webkit-font-smoothing: antialiased; }
+    .mono { font: 22px/1.5 "Space Mono", monospace; letter-spacing: 0.01em; color: var(--muted); }
+    .bar { position: absolute; left: var(--gutter); top: 34px; margin: 0; }
+    h1 {
+        position: absolute; left: var(--gutter); bottom: 26px;
+        margin: 0 0 0 -0.045em; padding-bottom: 0.17em;
+        font-family: "Space Grotesk", sans-serif; font-weight: 500;
+        font-size: calc((1200px - 2 * var(--gutter)) / 6.16);
+        line-height: 0.86; letter-spacing: -0.055em; white-space: nowrap;
+    }
+    /* the hang: label beside the work, bottoms aligned, as work 09 on the homepage */
+    .work { position: absolute; right: var(--gutter); top: 40px; display: flex; align-items: flex-end; gap: 44px; }
+    .work svg { display: block; }
+    .placard { padding-bottom: 14px; }
+    .placard span { display: block; }
+    .placard h2 {
+        margin: 2px 0 6px;
+        font-family: "Space Grotesk", sans-serif; font-weight: 500;
+        font-size: 38px; line-height: 1.15; letter-spacing: -0.03em;
+    }
+</style>
+</head>
+<body>
+<p class="bar mono">stethem.com</p>
+<div class="work">
+    <div class="placard"><span class="mono" data-no></span><h2 data-title></h2><span class="mono" data-medium></span></div>
+    <div data-art></div>
+</div>
+<h1>robin stethem</h1>
+<script>
+    // Which work hangs here, and the part of its drawing to show. One drawing
+    // unit is one pixel, so the drawing's own dither stays on the pixel grid.
+    const WORK = { no: "05", art: "svg", crop: [-100, -226, 240, 316] };
+    (async () => {
+        const html = await (await fetch("../index.html")).text();
+        const home = new DOMParser().parseFromString(html, "text/html");
+        const work = home.querySelector(`.work[data-no="${WORK.no}"]`);
+        document.querySelector("[data-no]").textContent = work.querySelector(".placard__no").textContent;
+        document.querySelector("[data-title]").textContent = work.querySelector(".placard h2").textContent;
+        document.querySelector("[data-medium]").textContent = work.querySelector(".placard__medium").textContent;
+        const art = document.importNode(work.querySelector(`.frame ${WORK.art}`), true);
+        art.setAttribute("viewBox", WORK.crop.join(" "));
+        art.setAttribute("width", WORK.crop[2]);
+        art.setAttribute("height", WORK.crop[3]);
+        document.querySelector("[data-art]").append(art);
+    })();
+</script>
+</body>
+</html>
