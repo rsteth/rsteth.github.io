@@ -12,12 +12,14 @@ Personal site via GitHub Pages.
 
 GitHub Pages should be configured to deploy from the default branch using the repository root.
 
-Market River uses the public base URL in `script.js`: the homepage reads
-`manifests/latest.json`, and the archive reads `manifests/recent.json`. Records
-are grouped by date and slot before selecting a weather variant and limiting
-the display to nine snapshots.
+The homepage card reads `manifests/latest.json` in `market-river-cover.js`.
+It selects the newest trading date and slot, prefers the sunny variant without
+requesting location, and keeps its static cover until the new image decodes.
+The archive uses `script.js` to group `manifests/recent.json` snapshots by
+date and slot, select a weather variant, and display up to nine snapshots.
 
-Run the manifest and rendering regression checks with `node scripts/test-market-river.cjs`.
+Run `node scripts/test-market-river-cover.cjs` and `node scripts/test-market-river.cjs`
+for homepage and archive regression checks.
 
 Run the dependency-free canvas regression checks with `node scripts/test-homepage-dither.cjs`.
 They cover color fallbacks, unchanged Bayer pixels and simulated restoration/failure paths.
