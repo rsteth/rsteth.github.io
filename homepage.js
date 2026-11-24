@@ -107,18 +107,26 @@
         el.style.webkitMaskSize = el.style.maskSize = v ? 4 * CELL + "px" : "";
     }
     if (!reduced && masks.length === 17 && "IntersectionObserver" in window) {
-        const frames = [...document.querySelectorAll(".frame > img, .frame > svg, .frame > .feather > img")];
+        const frames = [...document.querySelectorAll(".frame > img, .frame > svg, .frame > .feather > img, .market-river-reveal")];
         const io = new IntersectionObserver((entries) => {
             for (const e of entries) {
                 if (!e.isIntersecting) continue;
                 io.unobserve(e.target);
                 let level = 0;
-                const tick = () => { setMask(e.target, ++level); if (level < 16) setTimeout(tick, 34); };
+                const tick = () => {
+                    if (level === 0) e.target.removeAttribute("data-reveal-pending");
+                    setMask(e.target, ++level);
+                    if (level < 16) setTimeout(tick, 34);
+                };
                 setTimeout(tick, 60);
             }
         }, { threshold: 0.25 });
         for (const el of frames) {
-            if (el.getBoundingClientRect().top > innerHeight * 0.9) { setMask(el, 0); io.observe(el); }
+            if (el.getBoundingClientRect().top > innerHeight * 0.9) {
+                if (el.classList.contains("market-river-reveal")) el.setAttribute("data-reveal-pending", "");
+                setMask(el, 0);
+                io.observe(el);
+            }
         }
     }
 

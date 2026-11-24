@@ -159,6 +159,9 @@ a { color: inherit; }
 .frame--square { aspect-ratio: 1; }
 .frame--square > img { object-fit: contain; }
 .frame > .feather > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.market-river-reveal { position: relative; display: block; width: 100%; height: 100%; }
+.market-river-reveal > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.market-river-reveal > .market-river-outgoing { position: absolute; inset: 0; }
 .frame > .feather {
     display: block; width: 100%; height: 100%; mix-blend-mode: multiply;
     --f: 8%;
