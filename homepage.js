@@ -107,18 +107,52 @@
         el.style.webkitMaskSize = el.style.maskSize = v ? 4 * CELL + "px" : "";
     }
     if (!reduced && masks.length === 17 && "IntersectionObserver" in window) {
-        const frames = [...document.querySelectorAll(".frame > img, .frame > svg, .frame > .feather > img")];
+        const frames = [...document.querySelectorAll(".frame > img, .frame > svg, .frame > .feather > img, .market-river-reveal")];
         const io = new IntersectionObserver((entries) => {
             for (const e of entries) {
                 if (!e.isIntersecting) continue;
                 io.unobserve(e.target);
+                const cover = e.target.marketRiverReveal;
                 let level = 0;
-                const tick = () => { setMask(e.target, ++level); if (level < 16) setTimeout(tick, 34); };
-                setTimeout(tick, 60);
+                const tick = () => {
+                    if (level === 0 && cover) e.target.removeAttribute("data-reveal-pending");
+                    setMask(e.target, ++level);
+                    if (level < 16) setTimeout(tick, 34);
+                    else cover?.finish();
+                };
+                const start = () => {
+                    if (cover) cover.deadline = -Infinity; // Pin the chosen image until the mask clears.
+                    setTimeout(tick, 60);
+                };
+                if (!cover?.ready) {
+                    start();
+                    continue;
+                }
+                cover.deadline = e.time + 500;
+                const remaining = cover.deadline - performance.now();
+                if (remaining <= 0) {
+                    start();
+                    continue;
+                }
+                const timeout = setTimeout(start, remaining);
+                cover.ready.then(() => {
+                    if (cover.deadline === -Infinity) return;
+                    clearTimeout(timeout);
+                    start();
+                });
             }
         }, { threshold: 0.25 });
         for (const el of frames) {
-            if (el.getBoundingClientRect().top > innerHeight * 0.9) { setMask(el, 0); io.observe(el); }
+            if (el.getBoundingClientRect().top > innerHeight * 0.9) {
+                if (el.classList.contains("market-river-reveal")) {
+                    el.setAttribute("data-reveal-pending", "");
+                    const cover = { deadline: Infinity };
+                    cover.finished = new Promise(resolve => { cover.finish = resolve; });
+                    el.marketRiverReveal = cover;
+                }
+                setMask(el, 0);
+                io.observe(el);
+            }
         }
     }
 

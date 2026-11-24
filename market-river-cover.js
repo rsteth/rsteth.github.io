@@ -29,6 +29,15 @@
         return { item, url: url.href, day, slot, variant, produced: Date.parse(item.created_at) || 0 };
     }
 
+    const reveal = cover.parentElement.marketRiverReveal;
+    let markReady;
+    if (reveal) reveal.ready = new Promise(resolve => {
+        markReady = () => {
+            delete reveal.ready;
+            resolve();
+        };
+    });
+
     try {
         const response = await fetch(base + '/manifests/latest.json', {
             cache: 'no-store', credentials: 'omit'
@@ -54,12 +63,38 @@
         image.src = url;
         await image.decode();
         if (!image.naturalWidth || !image.naturalHeight) return;
+        if (reveal && performance.now() >= reveal.deadline) {
+            markReady();
+            await reveal.finished;
+        }
         for (const { name, value } of cover.attributes) {
             if (name !== 'src' && name !== 'alt') image.setAttribute(name, value);
         }
         image.alt = alt;
+
+        // Keep the reveal on the wrapper, and only fade an already visible fallback.
+        const rect = cover.getBoundingClientRect();
+        const fade = cover.complete && cover.naturalWidth && rect.top < innerHeight && rect.bottom > 0
+            && !cover.parentElement.hasAttribute('data-reveal-pending')
+            && !matchMedia('(prefers-reduced-motion: reduce)').matches
+            && typeof cover.animate === 'function';
         cover.replaceWith(image);
+        if (fade) {
+            cover.removeAttribute('data-market-river-cover');
+            cover.setAttribute('aria-hidden', 'true');
+            cover.classList.add('market-river-outgoing');
+            image.after(cover);
+            try {
+                await cover.animate([{ opacity: 1 }, { opacity: 0 }], {
+                    duration: 200, easing: 'ease-out', fill: 'forwards'
+                }).finished;
+            } finally {
+                cover.remove();
+            }
+        }
     } catch {
         // A missing feed or image should never leave the homepage with a broken card.
+    } finally {
+        markReady?.();
     }
 })();
