@@ -29,6 +29,15 @@
         return { item, url: url.href, day, slot, variant, produced: Date.parse(item.created_at) || 0 };
     }
 
+    const reveal = cover.parentElement.marketRiverReveal;
+    let markReady;
+    if (reveal) reveal.ready = new Promise(resolve => {
+        markReady = () => {
+            delete reveal.ready;
+            resolve();
+        };
+    });
+
     try {
         const response = await fetch(base + '/manifests/latest.json', {
             cache: 'no-store', credentials: 'omit'
@@ -54,6 +63,10 @@
         image.src = url;
         await image.decode();
         if (!image.naturalWidth || !image.naturalHeight) return;
+        if (reveal && performance.now() >= reveal.deadline) {
+            markReady();
+            await reveal.finished;
+        }
         for (const { name, value } of cover.attributes) {
             if (name !== 'src' && name !== 'alt') image.setAttribute(name, value);
         }
@@ -81,5 +94,7 @@
         }
     } catch {
         // A missing feed or image should never leave the homepage with a broken card.
+    } finally {
+        markReady?.();
     }
 })();

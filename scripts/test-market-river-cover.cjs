@@ -16,7 +16,18 @@ function run(manifest, options = {}) {
     let decode;
     let fading = false, removed = false, releaseFade;
     const requests = [];
-    const timers = [];
+    const timers = new Map();
+    let clock = 0, sequence = 0;
+    const advance = (end, runTimers = true) => {
+        while (runTimers && timers.size) {
+            const [id, next] = [...timers.entries()].sort((a, b) => a[1].time - b[1].time)[0];
+            if (next.time > end) break;
+            timers.delete(id);
+            clock = Math.max(clock, next.time);
+            next.fn();
+        }
+        clock = end;
+    };
     const wrapper = {
         pending: false, style: {},
         getBoundingClientRect: () => ({ top: 1200 }),
@@ -51,6 +62,7 @@ function run(manifest, options = {}) {
     const context = {
         URL,
         innerHeight: 900,
+        performance: { now: () => clock },
         matchMedia: () => ({ matches: options.reducedMotion }),
         document: { querySelector: (key) => key === '[data-market-river-cover]' && !options.noCover ? cover : null },
         navigator: { get geolocation() { assert.fail('The homepage must not access location'); } },
@@ -98,7 +110,12 @@ function run(manifest, options = {}) {
         Object.assign(context, {
             window: { IntersectionObserver: true }, scrollY: 0, devicePixelRatio: 1,
             addEventListener() {},
-            setTimeout: (fn) => timers.push(fn),
+            setTimeout: (fn, delay) => {
+                const id = ++sequence;
+                timers.set(id, { fn, time: clock + delay });
+                return id;
+            },
+            clearTimeout: (id) => timers.delete(id),
             IntersectionObserver: class {
                 constructor(callback) { onIntersection = callback; }
                 observe(el) { observed.push(el); }
@@ -107,9 +124,9 @@ function run(manifest, options = {}) {
         });
         vm.runInNewContext(homepage, context);
     }
-    const done = vm.runInNewContext(source, context);
-    return { done, requests, wrapper, ordinary, observed, timers,
-        enter: () => onIntersection(observed.map(target => ({ target, isIntersecting: true }))), completeDecode: () => decode?.(), finishFade: () => releaseFade?.(), get fading() { return fading; }, get removed() { return removed; }, get image() { return replacement; } };
+    const done = options.noCoverScript ? Promise.resolve() : vm.runInNewContext(source, context);
+    return { done, requests, wrapper, ordinary, observed, advance,
+        enter: (time = clock) => onIntersection(observed.map(target => ({ target, time, isIntersecting: true }))), completeDecode: () => decode?.(), finishFade: () => releaseFade?.(), get fading() { return fading; }, get removed() { return removed; }, get image() { return replacement; } };
 }
 
 async function main() {
@@ -149,29 +166,100 @@ async function main() {
         assert.equal(visible.removed, shouldFade);
     }
 
-    // Run both browser entry points. A replacement after observe() but before any
-    // reveal ticks used to strand the new image under a mask on the detached node.
-    for (const during of [false, true]) {
-        const pair = run({ items: [newest] }, { withReveal: true });
-        const first = pair.wrapper.style.maskImage;
-        assert.ok(first && pair.observed[0] === pair.wrapper && pair.wrapper.pending);
-        assert.equal(pair.ordinary.style.maskImage, first, 'other illustrations still use their own reveal');
-        if (during) {
-            pair.enter();
-            pair.timers.shift()();
-            assert.notEqual(pair.wrapper.style.maskImage, first);
-        }
-        await new Promise(setImmediate);
-        pair.completeDecode();
-        await pair.done;
-        assert.equal(pair.image.src, newest.image_url);
-        assert.equal(pair.image.attributes.has('style'), false);
-        if (!during) pair.enter();
-        while (pair.timers.length) pair.timers.shift()();
-        assert.equal(pair.wrapper.style.maskImage, '');
-        assert.equal(pair.wrapper.pending, false);
-        assert.equal(pair.ordinary.style.maskImage, '');
+    // Both entry points use the real dither and cover scheduling code.
+    const flush = () => new Promise(setImmediate);
+    const makePair = async (options = {}) => {
+        const pair = run({ items: [newest] }, { withReveal: true, ...options });
+        await flush();
+        return pair;
+    };
+
+    for (const opts of [{}, { networkError: true }, { noCoverScript: true }]) {
+        const ready = await makePair(opts);
+        ready.completeDecode();
+        await ready.done;
+        const zero = ready.wrapper.style.maskImage;
+        ready.enter();
+        ready.advance(59);
+        assert.equal(ready.wrapper.style.maskImage, zero);
+        ready.advance(60);
+        assert.notEqual(ready.wrapper.style.maskImage, zero, 'normal reveal starts immediately when ready, failed or script blocked');
+        assert.equal(ready.ordinary.style.maskImage, ready.wrapper.style.maskImage);
+        assert.equal(ready.image?.src, opts.networkError || opts.noCoverScript ? undefined : newest.image_url);
+        ready.advance(650);
+        assert.equal(ready.wrapper.style.maskImage, '');
     }
+
+    const held = await makePair({ brokenImage: true });
+    held.enter();
+    const heldZero = held.wrapper.style.maskImage;
+    held.advance(124);
+    assert.notEqual(held.ordinary.style.maskImage, heldZero, 'other artwork does not wait');
+    assert.equal(held.wrapper.style.maskImage, heldZero);
+    held.completeDecode(); // failure at 124ms releases the gate
+    await held.done;
+    await flush();
+    held.advance(184);
+    assert.notEqual(held.wrapper.style.maskImage, heldZero, 'decode failure does not wait out the deadline');
+    assert.equal(held.image, undefined);
+
+    const at499 = await makePair({ visible: true });
+    at499.enter();
+    const at499Zero = at499.wrapper.style.maskImage;
+    at499.advance(499);
+    at499.completeDecode();
+    await at499.done;
+    assert.equal(at499.image.src, newest.image_url, 'fresh source at 499ms is selected before reveal');
+    assert.equal(at499.image.attributes.has('style'), false);
+    assert.equal(at499.fading, false, 'nothing has been revealed, so no old-cover fade');
+    at499.advance(558);
+    assert.equal(at499.wrapper.style.maskImage, at499Zero);
+    at499.advance(559);
+    assert.notEqual(at499.wrapper.style.maskImage, at499Zero, 'deadline timer was canceled');
+    at499.advance(1070);
+    assert.equal(at499.wrapper.style.maskImage, '');
+
+    for (const [arrival, stallTimer] of [[500, true], [501, false], [601, false]]) {
+        const late = await makePair({ visible: true });
+        late.enter();
+        const zero = late.wrapper.style.maskImage;
+        late.advance(arrival, !stallTimer);
+        if (arrival > 560) assert.notEqual(late.wrapper.style.maskImage, zero, 'fallback already revealing');
+        late.completeDecode();
+        await flush();
+        assert.equal(late.image, undefined, 'fallback is pinned even when decode wins a delayed timer task');
+        assert.equal(late.fading, false);
+        late.advance(Math.max(559, arrival));
+        if (arrival <= 559) assert.equal(late.wrapper.style.maskImage, zero);
+        late.advance(1069);
+        assert.notEqual(late.wrapper.style.maskImage, '');
+        assert.equal(late.image, undefined, 'no source change before the final tick');
+        late.advance(1070);
+        await flush();
+        assert.equal(late.wrapper.style.maskImage, '');
+        assert.equal(late.image.src, newest.image_url);
+        assert.equal(late.fading, true, 'fade starts only after the complete fallback reveal');
+        late.finishFade();
+        await late.done;
+        assert.equal(late.removed, true);
+    }
+
+    const aged = await makePair();
+    aged.advance(510);
+    aged.enter(0); // callback delivered after an already-expired intersection deadline
+    const agedZero = aged.wrapper.style.maskImage;
+    aged.advance(570);
+    assert.notEqual(aged.wrapper.style.maskImage, agedZero);
+    aged.completeDecode();
+    aged.advance(1080);
+    await aged.done;
+
+    const reduced = await makePair({ visible: true, reducedMotion: true });
+    assert.equal(reduced.observed.length, 0);
+    reduced.completeDecode();
+    await reduced.done;
+    assert.equal(reduced.image.src, newest.image_url);
+    assert.equal(reduced.fading, false);
 
     const fallbackWeather = run([old, newest, record('2026-11-23', 'close', 'rainy')]);
     await new Promise(setImmediate);

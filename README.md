@@ -14,7 +14,11 @@ GitHub Pages should be configured to deploy from the default branch using the re
 
 The homepage card reads `manifests/latest.json` in `market-river-cover.js`.
 It selects the newest trading date and slot, prefers the sunny variant without
-requesting location, and keeps its static cover until the new image decodes.
+requesting location. When the card scrolls into view, its dither reveal waits
+at most 500 ms for the live image. If it is late or unavailable, the static cover
+gets the full reveal, and a late live image replaces it only after that.
+The static cover is still available without JavaScript; reduced motion skips
+the animated reveal and the wait.
 The archive uses `script.js` to group `manifests/recent.json` snapshots by
 date and slot, select a weather variant, and display up to nine snapshots.
 
