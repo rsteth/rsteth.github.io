@@ -14,19 +14,31 @@
 .shape-study .numbers{overflow-x:auto}.shape-study table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
 .shape-study th,.shape-study td{padding:.55rem .7rem;text-align:left;border-bottom:1px solid currentColor;white-space:nowrap}
 .shape-study .equation{font-family:monospace;overflow-wrap:anywhere}
-.shape-study .model-figure{padding:1rem 0;border-block:1px solid #d5d1c6}
-.model-legend{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;font:12px/1.5 var(--font-mono);color:var(--ink)}
+/* Both projections share the same drawing area, axes and comparison points. */
+.shape-study .model-figure{padding:1rem clamp(.45rem,2.5vw,1.4rem);background:#f0ede3;border:1px solid #d5d1c6;border-radius:4px}
+.shape-study .model-controls{display:flex;gap:.45rem;align-items:center;margin:0 0 .65rem;padding:0;min-width:0}
+.model-controls legend{float:left;margin:0 1rem 0 0;font:12px/1.5 var(--font-mono);color:var(--muted)}
+.shape-study .model-controls .choice{margin:0;min-height:36px;padding:.2rem .55rem;gap:.4rem;font:13px var(--font-mono)}
+.model-controls .choice:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.model-legend{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;font:12px/1.6 var(--font-mono);color:var(--ink)}
 .model-key{display:inline-block;width:19px;margin-right:.38rem;vertical-align:.25em;border-top:2px solid var(--accent)}
 .model-key-ref{border-color:var(--muted);border-top-style:dashed}
-.model-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;list-style:none;padding:0;margin:1rem 0}
-.model-card{display:grid;align-content:start;padding:.8rem;background:#f0ede3;border:1px solid #d5d1c6;border-radius:3px}
-.model-card svg{display:block;width:100%;height:auto;margin:.25rem 0}
-.model-card strong{font-size:1rem}
-.model-label,.model-detail{font:12px/1.45 var(--font-mono);color:var(--muted)}
-.model-ref{fill:none;stroke:var(--muted);stroke-width:.95;stroke-dasharray:3 2.8;opacity:.68}
-.model-estimate{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.model-canvas{display:block;width:100%;height:auto;margin:.4rem 0 0;color:var(--ink)}
+.model-canvas text{fill:var(--ink);font-family:var(--font-mono);font-size:19px;text-anchor:middle}
+.model-canvas .model-heading{font-weight:700;font-size:23px}
+.model-canvas .chart-label{font-size:19px;fill:var(--muted)}
+.model-canvas .axis{fill:none;stroke:var(--ink);stroke-width:1.25}
+.model-canvas .guide{stroke:#a59b8e;stroke-dasharray:2 5;stroke-width:1;fill:none}
+.model-canvas .hypothesis{stroke:#52645b;stroke-width:2.6;stroke-dasharray:7 6;fill:none}
+.model-canvas .waypoint{fill:#f0ede3;stroke:#52645b;stroke-width:2.4}
+.model-ref{fill:none;stroke:var(--muted);stroke-width:1.15;stroke-dasharray:3 2.8;opacity:.7}
+.model-estimate{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
 .model-estimate .model-sample{fill:var(--ink);stroke:none}
-@media(max-width:580px){.model-grid{grid-template-columns:1fr}.model-card svg{max-width:270px;margin-inline:auto}}
+.model-estimate .mesh-fill{fill:var(--accent);fill-opacity:.09}
+.projection-surface{display:none}
+.model-figure:has(#shape-surface:checked) .projection-sphere{display:none}
+.model-figure:has(#shape-surface:checked) .projection-surface{display:inline}
+@media(max-width:540px){.model-controls legend{float:none;margin:0 0 .35rem}.model-canvas .chart-label{font-size:22px}.model-canvas .model-heading{font-size:26px}.model-canvas .stage-label{font-size:22px}}
 </style>
 </head>
 <body class="learning-study shape-study">
@@ -65,12 +77,42 @@
 <h2>Three approximations, and a surprise.</h2>
 <p>Imagine that the underlying knowledge primitive is a manifold, 𝓜, and that three models have learned different approximations of it. They all get glimpses of the same thing. One keeps fragments, another joins them into a warped surface, and a third recovers something closer to the original.</p>
 <figure class="model-figure" id="three-approximations" aria-labelledby="approx-caption">
-<div class="model-legend"><span><i class="model-key model-key-ref" aria-hidden="true"></i> Reference manifold 𝓜</span><span><i class="model-key" aria-hidden="true"></i> Model’s approximation</span></div>
-<ol class="model-grid" role="list">
-<li class="model-card">
-<span class="model-label">Model A</span>
-<svg viewBox="0 0 240 165" role="img" aria-labelledby="fit-title-0 fit-desc-0">
-<title id="fit-title-0">Fragments</title><desc id="fit-desc-0">Three small solid triangular patches sit among sparse observations, away from the dashed reference surface.</desc>
+<fieldset class="model-controls">
+<legend>Show as</legend>
+<label class="choice"><input type="radio" name="shape-view" id="shape-sphere" value="sphere" checked> Sphere</label>
+<label class="choice"><input type="radio" name="shape-view" id="shape-surface" value="surface"> Surface</label>
+</fieldset>
+<div class="model-legend"><span><i class="model-key model-key-ref" aria-hidden="true"></i> Reference manifold 𝓜</span><span><i class="model-key" aria-hidden="true"></i> Model approximation</span></div>
+<svg class="model-canvas" viewBox="0 0 660 395" role="img" aria-labelledby="model-canvas-title model-canvas-desc">
+<title id="model-canvas-title">One reference, three approximations</title>
+<desc id="model-canvas-desc">Models A, B and C go from fragments to a warped approximation to a closer fit. Each lines up with a point on a qualitative, downward-sloping hypothesis: more faithful representations may reduce predictive uncertainty. The sphere and surface views illustrate the same comparison; neither shows measured data.</desc>
+<g class="projection-sphere"><defs>
+<g id="reference-sphere" class="model-ref">
+<circle r="57"/><ellipse rx="57" ry="24"/><ellipse rx="25" ry="57"/>
+</g>
+</defs>
+<g transform="translate(128 102)">
+<use href="#reference-sphere"/>
+<g class="model-estimate">
+<path class="mesh-fill" d="M-41 -25 -7 -49 35 -19 45 16 5 37 -43 21Z"/>
+<path opacity=".65" d="M-41 -25 5 37 35 -19 -43 21 45 16"/>
+<circle class="model-sample" cx="-41" cy="-25" r="2.6"/><circle class="model-sample" cx="-7" cy="-49" r="2.6"/>
+<circle class="model-sample" cx="35" cy="-19" r="2.6"/><circle class="model-sample" cx="45" cy="16" r="2.6"/>
+<circle class="model-sample" cx="5" cy="37" r="2.6"/><circle class="model-sample" cx="-43" cy="21" r="2.6"/>
+</g></g>
+<g transform="translate(330 102)">
+<use href="#reference-sphere"/>
+<g class="model-estimate">
+<path class="mesh-fill" d="M-53 9C-54-24-29-54 4-52 38-51 56-21 53 8 49 38 29 52-3 51-34 49-49 31-53 9Z"/>
+<path d="M-53 9C-35-21 35-31 53-2 69 25-33 42-53 9ZM-3 51C-32 49-17-54 15-51 44-47 25 52-3 51Z"/>
+</g></g>
+<g transform="translate(532 102)">
+<use href="#reference-sphere"/>
+<g class="model-estimate">
+<ellipse class="mesh-fill" cx="-.6" cy=".7" rx="55" ry="55.5"/><ellipse cx="-.6" cy=".7" rx="55" ry="22.5"/>
+<ellipse cx="-.6" cy=".7" rx="24" ry="55.5"/>
+</g></g></g>
+<g class="projection-surface"><g transform="translate(34.4 36) scale(.78)">
 <g class="model-ref">
 <polyline points="101.00,54.45 106.50,54.46 112.00,54.33 117.50,54.08 123.00,53.73 128.50,53.29 134.00,52.78 139.50,52.22 145.00,51.64 150.50,51.04 156.00,50.45 161.50,49.88 167.00,49.37 172.50,48.92 178.00,48.56 183.50,48.31 189.00,48.16 194.50,48.16 200.00,48.29 205.50,48.59 211.00,49.05 216.50,49.68 222.00,50.49 227.50,51.48 233.00,52.65"/>
 <polyline points="77.50,82.91 83.00,82.06 88.50,80.97 94.00,79.66 99.50,78.15 105.00,76.50 110.50,74.71 116.00,72.84 121.50,70.91 127.00,68.96 132.50,67.02 138.00,65.14 143.50,63.35 149.00,61.68 154.50,60.16 160.00,58.83 165.50,57.72 171.00,56.84 176.50,56.23 182.00,55.91 187.50,55.88 193.00,56.17 198.50,56.79 204.00,57.73 209.50,59.00"/>
@@ -95,13 +137,8 @@
 <circle class="model-sample" cx="97.02" cy="113.52" r="2.65"/>
 <circle class="model-sample" cx="52.34" cy="123.33" r="2.65"/>
 </g>
-</svg>
-<strong>Fragments</strong><span class="model-detail">A few local patches</span>
-</li>
-<li class="model-card">
-<span class="model-label">Model B</span>
-<svg viewBox="0 0 240 165" role="img" aria-labelledby="fit-title-1 fit-desc-1">
-<title id="fit-title-1">A warped surface</title><desc id="fit-desc-1">A solid coarse mesh follows the broad shape of the dashed reference but bends away from it in several places.</desc>
+</g>
+<g transform="translate(236.4 36) scale(.78)">
 <g class="model-ref">
 <polyline points="101.00,54.45 106.50,54.46 112.00,54.33 117.50,54.08 123.00,53.73 128.50,53.29 134.00,52.78 139.50,52.22 145.00,51.64 150.50,51.04 156.00,50.45 161.50,49.88 167.00,49.37 172.50,48.92 178.00,48.56 183.50,48.31 189.00,48.16 194.50,48.16 200.00,48.29 205.50,48.59 211.00,49.05 216.50,49.68 222.00,50.49 227.50,51.48 233.00,52.65"/>
 <polyline points="77.50,82.91 83.00,82.06 88.50,80.97 94.00,79.66 99.50,78.15 105.00,76.50 110.50,74.71 116.00,72.84 121.50,70.91 127.00,68.96 132.50,67.02 138.00,65.14 143.50,63.35 149.00,61.68 154.50,60.16 160.00,58.83 165.50,57.72 171.00,56.84 176.50,56.23 182.00,55.91 187.50,55.88 193.00,56.17 198.50,56.79 204.00,57.73 209.50,59.00"/>
@@ -126,13 +163,8 @@
 <polyline points="200.00,26.80 176.50,36.64 153.00,52.69 129.50,75.33 106.00,103.23"/>
 <polyline points="233.00,41.75 209.50,46.34 186.00,57.06 162.50,75.22 139.00,100.23"/>
 </g>
-</svg>
-<strong>A warped surface</strong><span class="model-detail">The broad shape, distorted</span>
-</li>
-<li class="model-card">
-<span class="model-label">Model C</span>
-<svg viewBox="0 0 240 165" role="img" aria-labelledby="fit-title-2 fit-desc-2">
-<title id="fit-title-2">A closer fit</title><desc id="fit-desc-2">A finer solid mesh follows the dashed reference much more closely.</desc>
+</g>
+<g transform="translate(438.4 36) scale(.78)">
 <g class="model-ref">
 <polyline points="101.00,54.45 106.50,54.46 112.00,54.33 117.50,54.08 123.00,53.73 128.50,53.29 134.00,52.78 139.50,52.22 145.00,51.64 150.50,51.04 156.00,50.45 161.50,49.88 167.00,49.37 172.50,48.92 178.00,48.56 183.50,48.31 189.00,48.16 194.50,48.16 200.00,48.29 205.50,48.59 211.00,49.05 216.50,49.68 222.00,50.49 227.50,51.48 233.00,52.65"/>
 <polyline points="77.50,82.91 83.00,82.06 88.50,80.97 94.00,79.66 99.50,78.15 105.00,76.50 110.50,74.71 116.00,72.84 121.50,70.91 127.00,68.96 132.50,67.02 138.00,65.14 143.50,63.35 149.00,61.68 154.50,60.16 160.00,58.83 165.50,57.72 171.00,56.84 176.50,56.23 182.00,55.91 187.50,55.88 193.00,56.17 198.50,56.79 204.00,57.73 209.50,59.00"/>
@@ -159,11 +191,20 @@
 <polyline points="206.60,42.96 202.33,43.29 198.05,43.81 193.78,44.56 189.51,45.56 185.24,46.86 180.96,48.47 176.69,50.42 172.42,52.72 168.15,55.38 163.87,58.41 159.60,61.82 155.33,65.59 151.05,69.73 146.78,74.21 142.51,79.03 138.24,84.16 133.96,89.58 129.69,95.25 125.42,101.16 121.15,107.26 116.87,113.53 112.60,119.92"/>
 <polyline points="233.00,49.95 228.73,50.13 224.45,50.44 220.18,50.92 215.91,51.61 211.64,52.54 207.36,53.74 203.09,55.24 198.82,57.06 194.55,59.24 190.27,61.78 186.00,64.71 181.73,68.02 177.45,71.73 173.18,75.82 168.91,80.30 164.64,85.16 160.36,90.36 156.09,95.91 151.82,101.76 147.55,107.89 143.27,114.27 139.00,120.86"/>
 </g>
+</g></g>
+<g>
+<text class="model-heading" x="128" y="27">Model A</text><text class="model-heading" x="330" y="27">Model B</text><text class="model-heading" x="532" y="27">Model C</text>
+<text class="stage-label" x="128" y="181">Fragments</text><text class="stage-label" x="330" y="181">Warped fit</text><text class="stage-label" x="532" y="181">Closer fit</text>
+<path class="guide" d="M128 190V202M128 231V249M330 190V288M532 190V318"/>
+<text class="chart-label" x="163" y="225">Predictive uncertainty</text>
+<path class="axis" d="M51 236V344H610M600 337l10 7-10 7M45 244l6-8 6 8"/>
+<path class="hypothesis" d="M128 249C211 255 257 271 330 288S466 315 532 318"/>
+<circle class="waypoint" cx="128" cy="249" r="4.6"/><circle class="waypoint" cx="330" cy="288" r="4.6"/><circle class="waypoint" cx="532" cy="318" r="4.6"/>
+<text class="chart-label" x="405" y="248">Hypothesized relationship</text>
+<text class="chart-label" x="330" y="380">Increasing representational fidelity →</text>
+</g>
 </svg>
-<strong>A closer fit</strong><span class="model-detail">More of the shape lines up</span>
-</li>
-</ol>
-<figcaption id="approx-caption"><strong>One surface, three approximations.</strong> The dashed surface is the same in each panel. This is a thought experiment, not a plot of the three pilot models or their loss.</figcaption>
+<figcaption id="approx-caption"><strong>One reference, three approximations.</strong> The dashed shape stays fixed across models in each view. The shared axis places each model above the corresponding point on the conjecture. No values here were measured, and the two views are alternate illustrations, not a mathematical map from one surface to the other.</figcaption>
 </figure>
 <p>My starting hunch was that the closer fit would make it easier to move between points the model had never seen and to predict where a move would end. We can put that hunch somewhere it can fail: a synthetic world with simpler geometry and rules we know in advance.</p>
 <p>Our first pilot gave three models incomplete movement examples on a 32-stop dial with shuffled labels. A lookup table memorized examples. An unconstrained neural network learned free two-dimensional embeddings. A rotation-based network was given circular topology and a rule for composing moves, but had to learn where the states went and how far a unit move turned.</p>
