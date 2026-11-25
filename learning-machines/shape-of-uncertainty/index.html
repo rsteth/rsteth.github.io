@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The shape of uncertainty · Learning Machines</title>
+<link rel="icon" href="../../favicon.png">
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../learning.css">
+<style>
+.shape-study figure{margin:2rem 0}.shape-study figcaption{margin-top:.65rem;font-size:.88rem}
+.shape-study .dial{display:block;max-width:34rem;width:100%;height:auto;margin-inline:auto}
+.shape-study .numbers{overflow-x:auto}.shape-study table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.shape-study th,.shape-study td{padding:.55rem .7rem;text-align:left;border-bottom:1px solid currentColor;white-space:nowrap}
+.shape-study .equation{font-family:monospace;overflow-wrap:anywhere}
+</style>
+</head>
+<body class="learning-study shape-study">
+<main class="container learning-page">
+<a class="back" href="../">← learning machines</a>
+<header>
+<p class="eyebrow">04 / geometry and uncertainty · draft</p>
+<h1>The shape of uncertainty</h1>
+<p><em>What happens when a machine discovers a better way to describe what it already knows?</em></p>
+</header>
+<nav class="study-nav" aria-label="Article sections"><a href="#bits">01 / bits</a><a href="#clock">02 / clocks</a><a href="#transfer">03 / transfer</a><a href="#primitive">04 / winding</a><a href="#next">05 / next test</a></nav>
+<section id="bits">
+<p class="eyebrow">01 / a bit of uncertainty</p>
+<h2>What does a better guess tell us?</h2>
+<p>Suppose I flip a fair coin. Before you see it, there are two equally likely outcomes, and learning which one happened gives you one bit. Flip a second independent coin and you need another bit. The first result tells you nothing about the second.</p>
+<p>Letters behave differently. If I give you the first few characters of a sentence, you can often do much better than guessing uniformly. In his <a href="https://languagelog.ldc.upenn.edu/myl/Shannon1950.pdf">experiments on printed English</a>, Claude Shannon estimated bounds of roughly 0.6 to 1.3 bits per character under his historical guessing setup. The interesting part isn’t the exact number. It’s how much uncertainty disappears once you take the relationships between the characters into account.</p>
+<p>One way to score a model is to ask how much probability it gives to the answer that actually occurs. A probability of one in eight costs three bits; one in two costs one bit. Average that cost over the same set of predictions, then raise two to that average, and you get perplexity. It behaves like an effective number of choices; it doesn’t tell us which choices the model considered or how it found the answer. Comparisons also need the same test and the same unit. Bits per token and bits per character don’t mean the same thing.</p>
+<p>What I’m curious about is what happens inside the machine as that score falls. Has it remembered more examples, or has it found a description that lets it derive many of the examples from one relationship?</p>
+</section>
+<section id="clock">
+<p class="eyebrow">02 / discovering the circle</p>
+<h2>A clock can be a table or a place to move.</h2>
+<p>Imagine a machine watching the numbers on a clock. It might learn that 2 follows 1, 3 follows 2, and 1 follows 12. Or it could describe all twelve positions with one circle and a rotation. Once it has that description, stepping backward, combining two movements, and going all the way around become things it can work out without seeing each example separately.</p>
+<p><a href="https://www.goodfire.com/research/a-geometric-calculator">Goodfire’s geometric calculator</a> offers a concrete example from Llama 3.1 8B. The researchers describe numbers as occupying phases on several circles with different periods. They found a reusable circuit that acts on those representations, including in arithmetic and calendar tasks. They also intervened on activations and observed changes in outputs. The idealized math is simple: if a number is a phase, adding two numbers amounts to composing rotations. That identity explains the idea, not every operation the actual network performs.</p>
+<p>It reminds me of the robot in <a href="../manifolds/">the previous article</a>. Fourteen joint angles can describe both arms, but a particular useful movement can be much simpler in different coordinates. A representation can change what’s easy to do without changing the task.</p>
+</section>
+<section id="transfer">
+<p class="eyebrow">03 / different machines, the same object?</p>
+<h2>Can one model use another model’s map?</h2>
+<p>The <a href="https://arxiv.org/abs/2405.07987">Platonic Representation Hypothesis</a> suggests that different models may come to describe some of the same structure in the world. Picture three people drawing the same coastline, with different scales, orientations and levels of detail. If they captured enough of the same relationships, you might be able to use one person’s map to navigate another’s.</p>
+<p>In <a href="https://hazyresearch.stanford.edu/blog/2026-11-25-platos-key">Plato’s Key</a>, Stanford’s Hazy Research group tested a limited version of that idea on factual recall. They fit a change of coordinates using centering, an orthogonal map and a single scale. Then they replaced one model’s internal state with the transformed state of another while leaving both models’ weights alone. Across 20 pairs drawn from 12 models, the median cross-model swap success was 41%, versus 55% for swaps within the same model. Via an intermediate model, transfer retained a median 99% of <em>direct transfer’s</em> accuracy. That last number is relative, not a 99% factual recall score.</p>
+<p>What one study asks is whether a model can compute <em>in</em> a learned geometry. What the other asks is whether two models can use some of the same coordinates. Neither establishes that they learned the same operation. I’d like to test whether computing first and then translating gives the same result as translating first and then computing.</p>
+</section>
+<section id="primitive">
+<p class="eyebrow">04 / approaching the primitive</p>
+<h2>Three approximations, and a surprise.</h2>
+<p>Suppose there’s an underlying thing to be known: a circle, for instance, with words, pictures and equations as different glimpses of it. My original intuition was that a model with a more faithful reconstruction of the circle would be able to move through it more accurately and guess with less uncertainty. We can put that intuition somewhere it can fail: a synthetic world whose true rules we know.</p>
+<p>Our first pilot gave three models incomplete movement examples on a 32-stop dial with shuffled labels. A lookup table memorized examples. An unconstrained neural network learned free two-dimensional embeddings. A rotation-based network was given circular topology and a rule for composing moves, but had to learn where the states went and how far a unit move turned.</p>
+<div class="numbers"><table>
+<caption>Exploratory CPU pilot, final checkpoints, means across five seeds</caption>
+<thead><tr><th scope="col">Model</th><th scope="col">Held-out accuracy</th><th scope="col">New move lengths</th><th scope="col">Held-out loss</th></tr></thead>
+<tbody><tr><th scope="row">Lookup</th><td>4.0%</td><td>3.1%</td><td>5.00 bits</td></tr><tr><th scope="row">Unconstrained</th><td>3.1%</td><td>4.3%</td><td>8.19 bits</td></tr><tr><th scope="row">Rotation</th><td>76.7%</td><td>79.6%</td><td>2.77 bits</td></tr></tbody>
+</table></div>
+<p>The rotation prior helped, as we might expect. The surprise was that three of its five runs predicted every tested destination correctly, including for new move lengths, even though their internal distances bore little resemblance to the distances around the original dial. The other two runs learned even windings that collapsed pairs of states.</p>
+<figure>
+<svg class="dial" viewBox="0 0 540 190" role="img" aria-labelledby="dial-title dial-desc">
+<title id="dial-title">One move, three ways to draw it</title>
+<desc id="dial-desc">On a sixteen-state dial, a source state at the top moves one step when k is one, three steps when k is three, or two steps when k is two. The third representation merges opposite states.</desc>
+<g fill="none" stroke="currentColor" opacity=".45"><circle cx="90" cy="83" r="55"/><circle cx="270" cy="83" r="55"/><circle cx="450" cy="83" r="55"/></g>
+<g fill="none" stroke="#ae593f" stroke-width="3"><path d="M90 28 A55 55 0 0 1 111.05 32.19"/><path d="M270 28 A55 55 0 0 1 320.81 61.95"/><path d="M450 28 A55 55 0 0 1 488.89 44.11"/></g>
+<g fill="currentColor"><circle cx="90" cy="28" r="4"/><circle cx="270" cy="28" r="4"/><circle cx="450" cy="28" r="4"/></g>
+<g fill="#ae593f"><circle cx="111.05" cy="32.19" r="5"/><circle cx="320.81" cy="61.95" r="5"/><circle cx="488.89" cy="44.11" r="5"/></g>
+<g fill="currentColor" text-anchor="middle" font-family="monospace" font-size="15"><text x="90" y="164">k = 1</text><text x="270" y="164">k = 3</text><text x="450" y="164">k = 2</text><text x="90" y="183">16 distinct</text><text x="270" y="183">16 distinct</text><text x="450" y="183">8 distinct</text></g>
+</svg>
+<figcaption>Illustration, not measured activations. The same +1 move in a 16-state world looks like a 1-, 3-, or 2-position rotation. With <i>k</i>=3 the distances change but every state is still distinct. With <i>k</i>=2, opposite states have the same code.</figcaption>
+</figure>
+<p class="equation">zₖ(x) = exp(2πikx/N); &nbsp; zₖ(x + a) = zₖ(x) · zₖ(a)</p>
+<p>Multiply the state number by <i>k</i> before placing it on the dial. If <i>k</i> and the number of states share no common factor, every state still has a unique place and the rotation rule still works. The learned space can look wrong by a distance measure and still support the right computation. Perhaps the primitive is the set of relationships that survive these changes of coordinates, rather than a unique surface we should expect every model to recover.</p>
+</section>
+<section id="next">
+<p class="eyebrow">05 / what the experiment can tell us</p>
+<h2>What has to come into focus?</h2>
+<p>There are three things worth measuring separately: the fidelity of the representation, the fidelity of the operations we can carry out on it, and the predictive loss. In the pilot we know the real probability distribution. Average predictive loss is the uncertainty built into that distribution plus the penalty for getting the distribution wrong. Lower loss tells us the predictions got better. It doesn’t tell us which representation did the work, or whether the original distances mattered at all.</p>
+<p>The first models had different capacities and priors. We gave the winning architecture a circle, and its probability decoder didn’t exactly match our noise model. So this is an exploratory result, not evidence that real language models discover the same surface or that there’s a perplexity threshold for a capability jump. A better next experiment would hold the world fixed across initializations, use unseen compositions and alignment anchors, and compare observation channels that do or don’t reveal the original metric. Then we can look at which changes happen together as each model learns.</p>
+<p>We started by asking how close a machine could get to a surface. I think the better question is: <strong>what properties does a machine have to preserve in order to know its way around?</strong></p>
+<p class="small"><a href="https://github.com/rsteth/learning-machines/tree/draft/shape-of-uncertainty/experiments/approaching-the-primitive">Companion pilot, data and next experiments</a> · <a href="https://arxiv.org/abs/2610.39302">Further reading: Platonic representations and JEPAs</a></p>
+</section>
+<footer><p class="small">Working draft. The dial is illustrative; the table is from the archived synthetic pilot.</p><a href="../">All Learning Machines studies</a></footer>
+</main>
+</body>
+</html>
