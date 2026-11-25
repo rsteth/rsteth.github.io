@@ -23,14 +23,15 @@
 .model-legend{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;font:12px/1.6 var(--font-mono);color:var(--ink)}
 .model-key{display:inline-block;width:19px;margin-right:.38rem;vertical-align:.25em;border-top:2px solid var(--accent)}
 .model-key-ref{border-color:var(--muted);border-top-style:dashed}
-.model-canvas{display:block;width:100%;height:auto;margin:.4rem 0 0;color:var(--ink)}
+.model-canvas{display:block;width:100%;height:auto;margin:.4rem 0 0;color:var(--ink);--hypothesis-color:#52645b}
 .model-canvas text{fill:var(--ink);font-family:var(--font-mono);font-size:19px;text-anchor:middle}
 .model-canvas .model-heading{font-weight:700;font-size:23px}
 .model-canvas .chart-label{font-size:19px;fill:var(--muted)}
 .model-canvas .axis{fill:none;stroke:var(--ink);stroke-width:1.25}
 .model-canvas .guide{stroke:#a59b8e;stroke-dasharray:2 5;stroke-width:1;fill:none}
-.model-canvas .hypothesis{stroke:#52645b;stroke-width:2.6;stroke-dasharray:7 6;fill:none}
-.model-canvas .waypoint{fill:#f0ede3;stroke:#52645b;stroke-width:2.4}
+.model-canvas .hypothesis{stroke:var(--hypothesis-color);stroke-width:2.6;stroke-dasharray:7 6;fill:none}
+.model-canvas .hypothesis-label{fill:var(--hypothesis-color)}
+.model-canvas .waypoint{fill:#f0ede3;stroke:var(--hypothesis-color);stroke-width:2.4}
 .model-ref{fill:none;stroke:var(--muted);stroke-width:1.15;stroke-dasharray:3 2.8;opacity:.7}
 .model-estimate{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
 .model-estimate .model-sample{fill:var(--ink);stroke:none}
@@ -83,7 +84,7 @@
 <label class="choice"><input type="radio" name="shape-view" id="shape-surface" value="surface"> Surface</label>
 </fieldset>
 <div class="model-legend"><span><i class="model-key model-key-ref" aria-hidden="true"></i> Reference manifold 𝓜</span><span><i class="model-key" aria-hidden="true"></i> Model approximation</span></div>
-<svg class="model-canvas" viewBox="0 0 660 395" role="img" aria-labelledby="model-canvas-title model-canvas-desc">
+<svg class="model-canvas" viewBox="0 0 660 421" role="img" aria-labelledby="model-canvas-title model-canvas-desc">
 <title id="model-canvas-title">One reference, three approximations</title>
 <desc id="model-canvas-desc">Models A, B and C go from fragments to a warped approximation to a closer fit. Each lines up with a point on a qualitative, downward-sloping hypothesis: more faithful representations may reduce predictive uncertainty. The sphere and surface views illustrate the same comparison; neither shows measured data.</desc>
 <g class="projection-sphere"><defs>
@@ -200,8 +201,8 @@
 <path class="axis" d="M51 236V344H610M600 337l10 7-10 7M45 244l6-8 6 8"/>
 <path class="hypothesis" d="M128 249C211 255 257 271 330 288S466 315 532 318"/>
 <circle class="waypoint" cx="128" cy="249" r="4.6"/><circle class="waypoint" cx="330" cy="288" r="4.6"/><circle class="waypoint" cx="532" cy="318" r="4.6"/>
-<text class="chart-label" x="405" y="248">Hypothesized relationship</text>
-<text class="chart-label" x="330" y="380">Increasing representational fidelity →</text>
+<text class="chart-label" x="330" y="374">Increasing representational fidelity</text>
+<text class="chart-label hypothesis-label" x="330" y="405">Hypothesized relationship</text>
 </g>
 </svg>
 <figcaption id="approx-caption"><strong>One reference, three approximations.</strong> The dashed shape stays fixed across models in each view. The shared axis places each model above the corresponding point on the conjecture. No values here were measured, and the two views are alternate illustrations, not a mathematical map from one surface to the other.</figcaption>
