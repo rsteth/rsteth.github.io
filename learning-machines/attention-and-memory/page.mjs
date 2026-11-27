@@ -25,7 +25,7 @@ function readTile(event){
  const hit=tileAt(target,(event.clientX-rect.left)/rect.width*canvas.width,(event.clientY-rect.top)/rect.height*canvas.height);
  if(!hit){$('tile-readout').textContent='';return;}
  const at=reaches(hit.kind,hit.number);
- $('tile-readout').textContent=hit.filled?KIND[hit.kind]+' · tile '+hit.number+(hit.partial?' (partly filled)':'')+' — one more copy of the whole stack’s state at 1,024 tokens. Now '+format(hit.value)+' tiles.'
+ $('tile-readout').textContent=hit.filled?KIND[hit.kind]+' · tile '+hit.number+(hit.partial?' (partly filled)':'')+': one more copy of the whole stack’s state at 1,024 tokens. Now '+format(hit.value)+' tiles.'
   :at?KIND[hit.kind]+' fills tile '+hit.number+' at '+format(at)+' tokens.':KIND[hit.kind]+(hit.kind==='recurrent'?' never needs tile '+hit.number+': its state stays one tile at any length.':' does not reach tile '+hit.number+' within 262,144 tokens.');
 }
 function updateGrowth() {

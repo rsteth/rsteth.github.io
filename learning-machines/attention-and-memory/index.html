@@ -40,7 +40,7 @@
           <div class="growth-labels" aria-hidden="true"><span>Full attention</span><span>Qwen hybrid</span><span>All recurrent</span></div>
         </div>
         <p id="tile-readout" class="tile-readout" aria-live="polite"></p>
-        <p class="visual-note">One tile = the whole stack’s state at 1,024 tokens. Count the tiles; the dots show room for 256. Abstract state units, not measured GPU memory.</p>
+        <p class="visual-note">One tile = the whole stack’s state at 1,024 tokens. Count the tiles; the dots show room for 256.</p>
       </div>
       <details id="linear-growth" open>
         <summary>Linear-scale growth chart</summary>
@@ -51,7 +51,7 @@
         <div><dt><i class="key hybrid"></i>Qwen hybrid</dt><dd id="hybrid-value">4.75× baseline</dd></div>
         <div><dt><i class="key recurrent"></i>All recurrent</dt><dd id="recurrent-value">1× baseline</dd></div>
       </dl>
-      <p class="small" id="growth-note">Growth illustration, not GPU memory. Each layer starts at one abstract unit at 1,024 tokens. Attention units grow with context; recurrent units stay fixed. Actual layer sizes differ.</p>
+      <p class="small" id="growth-note">The units are abstract, not GPU memory: each layer starts at one unit at 1,024 tokens. Attention units grow with context; recurrent units stay fixed. Actual layer sizes differ.</p>
       <p class="small">Fixed recurrent state does not mean constant total memory, constant processing cost or perfect recall. Full attention does not guarantee exact retrieval either.</p>
     </section>
     <section aria-labelledby="layers-heading">
@@ -90,7 +90,7 @@
       </div>
       <p id="layer-summary" class="small" aria-live="polite">48 original GDN layers (G), 16 full-attention layers (A). Pattern: G G G A, repeated 16 times.</p>
       <p class="small">A = full attention · G = original GDN · C = converted to GDN · D = original GDN, later adapted. Layers numbered 1–64.</p>
-      <p class="small">This switch compares architectures. The conversion required distillation and further training; it is not a free, quality-preserving toggle. The 48 original GDN layers were also adapted in the later LoRA stage.</p>
+      <p class="small">This switch compares architectures. The conversion itself required distillation and further training, and we have not measured its effect on quality. The 48 original GDN layers were also adapted in the later LoRA stage.</p>
     </section>
     <section aria-labelledby="toy-heading">
       <p class="eyebrow">03 / keeping details</p>
