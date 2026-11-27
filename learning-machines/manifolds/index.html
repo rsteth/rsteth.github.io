@@ -29,20 +29,17 @@
     <a href="#landscape">02 / cost</a>
     <a href="#skill">03 / skill</a>
   </nav>
-  <p><em>A volleyball, fourteen joints, and the smaller spaces hiding inside complicated machines.</em></p>
-  <p>Imagine a humanoid robot holding a volleyball with both hands.</p>
-  <p>Each arm has seven independently movable joints. The robot can measure their angles, calculate where its hands are, and estimate their positions relative to one another. We can represent both arms as one fourteen-joint machine.</p>
-  <p>If the robot already knows the geometry of its arms, why is using two hands still difficult? And if it has fourteen degrees of freedom, does it really need all fourteen to do something as ordinary as passing a ball?</p>
-  <p>Both questions lead to the same idea in machine learning: a system may have an enormous number of possible configurations, while a useful behavior occupies a much smaller space.</p>
   <div class="exhibit" id="sheet-figure" aria-labelledby="sheet-figure-title">
     <div class="exhibit-head">
       <h3 id="sheet-figure-title">One flat map for two curved surfaces</h3>
     </div>
-    <img class="sheet-static" src="./sheet-static.svg" alt="Two shaded curved surfaces, one above the other, floating over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route; dotted verticals join the ends of the routes down through both surfaces to the map." width="640" height="660">
-    <p class="small">A manifold is a surface, or its equivalent in more dimensions: it can curve through a space with many coordinates, yet every point on it can be found with only a few. Each surface here bends through three coordinates, and two numbers are enough to say where you are on it. The flat map uses the same two numbers for both surfaces, so one point on the map picks out a point on each. Written out in full, that pair of points takes six numbers, three per surface, and the map holds it in two. A straight line drawn on the map becomes a curved route on both surfaces at once. These two surfaces are made up for illustration; the robot&#x27;s own come in the sections below.</p>
+    <img class="sheet-static" src="./sheet-static.svg" alt="Two shaded curved surfaces, one above the other, floating over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route; a ring marks the same point on the map and on both surfaces, joined by a dashed vertical, with its three coordinates beside each surface and its two beside the map." width="640" height="660">
+    <p class="small">A manifold is a surface, or its equivalent in more dimensions: it can curve through a space with many coordinates, yet every point on it can be found with only a few. Each surface here bends through three coordinates, and two numbers are enough to say where you are on it. The flat map uses the same two numbers for both surfaces, so one point on the map picks out a point on each. Written out in full, that pair of points takes six numbers, three per surface, and the map holds it in two. A straight line drawn on the map becomes a curved route on both surfaces at once.</p>
   </div>
-  <p><em>Interactive teaching illustration · runs in your browser, no live model or physical robot.</em></p>
-  <p class="small view-direction-note">Physical +Y means forward from the torso; it appears down-left in this front view. Joint rotations are not forward-distance controls.</p>
+  <p>Replace the two surfaces with the two arms of a humanoid robot holding a volleyball.</p>
+  <p>Each arm has seven independently movable joints. A pose of one arm is seven numbers, where a point on a surface was three, and a pose of both arms is fourteen, where the pair of points was six. Those fourteen numbers cover everything the robot could do with its arms, and almost none of that is passing a ball.</p>
+  <p>To keep both hands on the ball, the arms have to move together, which rules out most combinations of joint angles. A practiced movement such as a handoff uses fewer still. The poses it passes through lie on, or close to, a much smaller surface inside the fourteen-number space, the way the routes above lie on their surfaces.</p>
+  <p>The sections below look for a map of that surface. Geometry takes us from fourteen numbers to eight, and one skill, the handoff, may need only two.</p>
 
   <section id="fourteen-numbers" aria-labelledby="heading-0">
     <p class="eyebrow">00 / fourteen numbers</p>

@@ -5,7 +5,7 @@ import {resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import * as M from '../learning-machines/manifolds/mechanics.mjs';
 import {FIXTURES as F} from '../learning-machines/manifolds/fixtures.mjs';
-import {pcaDirectionNote,VIEW_DIRECTION_NOTE,CHART_DIRECTION_NOTE} from '../learning-machines/manifolds/directions.mjs';
+import {pcaDirectionNote,CHART_DIRECTION_NOTE} from '../learning-machines/manifolds/directions.mjs';
 import {routeSVG,sameRoute} from '../learning-machines/manifolds/routes.mjs';
 import {formatResidual,formatSliderValue} from '../learning-machines/manifolds/format.mjs';
 import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/manifolds/visuals.mjs';
@@ -87,7 +87,7 @@ for(let i=0;i<14;i++){const q=[...F.canonical.q];q[i]+=.01;assert.notDeepEqual(M
 assert.deepEqual(F.pca.orientation.map(o=>[o.component,o.axis]),[[1,'y'],[2,'z']]);
 assert.ok(F.pca.orientation.every(o=>o.trainingCorrelation>0&&o.trainingCount===F.demonstrations.train.length));
 assert.match(pcaDirectionNote(F.pca),/PCA signs are arbitrary/);assert.match(pcaDirectionNote(F.pca),/mixed fitted axes/);
-assert.ok(page.includes(pcaDirectionNote(F.pca)));assert.ok(page.includes(VIEW_DIRECTION_NOTE));assert.ok(page.includes(CHART_DIRECTION_NOTE));
+assert.ok(page.includes(pcaDirectionNote(F.pca)));assert.ok(page.includes(CHART_DIRECTION_NOTE));
 assert.match(script,/CHART_DIRECTION_NOTE/);assert.match(script,/Displayed ball: forward y=/);assert.match(script,/Score range:/);assert.match(script,/Training range:/);
 const pcaGrid=Array.from({length:21},(_,j)=>Array.from({length:21},(_,i)=>{
  const z=F.pca.coordinateRanges.map(([lo,hi],k)=>lo+(hi-lo)*(k===0?i:j)/20),r=M.projectDecodedConfiguration(M.decodePCA(z,F.pca));assert.ok(r.ok);return r.ballPose.position;
@@ -141,10 +141,10 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
-// Schematic sheets (introduction): each map point lifts to one point on every sheet, a lifted route is never shorter than its
+// Schematic sheets (top of the page): each map point lifts to one point on every sheet, a lifted route is never shorter than its
 // map line, the sheets stay stacked above the map, and the painter stays finite and inside its canvas at every yaw and size.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
-assert.match(page,/One flat map for two curved surfaces/);assert.match(page,/takes six numbers, three per surface, and the map holds it in two/);assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('id="fourteen-numbers"'),'the concept figure comes before section 00');
+assert.match(page,/One flat map for two curved surfaces/);assert.match(page,/takes six numbers, three per surface, and the map holds it in two/);assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('id="fourteen-numbers"'),'the concept figure comes before section 00');assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('Replace the two surfaces with the two arms'),'and before the introduction that builds on it');
 assert.equal(Sheet.SHEETS.length,2);
 const sheetSamples=[];for(let u=-1;u<=1;u+=.25)for(let v=-1;v<=1;v+=.25)sheetSamples.push([u,v]);
 for(const target of sheetSamples){
@@ -159,8 +159,16 @@ for(const [W,H] of [[320,380],[507,588],[640,640]])for(let turn=0;turn<12;turn++
  const yaw=Sheet.START_YAW+turn*Math.PI/6,P=Sheet.projector(W,H,yaw);
  for(const point of [...sheetSamples.flatMap(p=>Sheet.SHEETS.map((_,k)=>Sheet.lift(p,k))),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
  const drawn=[];const sheetContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);drawn.push(k);},set:()=>true});
- Sheet.paintSheet(sheetContext,W,H,yaw,[...Sheet.TARGET]);assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
+ const lines=Sheet.paintSheet(sheetContext,W,H,yaw,[...Sheet.TARGET],{mark:.4});assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
+ // The painter returns the map line and one line per sheet; pointing at any of them finds the same place along the route.
+ assert.equal(lines.length,1+Sheet.SHEETS.length);
+ for(const points of lines){assert.equal(points.length,Sheet.PIECES+1);const a=points[12],b=points[13];assert.ok(Math.abs(Sheet.nearestOnRoute([points],(a[0]+b[0])/2,(a[1]+b[1])/2)-12.5/Sheet.PIECES)<1e-9);}
+ assert.equal(Sheet.nearestOnRoute(lines,-500,-500),null);
+ // With room for the coordinate column the figure moves left, and still fits beside it.
+ const wide=Sheet.layout(W,H,144),Pw=Sheet.projector(W,H,yaw,144);assert.equal(wide.beside,W>=600);
+ for(const p of sheetSamples.map(q=>Sheet.lift(q,1))){const [x]=Pw(p);assert.ok(x>=0&&x<=(wide.beside?W-8-144-14:W));}
 }
+assert.equal(Sheet.coordinates([-.001,.5,1.239]),'(0.00, 0.50, 1.24)');
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');

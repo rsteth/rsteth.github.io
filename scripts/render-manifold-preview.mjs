@@ -4,7 +4,7 @@ import {forwardKinematics,RIG,encodePCA} from '../learning-machines/manifolds/me
 import {FIXTURES as F} from '../learning-machines/manifolds/fixtures.mjs';
 import {project,depth,visibleBoxFaces} from '../learning-machines/manifolds/visuals.mjs';
 import {routeSVG} from '../learning-machines/manifolds/routes.mjs';
-import {pcaDirectionNote,VIEW_DIRECTION_NOTE,CHART_DIRECTION_NOTE} from '../learning-machines/manifolds/directions.mjs';
+import {pcaDirectionNote,CHART_DIRECTION_NOTE} from '../learning-machines/manifolds/directions.mjs';
 import * as M from '../learning-machines/manifolds/mechanics.mjs';
 import {threadData,paintThreads,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import {paintSheet,START_YAW,TARGET} from '../learning-machines/manifolds/sheet.mjs';
@@ -53,7 +53,7 @@ const threads=threadData(F,M),recorder=svgContext();paintThreads(recorder,640,34
 skill+=text(20,28,'HANDOFFS AS THREADS / A LIMITED SKILL FAMILY')+`<g transform="translate(0 30)">${recorder.svg()}</g>`+text(20,390,`${F.demonstrations.train.length} training + ${F.demonstrations.holdout.length} held-out poses · ${(F.scores.train.explainedVariance*100).toFixed(3)}% training variance`)+text(20,415,`Height = distance from the fitted plane · outside-family RMS ${(F.outsideSkill.reconstructionRmsRad*180/Math.PI).toFixed(3)}°`)+'</svg>';save('skill-static',skill);
 // The schematic sheets of the introduction, from the same painter as the live figure.
 const sheetRecorder=svgContext();paintSheet(sheetRecorder,640,620,START_YAW,TARGET);
-save('sheet-static',shell('One flat map for two curved surfaces','Schematic, not computed from the robot. Two shaded curved surfaces float one above the other over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route; dotted verticals join the ends of the routes down to the map.',660)+text(20,28,'ONE FLAT MAP FOR TWO CURVED SURFACES / SCHEMATIC')+`<g transform="translate(0 30)">${sheetRecorder.svg()}</g></svg>`);
+save('sheet-static',shell('One flat map for two curved surfaces','Schematic, not computed from the robot. Two shaded curved surfaces float one above the other over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route. A ring marks the same point on all three, joined by a dashed vertical, with its three coordinates beside each surface and its two beside the map.',660)+text(20,28,'ONE FLAT MAP FOR TWO CURVED SURFACES / SCHEMATIC')+`<g transform="translate(0 30)">${sheetRecorder.svg()}</g></svg>`);
 
 // Device-resolution HTML carries every numeric caption when an external SVG shrinks on mobile.
 const fixed=(x,n=3)=>x.toFixed(n),freeFK=forwardKinematics(RIG.initialQ);
@@ -65,5 +65,4 @@ const captions=[
 ];
 const pageURL=new URL('../learning-machines/manifolds/index.html',import.meta.url);let html=readFileSync(pageURL,'utf8');
 for(let i=0;i<4;i++){const caption=`<div class="static-caption" data-static-caption="${i}">${captions[i]}</div>`;const existing=new RegExp(`<div class="static-caption" data-static-caption="${i}">[\\s\\S]*?<\\/div>`);if(existing.test(html))html=html.replace(existing,caption);else{const panelStart=html.indexOf(`id="panel-${i}"`),position=html.indexOf('</canvas></div>',panelStart)+'</canvas></div>'.length;html=html.slice(0,position)+caption+html.slice(position);}}
-const viewNote=`<p class="small view-direction-note">${VIEW_DIRECTION_NOTE}</p>`;if(html.includes('class="small view-direction-note"'))html=html.replace(/<p class="small view-direction-note">[\s\S]*?<\/p>/,viewNote);else html=html.replace('<section id="fourteen-numbers"',viewNote+'<section id="fourteen-numbers"');
 writeFileSync(pageURL,html);

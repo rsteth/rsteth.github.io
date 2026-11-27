@@ -57,5 +57,5 @@ function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);
  function reset(){mode='task';selector.value=mode;target=null;values=[0,0];p.q=[...F.canonical.q];configure();figure.reset();update();}
  $('[data-reset]',p.root).onclick=reset;reset();}
 [setupFree,setupGrasp,setupLandscape,setupSkill].forEach((setup,i)=>{const p=panels[i];try{setup();p.canvas.hidden=false;$('.static-rig',p.root).hidden=true;$('.static-caption',p.root).hidden=true;$('[data-reset]',p.root).disabled=false;}catch(error){p.root.classList?.add('failed');p.canvas.hidden=true;$('.static-rig',p.root).hidden=false;const caption=$('.static-caption',p.root);if(caption)caption.hidden=false;p.root.querySelectorAll('input,button,select').forEach(control=>control.disabled=true);p.status.textContent='Interactive panel unavailable. The static diagram and explanation remain readable.';console.error(error);}});
-// The schematic sheets in the introduction are independent of the four panels; if the figure fails, its static drawing stays.
+// The schematic sheets at the top of the page are independent of the four panels; if the figure fails, its static drawing stays.
 try{sheetFigure($('#sheet-figure'));}catch(problem){console.error(problem);}
