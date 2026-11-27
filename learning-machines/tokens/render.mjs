@@ -153,7 +153,7 @@ export function listenHTML(m, { live = true } = {}) {
   return `<h3><span class="ex-step">A</span> Listen</h3><p>The last piece hears every earlier piece, some more than others: thicker arc, larger share. It copies what it hears onto its own card. It cannot hear pieces that come later.</p>`
     + `<figure class="ex-arcs listen-figure"><svg viewBox="0 0 700 250" role="img" aria-label="How much ${esc(show(trace.piece))} hears from each earlier piece: ${esc(spoken)}">${arcs}${boxes}</svg><figcaption>Thicker arc = larger share of what is heard.</figcaption></figure>`
     + `<div class="cover-row"><span class="switch-label">Cover a word to see what goes missing</span>${covers}</div>`
-    + `<h3><span class="ex-step">B</span> Work out</h3><p>Then the card is worked over on its own. Some notes can only be written when two things are on the card together: a cat and sitting make a low, cosy spot. Neither word carries that alone.</p>`
+    + `<h3><span class="ex-step">B</span> Work out</h3><p>Then the card is worked over on its own. Some notes can only be written when two things are on the card together: a cat and sitting make a low, cosy spot.</p>`
     + `<div class="notes-card viewfinder"><p class="panel-label">THE CARD OF THE LAST PIECE · ${esc(show(trace.piece))}</p>`
     + `<div class="notes-row"><span class="notes-step">Starts with</span><span class="chips">${startChips}</span></div>`
     + `<div class="notes-row"><span class="notes-step">Hears</span><span class="chips">${heardChips}</span></div>`
