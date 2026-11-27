@@ -141,23 +141,27 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
-// Schematic sheet (section 00): each map point lifts to one sheet point, a lifted route is never shorter than its map line,
-// and the painter stays finite and inside its canvas at every preset view and size.
+// Schematic sheets (introduction): each map point lifts to one point on every sheet, a lifted route is never shorter than its
+// map line, the sheets stay stacked above the map, and the painter stays finite and inside its canvas at every yaw and size.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
-assert.match(page,/A schematic, not computed from the robot/);
+assert.match(page,/A schematic, not computed from the robot/);assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('id="fourteen-numbers"'),'the concept figure comes before section 00');
+assert.equal(Sheet.SHEETS.length,2);
 const sheetSamples=[];for(let u=-1;u<=1;u+=.25)for(let v=-1;v<=1;v+=.25)sheetSamples.push([u,v]);
 for(const target of sheetSamples){
- const lifted=Sheet.lift(target),path=Sheet.route(target);
- assert.deepEqual(lifted.slice(0,2),target);assert.ok(Number.isFinite(lifted[2])&&lifted[2]>Sheet.MAP_Z,'the sheet stays above its map');
+ const path=Sheet.route(target),stack=Sheet.SHEETS.map((_,k)=>Sheet.lift(target,k));
+ for(const lifted of stack)assert.deepEqual(lifted.slice(0,2),target);
+ assert.ok(Sheet.MAP_Z<stack[0][2]&&stack[0][2]<stack[1][2],'map, lower sheet and upper sheet never cross');
  assert.deepEqual(path.map[0],[...Sheet.START]);assert.ok(Math.hypot(path.map.at(-1)[0]-target[0],path.map.at(-1)[1]-target[1])<1e-12);
- assert.ok(path.sheetLength>=path.mapLength-1e-12,'lifting a straight map line cannot shorten it');
+ for(const length of path.sheetLengths)assert.ok(length>=path.mapLength-1e-12,'lifting a straight map line cannot shorten it');
 }
-assert.ok(Sheet.route(Sheet.TARGET).sheetLength>Sheet.route(Sheet.TARGET).mapLength*1.05,'the default route visibly climbs');
-assert.match(Sheet.describe(Sheet.TARGET),/first two numbers decide the third/);
-for(const [W,H] of [[320,300],[507,416],[640,500]])for(const [yaw,el] of Object.values(Sheet.VIEWS)){
- const view={yaw,el,scale:230},P=Sheet.projector(W,H,view);
- for(const point of [...sheetSamples.map(Sheet.lift),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
+{const {mapLength,sheetLengths}=Sheet.route(Sheet.TARGET);assert.ok(sheetLengths.every(n=>n>mapLength*1.03),'the default route visibly bends on both sheets');assert.ok(Math.abs(sheetLengths[0]-sheetLengths[1])>.01,'the two sheets bend it differently');}
+assert.match(Sheet.describe(Sheet.TARGET),/one point on each sheet/);
+for(const [W,H] of [[320,380],[507,588],[640,640]])for(let turn=0;turn<12;turn++){
+ const yaw=Sheet.START_YAW+turn*Math.PI/6,P=Sheet.projector(W,H,yaw);
+ for(const point of [...sheetSamples.flatMap(p=>Sheet.SHEETS.map((_,k)=>Sheet.lift(p,k))),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
  const drawn=[];const sheetContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);drawn.push(k);},set:()=>true});
- Sheet.paintSheet(sheetContext,W,H,view,[...Sheet.TARGET]);assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
+ Sheet.paintSheet(sheetContext,W,H,yaw,[...Sheet.TARGET]);assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
 }
+// Spinning never changes the drawn size: the scale depends on the canvas alone.
+{const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');

@@ -34,6 +34,14 @@
   <p>Each arm has seven independently movable joints. The robot can measure their angles, calculate where its hands are, and estimate their positions relative to one another. We can represent both arms as one fourteen-joint machine.</p>
   <p>If the robot already knows the geometry of its arms, why is using two hands still difficult? And if it has fourteen degrees of freedom, does it really need all fourteen to do something as ordinary as passing a ball?</p>
   <p>Both questions lead to the same idea in machine learning: a system may have an enormous number of possible configurations, while a useful behavior occupies a much smaller space.</p>
+  <div class="exhibit" id="sheet-figure" aria-labelledby="sheet-figure-title">
+    <div class="exhibit-head">
+      <h3 id="sheet-figure-title">One flat map for two curved sheets</h3>
+    </div>
+    <p class="small">A schematic, not computed from the robot. Each sheet is a curved surface drawn in three coordinates, and the one map beneath them gives every point on either sheet the same two numbers. A straight line on the map becomes a different curved route on each sheet. Later sections do the same with the robot: fourteen joint angles in place of the three coordinates, two controls in place of the map.</p>
+    <img class="sheet-static" src="./sheet-static.svg" alt="Two shaded curved sheets, one above the other, floating over a flat grid, their shared map. A straight dashed line on the map appears on each sheet as a different curved route; dotted verticals join the ends of the routes down through both sheets to the map." width="640" height="720">
+    <p class="map-legend">Solid = the route on each sheet · dashed = the same route on the map · ring = current end of the route · dotted verticals join the same point on the map and on both sheets. Drag sideways to spin the figure.</p>
+  </div>
   <p><em>Interactive teaching illustration · runs in your browser, no live model or physical robot.</em></p>
   <p class="small view-direction-note">Physical +Y means forward from the torso; it appears down-left in this front view. Joint rotations are not forward-distance controls.</p>
 
@@ -59,14 +67,6 @@
       <div class="joint-vector" data-vector="0"></div>
     </div>
     <p>A <em>manifold</em> is a space that looks locally like an ordinary flat coordinate space, even if its global geometry is curved or complicated. The surface of a sphere is a familiar example: it sits in 3D space, but its location can be described with two coordinates.</p>
-    <div class="exhibit" id="sheet-figure" aria-labelledby="sheet-figure-title">
-      <div class="exhibit-head">
-        <h3 id="sheet-figure-title">A flat map of a curved sheet</h3>
-      </div>
-      <p class="small">A schematic, not computed from the robot. The sheet is a two-dimensional manifold drawn in three coordinates, and the map beneath it gives each of its points two numbers. A straight line on the map becomes a curved route on the sheet. Later sections do the same with the robot: fourteen joint angles in place of the three coordinates, two controls in place of the map.</p>
-      <img class="sheet-static" src="./sheet-static.svg" alt="A shaded curved sheet floating above a flat grid, its map. A straight dashed line on the map appears on the sheet as a curved route over a rise; dotted verticals join the two ends of the route to their places on the map." width="640" height="520">
-      <p class="map-legend">Solid = the route on the sheet · dashed = the same route on the map · ring = current end of the route · dotted verticals join a point on the sheet to its place on the map.</p>
-    </div>
     <p>Our robot&#x27;s configuration space is harder to visualize, partly because revolute joint angles have a rotational topology and real joints have limits. But the idea is the same: a point is a configuration, and a path through the space is a movement of the robot.</p>
   </section>
 
