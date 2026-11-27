@@ -59,6 +59,14 @@
       <div class="joint-vector" data-vector="0"></div>
     </div>
     <p>A <em>manifold</em> is a space that looks locally like an ordinary flat coordinate space, even if its global geometry is curved or complicated. The surface of a sphere is a familiar example: it sits in 3D space, but its location can be described with two coordinates.</p>
+    <div class="exhibit" id="sheet-figure" aria-labelledby="sheet-figure-title">
+      <div class="exhibit-head">
+        <h3 id="sheet-figure-title">A flat map of a curved sheet</h3>
+      </div>
+      <p class="small">A schematic, not computed from the robot. The sheet is a two-dimensional manifold drawn in three coordinates, and the map beneath it gives each of its points two numbers. A straight line on the map becomes a curved route on the sheet. Later sections do the same with the robot: fourteen joint angles in place of the three coordinates, two controls in place of the map.</p>
+      <img class="sheet-static" src="./sheet-static.svg" alt="A shaded curved sheet floating above a flat grid, its map. A straight dashed line on the map appears on the sheet as a curved route over a rise; dotted verticals join the two ends of the route to their places on the map." width="640" height="520">
+      <p class="map-legend">Solid = the route on the sheet · dashed = the same route on the map · ring = current end of the route · dotted verticals join a point on the sheet to its place on the map.</p>
+    </div>
     <p>Our robot&#x27;s configuration space is harder to visualize, partly because revolute joint angles have a rotational topology and real joints have limits. But the idea is the same: a point is a configuration, and a path through the space is a movement of the robot.</p>
   </section>
 

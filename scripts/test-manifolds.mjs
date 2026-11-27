@@ -10,6 +10,7 @@ import {routeSVG,sameRoute} from '../learning-machines/manifolds/routes.mjs';
 import {formatResidual,formatSliderValue} from '../learning-machines/manifolds/format.mjs';
 import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/manifolds/visuals.mjs';
 import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
+import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
 const contrast=(a,b)=>(Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
@@ -140,4 +141,23 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
-console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration');
+// Schematic sheet (section 00): each map point lifts to one sheet point, a lifted route is never shorter than its map line,
+// and the painter stays finite and inside its canvas at every preset view and size.
+assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
+assert.match(page,/A schematic, not computed from the robot/);
+const sheetSamples=[];for(let u=-1;u<=1;u+=.25)for(let v=-1;v<=1;v+=.25)sheetSamples.push([u,v]);
+for(const target of sheetSamples){
+ const lifted=Sheet.lift(target),path=Sheet.route(target);
+ assert.deepEqual(lifted.slice(0,2),target);assert.ok(Number.isFinite(lifted[2])&&lifted[2]>Sheet.MAP_Z,'the sheet stays above its map');
+ assert.deepEqual(path.map[0],[...Sheet.START]);assert.ok(Math.hypot(path.map.at(-1)[0]-target[0],path.map.at(-1)[1]-target[1])<1e-12);
+ assert.ok(path.sheetLength>=path.mapLength-1e-12,'lifting a straight map line cannot shorten it');
+}
+assert.ok(Sheet.route(Sheet.TARGET).sheetLength>Sheet.route(Sheet.TARGET).mapLength*1.05,'the default route visibly climbs');
+assert.match(Sheet.describe(Sheet.TARGET),/first two numbers decide the third/);
+for(const [W,H] of [[320,300],[507,416],[640,500]])for(const [yaw,el] of Object.values(Sheet.VIEWS)){
+ const view={yaw,el,scale:230},P=Sheet.projector(W,H,view);
+ for(const point of [...sheetSamples.map(Sheet.lift),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
+ const drawn=[];const sheetContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);drawn.push(k);},set:()=>true});
+ Sheet.paintSheet(sheetContext,W,H,view,[...Sheet.TARGET]);assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
+}
+console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');

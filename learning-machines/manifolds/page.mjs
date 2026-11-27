@@ -5,6 +5,7 @@ import {formatResidual as residual,formatSliderValue} from './format.mjs';
 import {routeSVG,sameRoute} from './routes.mjs';
 import {pcaDirectionNote,CHART_DIRECTION_NOTE} from './directions.mjs';
 import {threadData,threadFigure} from './threads.mjs';
+import {sheetFigure} from './sheet.mjs';
 const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n=2)=>Number.isFinite(x)?x.toFixed(n):'not available';
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
 function draw(p,options={}){paintRobot(p.canvas,M.forwardKinematics(p.q),p.ball,options);p.vector.textContent='q in degrees: ['+p.q.map(x=>fmt(deg(x),1)).join(', ')+']';}
@@ -56,3 +57,5 @@ function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);
  function reset(){mode='task';selector.value=mode;target=null;values=[0,0];p.q=[...F.canonical.q];configure();figure.reset();update();}
  $('[data-reset]',p.root).onclick=reset;reset();}
 [setupFree,setupGrasp,setupLandscape,setupSkill].forEach((setup,i)=>{const p=panels[i];try{setup();p.canvas.hidden=false;$('.static-rig',p.root).hidden=true;$('.static-caption',p.root).hidden=true;$('[data-reset]',p.root).disabled=false;}catch(error){p.root.classList?.add('failed');p.canvas.hidden=true;$('.static-rig',p.root).hidden=false;const caption=$('.static-caption',p.root);if(caption)caption.hidden=false;p.root.querySelectorAll('input,button,select').forEach(control=>control.disabled=true);p.status.textContent='Interactive panel unavailable. The static diagram and explanation remain readable.';console.error(error);}});
+// The schematic sheet in section 00 is independent of the four panels; if it fails, its static drawing stays.
+try{sheetFigure($('#sheet-figure'));}catch(problem){console.error(problem);}

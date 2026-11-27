@@ -7,6 +7,7 @@ import {routeSVG} from '../learning-machines/manifolds/routes.mjs';
 import {pcaDirectionNote,VIEW_DIRECTION_NOTE,CHART_DIRECTION_NOTE} from '../learning-machines/manifolds/directions.mjs';
 import * as M from '../learning-machines/manifolds/mechanics.mjs';
 import {threadData,paintThreads,VIEWS} from '../learning-machines/manifolds/threads.mjs';
+import {paintSheet,VIEWS as SHEET_VIEWS,TARGET,route} from '../learning-machines/manifolds/sheet.mjs';
 function rig(q,caption){const fk=forwardKinematics(q),P=p=>project(p).map(x=>x.toFixed(2)).join(','),add=(a,b)=>a.map((v,i)=>v+b[i]);
 let svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" role="img" aria-labelledby="title desc"><title id="title">Fourteen joints, one volleyball</title><desc id="desc">Original isometric diagram generated from the exact three-dimensional joint pose used by this panel. Caption states whether the hands are free or rigidly grasping. Fixed-torso kinematic teaching model, not a real robot.</desc><rect width="640" height="440" fill="#edeadf"/>';
 const line=(a,b,color,width=1)=>svg+=`<line x1="${project(a)[0]}" y1="${project(a)[1]}" x2="${project(b)[0]}" y2="${project(b)[1]}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
@@ -24,7 +25,7 @@ save('preview',rig(F.canonical.q,'14 JOINTS / 6 GRASP CONSTRAINTS / 8 LOCALLY'))
 save('free-static',rig(RIG.initialQ,'14 INDEPENDENT JOINTS / BALL UNATTACHED'));
 save('grasp-static',rig(F.canonical.q,'6 RELATIVE-POSE CONSTRAINTS / 8 LOCALLY'));
 
-const shell=(title,desc)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" role="img"><title>${title}</title><desc>${desc}</desc><rect width="640" height="440" fill="#edeadf"/>`;
+const shell=(title,desc,height=440)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 ${height}" role="img"><title>${title}</title><desc>${desc}</desc><rect width="640" height="${height}" fill="#edeadf"/>`;
 const text=(x,y,s,size=12)=>`<text x="${x}" y="${y}" font-family="monospace" font-size="${size}" fill="#514e44">${s}</text>`;
 let map=shell('A cost field on a two-dimensional slice','Actual fixed-load torque estimates sampled over ball forward distance and height. Hatched cells are invalid. Dashed shortest route and solid weighted least-cost route both traverse valid cells.');
 map+='<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d4d0c6"/><path d="M-1 1L5 7M2-2L8 4" stroke="#948e80"/></pattern></defs>';
@@ -50,6 +51,9 @@ function svgContext(){
 let skill=shell('Handoffs as threads on a fitted two-coordinate plane','Each synthetic handoff is one thread plotted on the two PCA coordinates fitted to the training trajectories. Height is joint-space distance from that fitted plane at the same scale. The threads lie almost flat; an outside-family sideward example sits far above the plane.');
 const threads=threadData(F,M),recorder=svgContext();paintThreads(recorder,640,340,threads,{yaw:VIEWS.quarter[0],el:VIEWS.quarter[1],scale:225,hot:null,current:null});
 skill+=text(20,28,'HANDOFFS AS THREADS / A LIMITED SKILL FAMILY')+`<g transform="translate(0 30)">${recorder.svg()}</g>`+text(20,390,`${F.demonstrations.train.length} training + ${F.demonstrations.holdout.length} held-out poses · ${(F.scores.train.explainedVariance*100).toFixed(3)}% training variance`)+text(20,415,`Height = distance from the fitted plane · outside-family RMS ${(F.outsideSkill.reconstructionRmsRad*180/Math.PI).toFixed(3)}°`)+'</svg>';save('skill-static',skill);
+// The schematic sheet of section 00, from the same painter as its live figure.
+const sheetRecorder=svgContext(),sheetRoute=route(TARGET);paintSheet(sheetRecorder,640,420,{yaw:SHEET_VIEWS.quarter[0],el:SHEET_VIEWS.quarter[1],scale:230},TARGET);
+save('sheet-static',shell('A flat map of a curved sheet','Schematic, not computed from the robot. A shaded curved sheet floats above a flat grid, its map. A straight dashed line on the map appears on the sheet as a curved route; dotted verticals join the ends of the route to their places on the map.',520)+text(20,28,'A FLAT MAP OF A CURVED SHEET / SCHEMATIC')+`<g transform="translate(0 30)">${sheetRecorder.svg()}</g>`+text(20,470,'Solid: route on the sheet · dashed: the same route on the map')+text(20,495,`Route length ${sheetRoute.mapLength.toFixed(2)} on the map · ${sheetRoute.sheetLength.toFixed(2)} on the sheet`)+'</svg>');
 
 // Device-resolution HTML carries every numeric caption when an external SVG shrinks on mobile.
 const fixed=(x,n=3)=>x.toFixed(n),freeFK=forwardKinematics(RIG.initialQ);
