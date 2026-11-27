@@ -1,4 +1,4 @@
-// Presentation only, and a schematic: the sheets are drawn examples, not computed from the robot or the pinned fixtures.
+// Presentation only, and a schematic: the two surfaces (sheets, in this file) are drawn examples, not computed from the robot or the pinned fixtures.
 // Each sheet is a two-dimensional surface in three coordinates, [u, v, base + height(u, v)]. The map is the same (u, v) drawn flat beneath both.
 import {formatSliderValue} from './format.mjs';
 
@@ -42,7 +42,7 @@ export function route(target) {
 export function projector(W, H, yaw) {
   const cy = Math.cos(yaw), sy = Math.sin(yaw), ce = Math.cos(PITCH), se = Math.sin(PITCH);
   const tall = 2 * REACH * se + (TOP - MAP_Z) * ce;
-  const s = Math.min((W - 24) / (2 * REACH), (H - 76) / tall), ox = W / 2, oy = 38 + (H - 76) / 2;
+  const s = Math.min((W - 24) / (2 * REACH), (H - 58) / tall), ox = W / 2, oy = 14 + (H - 58) / 2;
   return ([x, y, z]) => {
     const xr = x * cy - y * sy, yr = x * sy + y * cy, zc = z - MID;
     return [ox + s * xr, oy - s * (yr * se + zc * ce), -yr * ce + zc * se];
@@ -124,13 +124,12 @@ export function paintSheet(c, W, H, yaw, target, style = {}) {
     below = ends;
   });
 
-  // Labels: a caption in the corner nearest each layer, and the two map coordinates named along the map's front edges.
+  // Labels: a caption under the map, and its two coordinates named along its front edges.
   c.globalAlpha = 1; c.font = '12px ' + font; c.textBaseline = 'middle'; c.textAlign = 'left';
   const caption = (name, rest, y) => {
     c.fillStyle = INK; c.fillText(name, 12, y);
     c.fillStyle = MUTED; c.fillText(rest, 12 + c.measureText(name + ' ').width, y);
   };
-  caption('two sheets', '· curved, three coordinates', 14);
   caption('one map', '· flat, two coordinates', H - 12);
   c.fillStyle = MUTED; c.textAlign = 'center';
   const along = (text, a, b) => {
@@ -153,18 +152,12 @@ export function paintSheet(c, W, H, yaw, target, style = {}) {
   along('coordinate 2', second.slice(0, 2), second.slice(2));
 }
 
-export function describe(target) {
-  const {mapLength, sheetLengths} = route(target), show = point => '(' + point.map(n => n.toFixed(2)).join(', ') + ')';
-  return `Map: ${show(target)}. The same two numbers pick out one point on each sheet: ${show(lift(target, 0))} below, ${show(lift(target, 1))} above.\n`
-    + `Route: a straight line on the map, ${mapLength.toFixed(2)} long. Lifted, it is ${sheetLengths[0].toFixed(2)} long on the lower sheet and ${sheetLengths[1].toFixed(2)} on the upper.`;
-}
-
-// Live figure: replaces the static drawing with a canvas and two sliders. Drag sideways or use the left and right arrow keys to spin it.
+// Live figure: puts a canvas and two sliders in place of the static drawing. Drag sideways or use the left and right arrow keys to spin it.
 export function sheetFigure(root) {
   const make = (tag, name, html = '') => { const el = document.createElement(tag); el.className = name; el.innerHTML = html; return el; };
-  const fallback = root.querySelector('.sheet-static'), legend = root.querySelector('.map-legend');
-  const stage = make('div', 'thread-stage', '<canvas class="thread-figure sheet-canvas" tabindex="0" role="img" aria-label="Two curved sheets drawn one above the other, over a single flat map. A straight dashed line on the map appears on each sheet as a different curved route. Left and right arrow keys spin the view; the sliders move the end of the route."></canvas>');
-  const controls = make('div', 'controls'), readout = make('p', 'thread-readout');
+  const fallback = root.querySelector('.sheet-static');
+  const stage = make('div', 'thread-stage', '<canvas class="thread-figure sheet-canvas" tabindex="0" role="img" aria-label="Two curved surfaces drawn one above the other, over a single flat map. A straight dashed line on the map appears on each surface as a different curved route. Left and right arrow keys spin the view; the sliders move the end of the route."></canvas>');
+  const controls = make('div', 'controls');
   const reset = make('button', '', 'Reset panel'); reset.type = 'button';
   const canvas = stage.querySelector('canvas'), c = canvas.getContext('2d'), target = [...TARGET];
   let yaw = START_YAW, W = 640, H = 640, drag = null;
@@ -175,7 +168,6 @@ export function sheetFigure(root) {
     if (canvas.width !== Math.round(W * ratio) || canvas.height !== Math.round(H * ratio)) { canvas.width = Math.round(W * ratio); canvas.height = Math.round(H * ratio); }
     c.setTransform(ratio, 0, 0, ratio, 0, 0);
     paintSheet(c, W, H, yaw, target, {font: getComputedStyle(canvas).fontFamily || 'monospace'});
-    readout.textContent = describe(target);
   }
   const sliders = [0, 1].map(i => {
     const id = 'sheet-' + i, wrap = make('div', 'control', `<label for="${id}">Map coordinate ${i + 1}<output for="${id}"></output></label><input id="${id}" type="range" min="-1" max="1" step="0.01" value="${target[i]}">`);
@@ -195,7 +187,7 @@ export function sheetFigure(root) {
     event.preventDefault(); yaw += turn; paint();
   });
   root.querySelector('.exhibit-head').append(reset);
-  legend.before(stage, controls, readout); fallback.hidden = true;
+  fallback.after(stage, controls); fallback.hidden = true;
   if (typeof ResizeObserver === 'function') new ResizeObserver(paint).observe(canvas); else addEventListener('resize', paint);
   paint();
 }

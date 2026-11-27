@@ -36,11 +36,10 @@
   <p>Both questions lead to the same idea in machine learning: a system may have an enormous number of possible configurations, while a useful behavior occupies a much smaller space.</p>
   <div class="exhibit" id="sheet-figure" aria-labelledby="sheet-figure-title">
     <div class="exhibit-head">
-      <h3 id="sheet-figure-title">One flat map for two curved sheets</h3>
+      <h3 id="sheet-figure-title">One flat map for two curved surfaces</h3>
     </div>
-    <p class="small">A schematic, not computed from the robot. Each sheet is a curved surface drawn in three coordinates, and the one map beneath them gives every point on either sheet the same two numbers. A straight line on the map becomes a different curved route on each sheet. Later sections do the same with the robot: fourteen joint angles in place of the three coordinates, two controls in place of the map.</p>
-    <img class="sheet-static" src="./sheet-static.svg" alt="Two shaded curved sheets, one above the other, floating over a flat grid, their shared map. A straight dashed line on the map appears on each sheet as a different curved route; dotted verticals join the ends of the routes down through both sheets to the map." width="640" height="720">
-    <p class="map-legend">Solid = the route on each sheet · dashed = the same route on the map · ring = current end of the route · dotted verticals join the same point on the map and on both sheets. Drag sideways to spin the figure.</p>
+    <img class="sheet-static" src="./sheet-static.svg" alt="Two shaded curved surfaces, one above the other, floating over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route; dotted verticals join the ends of the routes down through both surfaces to the map." width="640" height="660">
+    <p class="small">A manifold is a surface, or its equivalent in more dimensions: it can curve through a space with many coordinates, yet every point on it can be found with only a few. Each surface here bends through three coordinates, and two numbers are enough to say where you are on it. The flat map uses the same two numbers for both surfaces, so one point on the map picks out a point on each. Written out in full, that pair of points takes six numbers, three per surface, and the map holds it in two. A straight line drawn on the map becomes a curved route on both surfaces at once. These two surfaces are made up for illustration; the robot&#x27;s own come in the sections below.</p>
   </div>
   <p><em>Interactive teaching illustration · runs in your browser, no live model or physical robot.</em></p>
   <p class="small view-direction-note">Physical +Y means forward from the torso; it appears down-left in this front view. Joint rotations are not forward-distance controls.</p>
