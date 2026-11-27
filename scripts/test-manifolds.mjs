@@ -11,6 +11,7 @@ import {formatResidual,formatSliderValue} from '../learning-machines/manifolds/f
 import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/manifolds/visuals.mjs';
 import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
+import {numberBoxHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
 const contrast=(a,b)=>(Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
@@ -141,20 +142,19 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
-// Schematic sheets (top of the page): each map point lifts to one point on every sheet, a lifted route is never shorter than its
-// map line, the sheets stay stacked above the map, and the painter stays finite and inside its canvas at every yaw and size.
+// Schematic sheets (top of the page): each map point lifts to one point on every sheet, each sheet sits in the space its own way so
+// no surface coordinate repeats a map coordinate, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
 assert.match(page,/One flat map for two curved surfaces/);assert.match(page,/takes six numbers, three per surface, and the map holds it in two/);assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('id="fourteen-numbers"'),'the concept figure comes before section 00');assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('Replace the two surfaces with the two arms'),'and before the introduction that builds on it');
 assert.equal(Sheet.SHEETS.length,2);
 const sheetSamples=[];for(let u=-1;u<=1;u+=.25)for(let v=-1;v<=1;v+=.25)sheetSamples.push([u,v]);
 for(const target of sheetSamples){
  const path=Sheet.route(target),stack=Sheet.SHEETS.map((_,k)=>Sheet.lift(target,k));
- for(const lifted of stack)assert.deepEqual(lifted.slice(0,2),target);
  assert.ok(Sheet.MAP_Z<stack[0][2]&&stack[0][2]<stack[1][2],'map, lower sheet and upper sheet never cross');
  assert.deepEqual(path.map[0],[...Sheet.START]);assert.ok(Math.hypot(path.map.at(-1)[0]-target[0],path.map.at(-1)[1]-target[1])<1e-12);
- for(const length of path.sheetLengths)assert.ok(length>=path.mapLength-1e-12,'lifting a straight map line cannot shorten it');
+ path.sheetLengths.forEach((length,k)=>assert.ok(length>=path.mapLength*Sheet.SHEETS[k].scale-1e-12,'a lifted route is at least as long as its scaled map line'));
 }
-{const {mapLength,sheetLengths}=Sheet.route(Sheet.TARGET);assert.ok(sheetLengths.every(n=>n>mapLength*1.03),'the default route visibly bends on both sheets');assert.ok(Math.abs(sheetLengths[0]-sheetLengths[1])>.01,'the two sheets bend it differently');}
+{const {mapLength,sheetLengths}=Sheet.route(Sheet.TARGET);assert.ok(sheetLengths.every((n,k)=>n>mapLength*Sheet.SHEETS[k].scale*1.03),'the default route visibly bends on both sheets');assert.ok(Math.abs(sheetLengths[0]-sheetLengths[1])>.01,'the two sheets bend it differently');}
 for(const [W,H] of [[320,380],[507,588],[640,640]])for(let turn=0;turn<12;turn++){
  const yaw=Sheet.START_YAW+turn*Math.PI/6,P=Sheet.projector(W,H,yaw);
  for(const point of [...sheetSamples.flatMap(p=>Sheet.SHEETS.map((_,k)=>Sheet.lift(p,k))),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
@@ -164,11 +164,17 @@ for(const [W,H] of [[320,380],[507,588],[640,640]])for(let turn=0;turn<12;turn++
  assert.equal(lines.length,1+Sheet.SHEETS.length);
  for(const points of lines){assert.equal(points.length,Sheet.PIECES+1);const a=points[12],b=points[13];assert.ok(Math.abs(Sheet.nearestOnRoute([points],(a[0]+b[0])/2,(a[1]+b[1])/2)-12.5/Sheet.PIECES)<1e-9);}
  assert.equal(Sheet.nearestOnRoute(lines,-500,-500),null);
- // With room for the coordinate column the figure moves left, and still fits beside it.
- const wide=Sheet.layout(W,H,144),Pw=Sheet.projector(W,H,yaw,144);assert.equal(wide.beside,W>=600);
- for(const p of sheetSamples.map(q=>Sheet.lift(q,1))){const [x]=Pw(p);assert.ok(x>=0&&x<=(wide.beside?W-8-144-14:W));}
 }
-assert.equal(Sheet.coordinates([-.001,.5,1.239]),'(0.00, 0.50, 1.24)');
+// The boxes beside the figure: six numbers on the surfaces, none of them a copy of the two map numbers, and the page's static copy is current.
+assert.equal(fixed(-.001),'0.00');assert.equal(fixed(1.239),'1.24');
+{const [surfaces,map]=Sheet.numbersAt(Sheet.TARGET),six=surfaces.rows.flatMap(row=>row[1]),two=map.rows[0][1];
+ assert.equal(six.length,6);assert.equal(two.length,2);assert.equal(new Set([...six,...two]).size,8,'all eight numbers differ');
+ assert.ok(page.includes('<div class="numbers sheet-numbers">'+[surfaces,map].map(numberBoxHTML).join('')+'</div>'),'static number boxes match the default route');
+ assert.notDeepEqual(Sheet.numbersAt(Sheet.TARGET,.5),Sheet.numbersAt(Sheet.TARGET,1));}
+assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table class="number-box"><caption>a &lt; b</caption><tbody><tr><th scope="row">r</th><td>1</td><td>2</td></tr></tbody></table>');
+// Each robot panel shows its fourteen joint angles as a box, and three of them a smaller box of the numbers that produced the pose.
+assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,3);
+for(const caption of ['grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');

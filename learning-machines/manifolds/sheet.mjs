@@ -1,6 +1,7 @@
 // Presentation only, and a schematic: the two surfaces (sheets, in this file) are drawn examples, not computed from the robot or the pinned fixtures.
 // Each sheet is a two-dimensional surface in three coordinates, [u, v, base + height(u, v)]. The map is the same (u, v) drawn flat beneath both.
 import {formatSliderValue} from './format.mjs';
+import {fixed, showNumbers} from './numbers.mjs';
 
 export const START = Object.freeze([-.78, -.62]);
 export const TARGET = Object.freeze([.72, .5]);
@@ -8,32 +9,35 @@ export const MAP_Z = -1.2;
 // The camera's pitch is fixed; the figure only spins about its vertical axis.
 export const PITCH = .34, START_YAW = -.62;
 export const PIECES = 48;
-const CELLS = 14, TAU = Math.PI * 2, REACH = Math.SQRT2;
-const INK = '#302e28', MUTED = '#6b695f', PANEL = '#edeadf', ROUTE = '#9c4635', SUN = [-.42, -.5, .76];
-const WIDEST = '(-0.00, -0.00, 0.00)';
+const CELLS = 14, TAU = Math.PI * 2;
+const INK = '#302e28', MUTED = '#6b695f', ROUTE = '#9c4635', SUN = [-.42, -.5, .76];
 
-// Two different shapes over the same map. Lower: one broad rise with a shallow trough beside it. Upper: a rolling fold.
+// Two different shapes fed by the same map. Lower: one broad rise with a shallow trough beside it. Upper: a rolling fold.
+// Each sits in the space in its own way (turned, shifted and a little smaller), so none of a surface point's three coordinates repeats a map coordinate.
 export const SHEETS = Object.freeze([
   {
-    name: 'lower', base: 0, shade: [146, 151, 128], light: [232, 229, 211],
+    name: 'lower', base: 0, turn: .3, shift: [-.3, .2], scale: .9, shade: [146, 151, 128], light: [232, 229, 211],
     height: (u, v) => .5 * Math.exp(-((u - .12) ** 2 + (v + .05) ** 2) / .34) - .2 * Math.exp(-((u + .62) ** 2 + (v - .5) ** 2) / .3)
       + .07 * Math.sin(2.1 * u + .5) * Math.cos(1.7 * v) + .2
   },
   {
-    name: 'upper', base: 1.3, shade: [178, 156, 112], light: [240, 231, 203],
+    name: 'upper', base: 1.3, turn: -.34, shift: [.3, -.2], scale: .9, shade: [178, 156, 112], light: [240, 231, 203],
     height: (u, v) => .2 * Math.sin(2.7 * u + 1.1 * v + .4) + .13 * Math.cos(2.3 * v - .8 * u) + .33
   }
 ]);
 const TOP = SHEETS.at(-1).base + .7, MID = (MAP_Z + TOP) / 2;
-export const lift = ([u, v], sheet = 0) => [u, v, SHEETS[sheet].base + SHEETS[sheet].height(u, v)];
+export function lift([u, v], sheet = 0) {
+  const {turn, shift, scale, base, height} = SHEETS[sheet], c = Math.cos(turn), s = Math.sin(turn);
+  return [shift[0] + scale * (u * c - v * s), shift[1] + scale * (u * s + v * c), base + height(u, v)];
+}
+// The farthest any drawn point gets from the vertical axis: the radius of the cylinder the figure sweeps as it spins.
+const REACH = Math.max(Math.SQRT2, ...SHEETS.map(({shift, scale}) => Math.hypot(...shift) + Math.SQRT2 * scale));
 const flat = ([u, v]) => [u, v, MAP_Z];
 const at = k => -1 + 2 * k / CELLS;
 const CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
 const distance = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]));
 const pathLength = points => points.slice(1).reduce((sum, p, k) => sum + distance(points[k], p), 0);
 const along = (target, t) => START.map((s, i) => s + (target[i] - s) * t);
-// Two decimals, without a negative zero.
-export const coordinates = point => '(' + point.map(n => (Math.round(n * 100) / 100 || 0).toFixed(2)).join(', ') + ')';
 
 // The straight map line from START to the target, and the same line lifted onto each sheet.
 export function route(target) {
@@ -42,39 +46,30 @@ export function route(target) {
   return {map, sheets, mapLength: distance(START, target), sheetLengths: sheets.map(pathLength)};
 }
 
-// The scale comes from the cylinder the figure sweeps as it spins, so nothing changes size while it turns.
-// Where the canvas is wide enough, the figure moves left and the coordinates stand in a column to its right.
-export function layout(W, H, labelWidth = 0) {
-  const tall = 2 * REACH * Math.sin(PITCH) + (TOP - MAP_Z) * Math.cos(PITCH);
-  const wide = Math.min((W - 24) / (2 * REACH), (H - 58) / tall);
-  const beside = labelWidth > 0 && 12 + 2 * REACH * wide + 14 + labelWidth + 8 <= W;
-  if (beside) return {s: wide, beside, ox: Math.min(W / 2, W - 8 - labelWidth - 14 - REACH * wide), oy: 14 + (H - 58) / 2};
-  // Otherwise the coordinates go in the gap under each layer, and the map's own need a clear row at the bottom.
-  const foot = labelWidth > 0 ? 78 : 58;
-  return {s: Math.min(wide, (H - foot) / tall), beside, ox: W / 2, oy: 14 + (H - foot) / 2};
-}
-
 // Orthographic camera: yaw about the vertical axis at a fixed pitch. Third value = nearness.
-export function projector(W, H, yaw, labelWidth = 0) {
-  const cy = Math.cos(yaw), sy = Math.sin(yaw), ce = Math.cos(PITCH), se = Math.sin(PITCH), {s, ox, oy} = layout(W, H, labelWidth);
+// The scale comes from the cylinder the figure sweeps as it spins, so nothing changes size while it turns.
+export function projector(W, H, yaw) {
+  const cy = Math.cos(yaw), sy = Math.sin(yaw), ce = Math.cos(PITCH), se = Math.sin(PITCH);
+  const tall = 2 * REACH * se + (TOP - MAP_Z) * ce;
+  const s = Math.min((W - 24) / (2 * REACH), (H - 58) / tall), ox = W / 2, oy = 14 + (H - 58) / 2;
   return ([x, y, z]) => {
     const xr = x * cy - y * sy, yr = x * sy + y * cy, zc = z - MID;
     return [ox + s * xr, oy - s * (yr * se + zc * ce), -yr * ce + zc * se];
   };
 }
 
-function tone({height, shade, light}, u, v) {
+function tone({height, shade, light, turn, scale}, u, v) {
   const e = .02, du = (height(u + e, v) - height(u - e, v)) / (2 * e), dv = (height(u, v + e) - height(u, v - e)) / (2 * e);
-  const lit = Math.max(0, (-du * SUN[0] - dv * SUN[1] + SUN[2]) / (Math.hypot(du, dv, 1) * Math.hypot(...SUN)));
+  // The surface normal in the space, allowing for how this sheet is turned and scaled.
+  const c = Math.cos(turn), k = Math.sin(turn), normal = [scale * (k * dv - c * du), -scale * (k * du + c * dv), scale * scale];
+  const lit = Math.max(0, normal.reduce((sum, n, i) => sum + n * SUN[i], 0) / (Math.hypot(...normal) * Math.hypot(...SUN)));
   return 'rgb(' + shade.map((dark, i) => Math.round(dark + (light[i] - dark) * lit ** 1.6)).join(',') + ')';
 }
 
 // mark is how far along the route the reticle sits, from 0 (start) to 1 (end).
 // Returns the three drawn route lines in canvas coordinates, map first, for pointing at.
 export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} = {}) {
-  c.font = '12px ' + font;
-  const labelWidth = c.measureText(WIDEST).width, {s, ox, oy, beside} = layout(W, H, labelWidth);
-  const P = projector(W, H, yaw, labelWidth), path = route(target), point = along(target, mark);
+  const P = projector(W, H, yaw), path = route(target), point = along(target, mark);
   const line = points => { c.beginPath(); points.forEach((p, i) => c[i ? 'lineTo' : 'moveTo'](p[0], p[1])); };
   const seg = (a, b) => { line([a, b]); c.stroke(); };
   const dot = (p, r) => { c.beginPath(); c.arc(p[0], p[1], r, 0, TAU); };
@@ -82,7 +77,8 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
     c.globalAlpha = 1; c.strokeStyle = INK; c.lineWidth = 1.5; c.setLineDash([]); dot(p, 8); c.stroke();
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) seg([p[0] + 8 * dx, p[1] + 8 * dy], [p[0] + 12 * dx, p[1] + 12 * dy]);
   };
-  // One dashed line joins the marked point on every layer. Each stretch is drawn before the sheet above it, which hides what passes behind.
+  // One dashed line joins the marked point on every layer; it bends, because each sheet sits in the space its own way.
+  // Each stretch is drawn before the sheet above it, which hides what passes behind.
   const join = (a, b) => { c.globalAlpha = .75; c.strokeStyle = INK; c.lineWidth = 1; c.setLineDash([3, 4]); seg(a, b); c.setLineDash([]); };
   c.clearRect(0, 0, W, H); c.lineCap = 'round'; c.lineJoin = 'round'; c.setLineDash([]);
 
@@ -142,25 +138,11 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
     lines.push(lifted); marks.push(marked);
   });
 
-  // The marked point's coordinates on each layer: beside it where there is room, otherwise in the gap under the layer.
-  c.globalAlpha = 1; c.textBaseline = 'middle'; c.fillStyle = INK;
-  const values = [coordinates(point), ...SHEETS.map((_, index) => coordinates(lift(point, index)))];
-  const bases = [MAP_Z, ...SHEETS.map(sheet => sheet.base)];
-  values.forEach((text, layer) => {
-    if (beside) { c.textAlign = 'left'; c.fillText(text, ox + s * REACH + 14, marks[layer][1]); return; }
-    // A plate of the panel's own colour keeps the numbers readable where the dashed line or a label passes behind them.
-    const y = layer ? oy - s * (bases[layer] - .58 - MID) * Math.cos(PITCH) : H - 12, width = c.measureText(text).width;
-    c.globalAlpha = .88; c.fillStyle = PANEL; line([[W - 12 - width, y - 9], [W - 4, y - 9], [W - 4, y + 9], [W - 12 - width, y + 9]]); c.closePath(); c.fill();
-    c.globalAlpha = 1; c.fillStyle = INK; c.textAlign = 'right'; c.fillText(text, W - 8, y);
-  });
-
-  // A caption under the map (where it does not meet the map's own numbers), and its two coordinates named along its front edges.
-  c.textAlign = 'left';
-  if (beside) {
-    c.fillStyle = INK; c.fillText('one map', 12, H - 12);
-    c.fillStyle = MUTED; c.fillText('· flat, two coordinates', 12 + c.measureText('one map ').width, H - 12);
-  }
-  c.fillStyle = MUTED; c.textAlign = 'center';
+  // A caption under the map, and its two coordinates named along its front edges.
+  c.globalAlpha = 1; c.font = '12px ' + font; c.textBaseline = 'middle'; c.textAlign = 'left';
+  c.fillStyle = INK; c.fillText('one map', 12, H - 12);
+  c.fillStyle = MUTED; c.fillText('· flat, two coordinates', 12 + c.measureText('one map ').width, H - 12);
+  c.textAlign = 'center';
   const name = (text, a, b) => {
     const [from, to] = [P(flat(a)), P(flat(b))];
     if (Math.hypot(to[0] - from[0], to[1] - from[1]) < 100) return;
@@ -182,6 +164,15 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
   return lines;
 }
 
+// The marked point as the two boxes beside the figure show it: three numbers on each surface, and the two map numbers that fix all six.
+export function numbersAt(target, mark = 1) {
+  const point = along(target, mark), row = (label, values) => [label, values.map(n => fixed(n))];
+  return [
+    {caption: 'two points on the surfaces · 6 numbers', heads: ['x', 'y', 'z'], rows: [row('upper', lift(point, 1)), row('lower', lift(point, 0))]},
+    {caption: 'one point on the map · 2 numbers', heads: ['1', '2'], rows: [row('map', point)]}
+  ];
+}
+
 // How far along the route the pointer is, if it is within reach of any of the three drawn lines; otherwise null.
 export function nearestOnRoute(lines, x, y, reach = 14) {
   let best = null, nearest = reach;
@@ -198,10 +189,9 @@ export function nearestOnRoute(lines, x, y, reach = 14) {
 // Pointing at any of the three lines moves the reticle there; dragging sideways, or the left and right arrow keys, spins the figure.
 export function sheetFigure(root) {
   const make = (tag, name, html = '') => { const el = document.createElement(tag); el.className = name; el.innerHTML = html; return el; };
-  const fallback = root.querySelector('.sheet-static');
-  const stage = make('div', 'thread-stage', '<canvas class="thread-figure sheet-canvas" tabindex="0" role="img" aria-label="Two curved surfaces drawn one above the other, over a single flat map. A straight dashed line on the map appears on each surface as a different curved route. A ring marks the same point on all three, joined by a dashed line, with its three coordinates beside each surface and its two beside the map. Left and right arrow keys spin the view; the sliders move the end of the route."></canvas>');
+  const fallback = root.querySelector('.sheet-static'), numbers = root.querySelector('.sheet-numbers');
+  const stage = make('div', 'thread-stage', '<canvas class="thread-figure sheet-canvas" tabindex="0" role="img" aria-label="Two curved surfaces drawn one above the other, over a single flat map. A straight dashed line on the map appears on each surface as a different curved route. A ring marks the same point on all three, joined by a dashed line, and the boxes beside the figure give its coordinates. Left and right arrow keys spin the view; the sliders move the end of the route."></canvas>');
   const controls = make('div', 'controls');
-  const reset = make('button', '', 'Reset panel'); reset.type = 'button';
   const canvas = stage.querySelector('canvas'), c = canvas.getContext('2d'), target = [...TARGET];
   let yaw = START_YAW, mark = 1, W = 640, H = 640, drag = null, lines = [];
 
@@ -211,6 +201,7 @@ export function sheetFigure(root) {
     if (canvas.width !== Math.round(W * ratio) || canvas.height !== Math.round(H * ratio)) { canvas.width = Math.round(W * ratio); canvas.height = Math.round(H * ratio); }
     c.setTransform(ratio, 0, 0, ratio, 0, 0);
     lines = paintSheet(c, W, H, yaw, target, {mark, font: getComputedStyle(canvas).fontFamily || 'monospace'});
+    showNumbers(numbers, numbersAt(target, mark));
   }
   // Moves the reticle if the pointer is on a line, and reports whether it was.
   function point(event) {
@@ -218,14 +209,12 @@ export function sheetFigure(root) {
     if (found !== null && found !== mark) { mark = found; paint(); }
     return found !== null;
   }
-  const sliders = [0, 1].map(i => {
+  for (const i of [0, 1]) {
     const id = 'sheet-' + i, wrap = make('div', 'control', `<label for="${id}">Map coordinate ${i + 1}<output for="${id}"></output></label><input id="${id}" type="range" min="-1" max="1" step="0.01" value="${target[i]}">`);
     const input = wrap.querySelector('input'), out = wrap.querySelector('output'), show = () => { out.textContent = formatSliderValue(+input.value, .01); };
     input.addEventListener('input', () => { target[i] = +input.value; show(); paint(); });
     controls.append(wrap); show();
-    return {set(value) { input.value = value; show(); }};
-  });
-  reset.addEventListener('click', () => { yaw = START_YAW; mark = 1; TARGET.forEach((value, i) => { target[i] = value; sliders[i].set(value); }); paint(); });
+  }
   // The near side of the figure follows the pointer. Vertical movement is ignored: the pitch is fixed.
   canvas.addEventListener('pointerdown', event => { point(event); drag = {x: event.clientX, yaw}; canvas.setPointerCapture?.(event.pointerId); });
   canvas.addEventListener('pointermove', event => {
@@ -238,8 +227,7 @@ export function sheetFigure(root) {
     if (!turn) return;
     event.preventDefault(); yaw += turn; paint();
   });
-  root.querySelector('.exhibit-head').append(reset);
-  fallback.after(stage, controls); fallback.hidden = true;
+  fallback.after(stage); root.querySelector('.sheet-layout').after(controls); fallback.hidden = true;
   if (typeof ResizeObserver === 'function') new ResizeObserver(paint).observe(canvas); else addEventListener('resize', paint);
   paint();
 }
