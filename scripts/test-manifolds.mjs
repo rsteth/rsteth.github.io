@@ -188,6 +188,11 @@ assert.ok(page.indexOf('id="learning"')<page.indexOf('id="lora-figure"')&&page.i
  const a=structuredClone(factors);a.A[Lora.PICK.A[0]][Lora.PICK.A[1]]+=.5;assert.ok(changed(a).length>0&&changed(a).every(([,j])=>j===Lora.PICK.A[1]),'one number in A reaches one column of the update');
  const grids=Lora.factorsSVG(factors);assert.equal((grids.match(/<rect/g)||[]).length,16+20+80+4);assert.ok(!grids.includes('NaN'));
  assert.match(page,/Here 36 numbers set 80\./);assert.equal(2*4096*8,65536);assert.equal(4096*4096,16777216);}
+// Section 04 names one example of each operation from the page, with a small drawing and a formula for each.
+{const trio=page.slice(page.indexOf('<div class="trio">'),page.indexOf('id="contact"'));
+ assert.equal((trio.match(/<svg viewBox="0 0 160 96" role="img" aria-label="[^"]+"/g)||[]).length,3);assert.equal((trio.match(/class="formula"/g)||[]).length,3);
+ for(const [heading,target] of [['Constraint reduction','#panel-1'],['Representation learning','#panel-3'],['Knowledge distillation','#panel-2']]){assert.ok(trio.includes('<h3>'+heading+'</h3>'),heading);assert.ok(trio.includes('href="'+target+'"'),target);assert.ok(page.includes('id="'+target.slice(1)+'"'));}
+ assert.ok(readFileSync(resolve(root,'learning-machines/attention-and-memory/index.html'),'utf8').includes('per-layer distillation'),'lesson two is a real case of distillation');}
 // Nested-spaces sketch (grasp section): the sheet stays inside the box, the band stays on the sheet, and the painter stays finite
 // and inside its canvas at every yaw and size.
 assert.ok(page.includes('id="nest-figure"')&&page.includes('src="./nest-static.svg"'));assert.match(script,/nestFigure\(/);

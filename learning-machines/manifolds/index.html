@@ -165,9 +165,43 @@
   <section id="compression" aria-labelledby="heading-4">
     <p class="eyebrow">04 / compression isn&#x27;t always distillation</p>
     <h2 id="heading-4">Three operations that sound similar.</h2>
-    <p><strong>Constraint reduction:</strong> fourteen joint variables are restricted by six known grasp constraints, yielding an eight-dimensional valid set locally. This comes from geometry. The solver <em>g</em> in the panels above works this way: it is derived from the shape of the robot, and it is exact.</p>
-    <p><strong>Representation learning:</strong> recorded handoffs are approximated with a compact code. This discovers statistical structure in a collection of movements. The resulting 2D representation can be useful without spanning every motion the robot is capable of making. The fitted <em>f</em> in the last panel works this way: it is learned from examples, and it is approximate.</p>
-    <p><strong>Knowledge distillation:</strong> a capable teacher, perhaps a slow planner that evaluates many possible motions, supplies behavior for a smaller student policy to imitate. Distillation transfers a mapping from situations to good actions; the student may or may not use a low-dimensional code.</p>
+    <div class="trio">
+      <div>
+        <svg viewBox="0 0 160 96" role="img" aria-label="A wireframe box with one flat sheet inside it: of all the box, only the sheet is allowed.">
+          <g fill="none" stroke="#302e28" stroke-opacity=".3"><path d="M60 62h70V12H60zM30 78 60 62M100 78l30-16M100 28l30-16M30 28 60 12"/></g>
+          <path d="M40 66 108 58 124 30 56 38z" fill="#c3c6b4" stroke="#302e28" stroke-opacity=".7"/>
+          <g fill="none" stroke="#302e28" stroke-opacity=".6"><path d="M30 78h70V28H30z"/></g>
+        </svg>
+        <h3>Constraint reduction</h3>
+        <p>Six known grasp constraints restrict the fourteen joint angles to an eight-dimensional set of valid poses, locally. Nothing is learned: it comes from geometry and is exact.</p>
+        <p>Here: the rigid grasp in <a href="#panel-1">the grasp panel</a>, where the solver <em>g</em> turns eight numbers into fourteen.</p>
+        <p class="formula">14 − 6 = 8, <i>q</i> = <i>g</i>(<i>c</i>)<span>eight numbers in, fourteen out, exact</span></p>
+      </div>
+      <div>
+        <svg viewBox="0 0 160 96" role="img" aria-label="A scatter of dots lying close to one straight line drawn through them, with a single hollow dot well off the line.">
+          <path d="M18 84h128M18 84V10" fill="none" stroke="#302e28" stroke-opacity=".3"/>
+          <path d="M22 74 142 24" fill="none" stroke="#9c4635" stroke-width="2" stroke-linecap="round"/>
+          <g fill="#302e28"><circle cx="30" cy="68" r="2.6"/><circle cx="40" cy="69" r="2.6"/><circle cx="49" cy="60" r="2.6"/><circle cx="58" cy="62" r="2.6"/><circle cx="68" cy="52" r="2.6"/><circle cx="77" cy="53" r="2.6"/><circle cx="87" cy="45" r="2.6"/><circle cx="97" cy="46" r="2.6"/><circle cx="107" cy="36" r="2.6"/><circle cx="118" cy="37" r="2.6"/><circle cx="130" cy="27" r="2.6"/></g>
+          <circle cx="112" cy="70" r="3.4" fill="none" stroke="#302e28" stroke-width="1.5"/>
+        </svg>
+        <h3>Representation learning</h3>
+        <p>Recorded handoffs are approximated with a compact code, which captures the statistical structure of that collection of movements. The code can be useful without covering every motion the robot can make.</p>
+        <p>Here: the fitted coordinates in <a href="#panel-3">the handoff panel</a>, where the decoder <em>f</em> is learned from examples and is approximate.</p>
+        <p class="formula"><i>q</i> ≈ <i>f</i>(<i>z</i>)<span>two numbers in, fourteen out, approximate</span></p>
+      </div>
+      <div>
+        <svg viewBox="0 0 160 96" role="img" aria-label="A large box labelled slow planner joined by an arrow to a small box labelled fast policy.">
+          <rect x="12" y="20" width="66" height="56" rx="3" fill="#dbd7ca" stroke="#302e28" stroke-opacity=".7"/>
+          <rect x="108" y="36" width="34" height="24" rx="3" fill="#f6f3eb" stroke="#302e28" stroke-opacity=".7"/>
+          <path d="M82 48h21M97 43l6 5-6 5" fill="none" stroke="#9c4635" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <g font-family="monospace" font-size="9" fill="#6b695f" text-anchor="middle"><text x="45" y="45">slow</text><text x="45" y="57">planner</text><text x="125" y="74">fast policy</text></g>
+        </svg>
+        <h3>Knowledge distillation</h3>
+        <p>A capable teacher, perhaps a slow planner that weighs many possible motions, supplies behavior for a smaller student policy to imitate. What transfers is a mapping from situations to good actions; the student may or may not use a low-dimensional code.</p>
+        <p>Here: nothing is distilled on this page, but the route search in <a href="#panel-2">the cost panel</a> is the kind of slow teacher a fast policy would copy. <a href="../attention-and-memory/">Lesson two</a> has a real case, a model converted by per-layer distillation.</p>
+        <p class="formula"><i>π</i>(<i>s</i>) ≈ plan(<i>s</i>)<span>a fast student imitating a slow teacher</span></p>
+      </div>
+    </div>
     <p>The same robot can benefit from all three. We can constrain its body using physics, describe practiced skills compactly, and transfer an expensive planner&#x27;s decisions into a faster controller.</p>
   </section>
 
