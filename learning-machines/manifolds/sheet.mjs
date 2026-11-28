@@ -13,7 +13,9 @@ const CELLS = 14, TAU = Math.PI * 2;
 const INK = '#302e28', MUTED = '#6b695f', ROUTE = '#9c4635', SUN = [-.42, -.5, .76];
 
 // Two different shapes fed by the same map. Lower: one broad rise with a shallow trough beside it. Upper: a rolling fold.
-// Each sits in the space in its own way (turned, shifted and a little smaller), so none of a surface point's three coordinates repeats a map coordinate.
+// Both are drawn directly above the map, so the same point on all three layers lies on one vertical line.
+// Each surface has its own coordinate system (turned, shifted and scaled against the map's), and the number boxes report a
+// point in that system, so none of a surface point's three numbers repeats a map number.
 export const SHEETS = Object.freeze([
   {
     name: 'lower', base: 0, turn: .3, shift: [-.3, .2], scale: .9, shade: [146, 151, 128], light: [232, 229, 211],
@@ -26,12 +28,15 @@ export const SHEETS = Object.freeze([
   }
 ]);
 const TOP = SHEETS.at(-1).base + .7, MID = (MAP_Z + TOP) / 2;
-export function lift([u, v], sheet = 0) {
+// Where a map point is drawn on a sheet: straight above it.
+export const lift = ([u, v], sheet = 0) => [u, v, SHEETS[sheet].base + SHEETS[sheet].height(u, v)];
+// The same point's three coordinates in that sheet's own system.
+export function own([u, v], sheet = 0) {
   const {turn, shift, scale, base, height} = SHEETS[sheet], c = Math.cos(turn), s = Math.sin(turn);
   return [shift[0] + scale * (u * c - v * s), shift[1] + scale * (u * s + v * c), base + height(u, v)];
 }
 // The farthest any drawn point gets from the vertical axis: the radius of the cylinder the figure sweeps as it spins.
-const REACH = Math.max(Math.SQRT2, ...SHEETS.map(({shift, scale}) => Math.hypot(...shift) + Math.SQRT2 * scale));
+const REACH = Math.SQRT2;
 const flat = ([u, v]) => [u, v, MAP_Z];
 const at = k => -1 + 2 * k / CELLS;
 const CORNERS = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
@@ -58,10 +63,9 @@ export function projector(W, H, yaw) {
   };
 }
 
-function tone({height, shade, light, turn, scale}, u, v) {
+function tone({height, shade, light}, u, v) {
   const e = .02, du = (height(u + e, v) - height(u - e, v)) / (2 * e), dv = (height(u, v + e) - height(u, v - e)) / (2 * e);
-  // The surface normal in the space, allowing for how this sheet is turned and scaled.
-  const c = Math.cos(turn), k = Math.sin(turn), normal = [scale * (k * dv - c * du), -scale * (k * du + c * dv), scale * scale];
+  const normal = [-du, -dv, 1];
   const lit = Math.max(0, normal.reduce((sum, n, i) => sum + n * SUN[i], 0) / (Math.hypot(...normal) * Math.hypot(...SUN)));
   return 'rgb(' + shade.map((dark, i) => Math.round(dark + (light[i] - dark) * lit ** 1.6)).join(',') + ')';
 }
@@ -77,7 +81,7 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
     c.globalAlpha = 1; c.strokeStyle = INK; c.lineWidth = 1.5; c.setLineDash([]); dot(p, 8); c.stroke();
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) seg([p[0] + 8 * dx, p[1] + 8 * dy], [p[0] + 12 * dx, p[1] + 12 * dy]);
   };
-  // One dashed line joins the marked point on every layer; it bends, because each sheet sits in the space its own way.
+  // One vertical dashed line joins the marked point on every layer.
   // Each stretch is drawn before the sheet above it, which hides what passes behind.
   const join = (a, b) => { c.globalAlpha = .75; c.strokeStyle = INK; c.lineWidth = 1; c.setLineDash([3, 4]); seg(a, b); c.setLineDash([]); };
   c.clearRect(0, 0, W, H); c.lineCap = 'round'; c.lineJoin = 'round'; c.setLineDash([]);
@@ -164,11 +168,12 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
   return lines;
 }
 
-// The marked point as the two boxes beside the figure show it: three numbers on each surface, and the two map numbers that fix all six.
+// The marked point as the two boxes beside the figure show it: three numbers on each surface, in that surface's own coordinates,
+// and the two map numbers that fix all six.
 export function numbersAt(target, mark = 1) {
   const point = along(target, mark), row = (label, values) => [label, values.map(n => fixed(n))];
   return [
-    {caption: 'two points on the surfaces · 6 numbers', heads: ['x', 'y', 'z'], rows: [row('upper', lift(point, 1)), row('lower', lift(point, 0))]},
+    {caption: 'two points on the surfaces · 6 numbers', heads: ['x', 'y', 'z'], rows: [row('upper', own(point, 1)), row('lower', own(point, 0))]},
     {caption: 'one point on the map · 2 numbers', heads: ['1', '2'], rows: [row('map', point)]}
   ];
 }
