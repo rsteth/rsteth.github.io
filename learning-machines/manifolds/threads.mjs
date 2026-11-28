@@ -94,16 +94,16 @@ export function paintThreads(c,W,H,data,view,style={}){
  along('PC2 · higher',a,P([x0,y1,0]),P([x0,(y0+y1)/2,0]),-12);
  return hits;
 }
-// Live figure: view buttons, drag or arrow keys to turn, hover to read a handoff, click a pose to load it.
+// Live figure: view buttons set the pitch; a sideways drag or the left and right arrow keys spin it, the near side following the pointer.
+// Hover to read a handoff, click a pose to load it.
 export function threadFigure(data,{onPick=()=>{}}={}){
  const make=(tag,name,html='')=>{const node=document.createElement(tag);node.className=name;node.innerHTML=html;return node;};
  const stage=make('div','thread-stage','<canvas class="thread-figure" tabindex="0" role="img" aria-label="Synthetic handoffs drawn as threads lying almost flat on the fitted two-component plane, with the sideward presentation well above it. Arrow keys turn the view; the sliders move the pose."></canvas>');
  const views=make('div','toolbar thread-views','<span>View</span><button type="button" data-view="quarter">Three-quarter</button><button type="button" data-view="edge">Edge-on</button><button type="button" data-view="above">From above</button>');
- const readout=make('p','thread-readout'),legend=make('p','map-legend','Solid = training handoff · dashed = held-out handoff · colour = peak Present, low (sage) to high (terracotta) · ring = current pose · dotted grid (hand-designed controller) = Reach and Present at -1, -0.5, 0, 0.5 and 1. Height = joint-space distance from the fitted plane, drawn at the same scale as PC1 and PC2. PCA signs are a display convention.');
+ const readout=make('p','thread-readout'),legend=make('p','map-legend','Solid = training · dashed = held out · colour = how high the ball is presented, sage to terracotta · ring = current pose · dotted grid = Reach and Present lines · height = distance from the fitted plane.');
  const canvas=stage.querySelector('canvas'),c=canvas.getContext('2d');
  const view={yaw:VIEWS.quarter[0],el:VIEWS.quarter[1],scale:275,hot:null,current:null,designed:false},still=matchMedia('(prefers-reduced-motion: reduce)').matches;
  let hits=[],hotStep=0,W=640,H=420,frame=0,drag=null;
- const clampEl=v=>Math.max(0,Math.min(Math.PI/2,v));
  function paint(){
   const ratio=devicePixelRatio||1;W=canvas.clientWidth||640;H=Math.round(Math.max(250,Math.min(440,W*.7)));canvas.style.height=H+'px';
   if(canvas.width!==Math.round(W*ratio)||canvas.height!==Math.round(H*ratio)){canvas.width=Math.round(W*ratio);canvas.height=Math.round(H*ratio);}
@@ -111,10 +111,10 @@ export function threadFigure(data,{onPick=()=>{}}={}){
   hits=paintThreads(c,W,H,data,view,{font:getComputedStyle(canvas).fontFamily||'monospace'});
  }
  function say(){
-  const pose=view.current?`\nCurrent pose: PC1 ${view.current[0].toFixed(3)}, PC2 ${view.current[1].toFixed(3)}, ${rmsDegrees(view.current[2]).toFixed(2)}° RMS per joint off the plane.`:'';
-  if(view.hot==null)readout.textContent=`${data.threads.length} synthetic handoffs, ${data.threads[0].points.length} poses each. Drag to turn the view; point at a thread, or click a pose to load it.`+pose;
+  const pose=view.current?`\nCurrent pose: ${rmsDegrees(view.current[2]).toFixed(2)}° RMS per joint off the plane.`:'';
+  if(view.hot==null)readout.textContent=`${data.threads.length} synthetic handoffs. Point at a thread to read it, or click a pose to load it.`+pose;
   else if(view.hot===-1)readout.textContent=`Sideward presentation, outside the skill dataset: ${rmsDegrees(data.outside[2]).toFixed(3)}° RMS per joint off the plane. Click to load it.`+pose;
-  else{const t=data.threads[view.hot];readout.textContent=`Handoff ${t.id+1} of ${data.threads.length} · ${t.hold?'held out':'training'} · peak Present ${t.present.toFixed(2)} · stays within ${rmsDegrees(Math.max(...t.points.map(p=>p[2]))).toFixed(2)}° RMS of the plane. Click to load pose ${hotStep+1}.`+pose;}
+  else{const t=data.threads[view.hot];readout.textContent=`Handoff ${t.id+1} of ${data.threads.length} · ${t.hold?'held out':'training'} · stays within ${rmsDegrees(Math.max(...t.points.map(p=>p[2]))).toFixed(2)}° RMS of the plane. Click to load pose ${hotStep+1}.`+pose;}
  }
  function turnTo(name){
   const from=[view.yaw,view.el],to=VIEWS[name];cancelAnimationFrame(frame);
@@ -133,7 +133,7 @@ export function threadFigure(data,{onPick=()=>{}}={}){
  canvas.addEventListener('pointermove',event=>{
   if(!drag){pick(event);return;}
   const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(!drag.moved&&Math.hypot(dx,dy)<5)return;
-  drag.moved=true;view.yaw=drag.yaw-dx*.008;view.el=clampEl(drag.el+dy*.008);paint();
+  drag.moved=true;view.yaw=drag.yaw+dx*.008;paint();
  });
  canvas.addEventListener('pointerup',()=>{
   const clicked=drag&&!drag.moved;drag=null;if(!clicked||view.hot==null)return;
@@ -142,8 +142,8 @@ export function threadFigure(data,{onPick=()=>{}}={}){
  canvas.addEventListener('pointercancel',()=>{drag=null;});
  canvas.addEventListener('pointerleave',()=>{if(!drag&&view.hot!=null){view.hot=null;paint();say();}});
  canvas.addEventListener('keydown',event=>{
-  const turn={ArrowLeft:[.1,0],ArrowRight:[-.1,0],ArrowUp:[0,.1],ArrowDown:[0,-.1]}[event.key];if(!turn)return;
-  event.preventDefault();cancelAnimationFrame(frame);view.yaw+=turn[0];view.el=clampEl(view.el+turn[1]);paint();
+  const turn={ArrowLeft:-.1,ArrowRight:.1}[event.key];if(!turn)return;
+  event.preventDefault();cancelAnimationFrame(frame);view.yaw+=turn;paint();
  });
  if(typeof ResizeObserver==='function')new ResizeObserver(paint).observe(canvas);else addEventListener('resize',paint);
  paint();say();
