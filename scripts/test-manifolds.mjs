@@ -11,6 +11,7 @@ import {formatResidual,formatSliderValue} from '../learning-machines/manifolds/f
 import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/manifolds/visuals.mjs';
 import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
+import * as Terrain from '../learning-machines/manifolds/terrain.mjs';
 import {numberBoxHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
@@ -44,7 +45,7 @@ assert.ok(page.includes(`${F.scores.holdout.rmsDeg.toFixed(3)}° before projecti
 assert.ok(page.includes(`${F.scores.holdoutProjected.rmsDeg.toFixed(3)}° after projection`));
 assert.ok(page.includes(`${F.landscape.cells.filter(c=>c.valid).length} of ${F.landscape.cells.length} samples are valid`));
 assert.ok(page.includes(`forward y, ${F.landscape.axes.y[0].toFixed(2)} to ${F.landscape.axes.y.at(-1).toFixed(2)} m`));
-const css=readFileSync(resolve(base,'manifolds.css'),'utf8');assert.match(css,/\.map text\{font-size:18px\}/);assert.match(script,/map-axis-caption/);
+const css=readFileSync(resolve(base,'manifolds.css'),'utf8');assert.match(css,/\.learning-page>p,\.manifold-study section>p,\.manifold-study section>ul\{max-width:740px\}/,'one reading width for body text');
 assert.equal((page.match(/class="static-rig"/g)||[]).length,4);assert.equal((page.match(/data-reset=/g)||[]).length,4);
 assert.ok(page.includes(pin.repository+'/tree/'+pin.commit+'/experiments/manifolds'));
 assert.ok(page.includes(pin.repository+'/commit/'+pin.commit));
@@ -89,7 +90,7 @@ assert.deepEqual(F.pca.orientation.map(o=>[o.component,o.axis]),[[1,'y'],[2,'z']
 assert.ok(F.pca.orientation.every(o=>o.trainingCorrelation>0&&o.trainingCount===F.demonstrations.train.length));
 assert.match(pcaDirectionNote(F.pca),/PCA signs are arbitrary/);assert.match(pcaDirectionNote(F.pca),/mixed fitted axes/);
 assert.ok(page.includes(pcaDirectionNote(F.pca)));assert.ok(page.includes(CHART_DIRECTION_NOTE));
-assert.match(script,/CHART_DIRECTION_NOTE/);assert.match(script,/Displayed ball: forward y=/);assert.match(script,/Score range:/);assert.match(script,/Training range:/);
+assert.match(script,/Score range:/);assert.match(script,/Training range:/);
 const pcaGrid=Array.from({length:21},(_,j)=>Array.from({length:21},(_,i)=>{
  const z=F.pca.coordinateRanges.map(([lo,hi],k)=>lo+(hi-lo)*(k===0?i:j)/20),r=M.projectDecodedConfiguration(M.decodePCA(z,F.pca));assert.ok(r.ok);return r.ballPose.position;
 }));
@@ -142,6 +143,29 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
+// Cost terrain: the pinned field drawn as ground. Height and shade both come from the same normalized cost, samples with no valid
+// pose stand at full height, hatched ground is exactly the facets with an invalid corner, and the painter stays finite and inside its canvas at every yaw and size.
+for(const field of ['torque','jointLimit','clearanceCost']){
+ const mesh=Terrain.terrainMesh(F.landscape,field),cells=F.landscape.cells,valid=mesh.vertices.filter(v=>v.valid);
+ assert.equal(mesh.vertices.length,cells.length);assert.equal(mesh.facets.length,(F.landscape.width-1)*(F.landscape.height-1));
+ assert.equal(valid.length,cells.filter(c=>c.valid).length);
+ for(const v of mesh.vertices){assert.equal(v.valid,cells[v.index].valid);if(v.valid){assert.ok(v.level>=0&&v.level<=1);assert.ok(Math.abs(v.point[2]-v.level*Terrain.RISE)<1e-12);}else assert.equal(v.point[2],Terrain.RISE);}
+ const byCost=[...valid].sort((a,b)=>cells[a.index].costs[field]-cells[b.index].costs[field]);
+ for(let i=1;i<byCost.length;i++)assert.ok(byCost[i].point[2]>=byCost[i-1].point[2],'a costlier pose is never lower');
+ assert.equal(Math.min(...valid.map(v=>v.level)),0);assert.equal(Math.max(...valid.map(v=>v.level)),1);
+ for(const facet of mesh.facets)assert.equal(facet.solid,facet.corners.every(i=>cells[i].valid));
+ const routes=[['shortest',true],['lowCost',false]].map(([key,dashed])=>({path:F.landscape.exampleRoutes[key].path,dashed}));
+ for(const [W,H] of [[300,260],[466,373],[520,416]])for(let turn=0;turn<8;turn++){
+  const yaw=Terrain.START_YAW+turn*Math.PI/4,P=Terrain.projector(W,H,yaw);
+  for(const v of mesh.vertices){const [x,y]=P(v.point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`terrain stays inside a ${W}x${H} canvas`);}
+  const drawn=[];const terrainContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);drawn.push(k);},set:()=>true});
+  const points=Terrain.paintTerrain(terrainContext,W,H,yaw,mesh,{routes,start:F.landscape.start,goal:F.landscape.goal,inspect:routes[1].path[1],labels:['ball forward','ball height']});
+  assert.equal(points.length,cells.length);assert.ok(drawn.includes('fill')&&drawn.includes('fillText'));
+  const g=points[F.landscape.goal];assert.equal(Terrain.nearestCell(points,valid.map(v=>v.index),g[0],g[1]),F.landscape.goal);
+  assert.equal(Terrain.nearestCell(points,routes[1].path,-900,-900),null);
+ }
+}
+assert.match(script,/terrainFigure\(\{onGoal:/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
 // Schematic sheets (top of the page): each map point lifts to one point on every sheet, each sheet sits in the space its own way so
 // no surface coordinate repeats a map coordinate, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
@@ -172,9 +196,10 @@ assert.equal(fixed(-.001),'0.00');assert.equal(fixed(1.239),'1.24');
  assert.ok(page.includes('<div class="numbers sheet-numbers">'+[surfaces,map].map(numberBoxHTML).join('')+'</div>'),'static number boxes match the default route');
  assert.notDeepEqual(Sheet.numbersAt(Sheet.TARGET,.5),Sheet.numbersAt(Sheet.TARGET,1));}
 assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table class="number-box"><caption>a &lt; b</caption><tbody><tr><th scope="row">r</th><td>1</td><td>2</td></tr></tbody></table>');
-// Each robot panel shows its fourteen joint angles as a box, and three of them a smaller box of the numbers that produced the pose.
-assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,3);
-for(const caption of ['grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
+// Each robot panel shows its fourteen joint angles as a box with a second box beneath: the paw positions they produce in the free panel,
+// and in the other three the smaller set of numbers that produced the pose.
+assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,4);
+for(const caption of ['paw positions in metres','grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');
