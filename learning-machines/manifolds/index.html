@@ -190,6 +190,13 @@
     <h2 id="heading-6">High dimensionality doesn&#x27;t require high-dimensional solutions.</h2>
     <p>A neural network may work with representations containing thousands of numbers, while a particular task depends on variations along only a handful of effective directions. A compact representation can make the patterns easier to learn, reuse or control.</p>
     <p>LoRA is a related example. It approximates a model&#x27;s <em>weight updates</em> with low-rank matrices rather than fine-tuning every weight independently. In the terms of the panels above, the small matrices are the few numbers, and multiplying them together expands them into the full update. That makes LoRA more like the fitted <em>f</em> than like <em>g</em>. Nothing derives it from the problem; it is a bet that the update a task needs is one the small matrices can produce. It also doesn&#x27;t literally discover a robot-like manifold inside the network&#x27;s activations.</p>
+    <div class="exhibit" id="lora-figure" aria-labelledby="lora-figure-title">
+      <div class="exhibit-head">
+        <h3 id="lora-figure-title">Few numbers in, many numbers out</h3>
+      </div>
+      <img class="sheet-static lora-static" src="./lora-static.svg" alt="Top: fourteen joint-angle traces, seven for each arm, all changing as one control, Reach, runs from minus one to one. Bottom: a toy LoRA update drawn as grids of shaded cells, a tall 8 by 2 matrix B times a wide 2 by 10 matrix A giving the full 8 by 10 update, so 36 numbers set 80." width="640" height="590">
+      <p class="small">Top: the designed <em>f</em> from the handoff panel, with Present held at zero. Each line is one joint angle as Reach runs from −1 to 1, so one number moves fourteen. Bottom: a toy LoRA update with made-up numbers. Multiplying the tall matrix <em>B</em> by the wide matrix <em>A</em> fills in every cell of the update: one number in <em>B</em> sets a whole row, and one in <em>A</em> a whole column. Here 36 numbers set 80. For a 4,096 × 4,096 layer at rank 8, about 65 thousand would stand in for almost 17 million.</p>
+    </div>
     <p>Our volleyball robot began with fourteen independently movable joints. Under an idealized rigid grasp, it had eight available degrees of freedom. And a particular family of successful handoffs might be approximated with only two coordinated variables.</p>
     <p>Those last two variables aren&#x27;t universal. A handoff skill isn&#x27;t a juggling skill, and a good compression for one task may fail on another.</p>
     <p>The robot doesn&#x27;t need to rediscover the geometry of a sphere. It needs to learn what to do with the ball.</p>

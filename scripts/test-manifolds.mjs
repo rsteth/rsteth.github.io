@@ -13,6 +13,7 @@ import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-ma
 import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
 import * as Terrain from '../learning-machines/manifolds/terrain.mjs';
 import * as Nest from '../learning-machines/manifolds/nest.mjs';
+import * as Lora from '../learning-machines/manifolds/lora.mjs';
 import {numberBoxHTML,vectorHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
@@ -169,6 +170,24 @@ for(const field of ['torque','jointLimit','clearanceCost']){
 assert.match(script,/terrainFigure\(\{onGoal:/);
 // The two example buttons are toggles: the same handler shows an example and, pressed again, goes back.
 assert.match(script,/function inspect\(example\)\{if\(target===example\)/);assert.match(script,/out\.setAttribute\('aria-pressed',String\(target===F\.outsideSkill\)\)/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
+// Decoder and toy LoRA comparison (last section). The robot row is real: every swept pose keeps the grasp. The LoRA row is a toy
+// whose arithmetic must still be right: the update is B times A, has rank 2, and one number in B or A reaches exactly one row or column.
+assert.ok(page.includes('id="lora-figure"')&&page.includes('src="./lora-static.svg"'));assert.match(script,/loraFigure\(\$\('#lora-figure'\),F,M\)/);
+assert.ok(page.indexOf('id="learning"')<page.indexOf('id="lora-figure"')&&page.indexOf('id="lora-figure"')<page.indexOf('id="sources"'));
+{const samples=Lora.sweep(F,M);assert.equal(samples.length,33);assert.equal(samples[0].reach,-1);assert.equal(samples.at(-1).reach,1);
+ for(const s of samples){assert.equal(s.q.length,14);assert.ok(M.relativeGraspError(s.q).positionResidualM<.001,'every swept pose keeps the grasp');}
+ const moving=Array.from({length:14},(_,k)=>Math.max(...samples.map(s=>s.q[k]))-Math.min(...samples.map(s=>s.q[k]))).filter(range=>range>.01).length;assert.ok(moving>=10,'one control moves most of the fourteen joints');
+ const q=Lora.poseAt(M,samples,.4);assert.ok(M.relativeGraspError(q).positionResidualM<.001);
+ const lanes=Lora.lanesSVG(samples,.4,q);assert.equal((lanes.match(/<polyline/g)||[]).length,14);assert.equal((lanes.match(/<circle/g)||[]).length,14);assert.ok(!lanes.includes('NaN'));}
+{const factors=Lora.toyFactors(),W=Lora.product(factors),{few,many}=Lora.counts();
+ assert.equal(factors.B.length,Lora.ROWS);assert.equal(factors.B[0].length,Lora.RANK);assert.equal(factors.A.length,Lora.RANK);assert.equal(factors.A[0].length,Lora.COLS);
+ assert.equal(few,36);assert.equal(many,80);assert.equal(W.length,8);assert.equal(W[0].length,10);
+ for(let i=0;i<8;i++)for(let j=0;j<10;j++)assert.ok(Math.abs(W[i][j]-(factors.B[i][0]*factors.A[0][j]+factors.B[i][1]*factors.A[1][j]))<1e-12);
+ const changed=(next)=>{const V=Lora.product(next),cells=[];for(let i=0;i<8;i++)for(let j=0;j<10;j++)if(Math.abs(V[i][j]-W[i][j])>1e-9)cells.push([i,j]);return cells;};
+ const b=structuredClone(factors);b.B[Lora.PICK.B[0]][Lora.PICK.B[1]]+=.5;assert.ok(changed(b).length>0&&changed(b).every(([i])=>i===Lora.PICK.B[0]),'one number in B reaches one row of the update');
+ const a=structuredClone(factors);a.A[Lora.PICK.A[0]][Lora.PICK.A[1]]+=.5;assert.ok(changed(a).length>0&&changed(a).every(([,j])=>j===Lora.PICK.A[1]),'one number in A reaches one column of the update');
+ const grids=Lora.factorsSVG(factors);assert.equal((grids.match(/<rect/g)||[]).length,16+20+80+4);assert.ok(!grids.includes('NaN'));
+ assert.match(page,/Here 36 numbers set 80\./);assert.equal(2*4096*8,65536);assert.equal(4096*4096,16777216);}
 // Nested-spaces sketch (grasp section): the sheet stays inside the box, the band stays on the sheet, and the painter stays finite
 // and inside its canvas at every yaw and size.
 assert.ok(page.includes('id="nest-figure"')&&page.includes('src="./nest-static.svg"'));assert.match(script,/nestFigure\(/);

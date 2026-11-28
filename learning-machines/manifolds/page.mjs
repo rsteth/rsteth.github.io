@@ -7,6 +7,7 @@ import {threadData,threadFigure} from './threads.mjs';
 import {terrainMesh,terrainFigure} from './terrain.mjs';
 import {sheetFigure} from './sheet.mjs';
 import {nestFigure} from './nest.mjs';
+import {loraFigure} from './lora.mjs';
 import {showNumbers,fixed} from './numbers.mjs';
 const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n=2)=>Number.isFinite(x)?x.toFixed(n):'not available';
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
@@ -85,3 +86,5 @@ function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);
 try{sheetFigure($('#sheet-figure'));}catch(problem){console.error(problem);}
 // The sketch of nested spaces in the grasp section is independent in the same way.
 try{nestFigure($('#nest-figure'));}catch(problem){console.error(problem);}
+// So is the comparison of the designed decoder with a toy LoRA update in the last section.
+try{loraFigure($('#lora-figure'),F,M);}catch(problem){console.error(problem);}

@@ -9,6 +9,7 @@ import * as M from '../learning-machines/manifolds/mechanics.mjs';
 import {threadData,paintThreads,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import {paintSheet,START_YAW,TARGET} from '../learning-machines/manifolds/sheet.mjs';
 import {paintNest,START_YAW as NEST_YAW} from '../learning-machines/manifolds/nest.mjs';
+import {staticSVG as loraStatic} from '../learning-machines/manifolds/lora.mjs';
 function rig(q,caption){const fk=forwardKinematics(q),P=p=>project(p).map(x=>x.toFixed(2)).join(','),add=(a,b)=>a.map((v,i)=>v+b[i]);
 let svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" role="img" aria-labelledby="title desc"><title id="title">Fourteen joints, one volleyball</title><desc id="desc">Original isometric diagram generated from the exact three-dimensional joint pose used by this panel. Caption states whether the hands are free or rigidly grasping. Fixed-torso kinematic teaching model, not a real robot.</desc><rect width="640" height="440" fill="#edeadf"/>';
 const line=(a,b,color,width=1)=>svg+=`<line x1="${project(a)[0]}" y1="${project(a)[1]}" x2="${project(b)[0]}" y2="${project(b)[1]}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
@@ -63,6 +64,8 @@ save('sheet-static',shell('One flat map for two curved surfaces','Schematic, not
 // The sketch of nested spaces in the grasp section, from the same painter as its live figure.
 const nestRecorder=svgContext();paintNest(nestRecorder,640,470,NEST_YAW);
 save('nest-static',shell('Smaller spaces inside the larger one','Sketch, not computed from the robot. A wireframe box stands for every pose of the arms, a curved sheet inside it for the poses that keep the grasp, and a narrow band across the sheet for the poses a handoff uses.',500)+`<g transform="translate(0 15)">${nestRecorder.svg()}</g></svg>`);
+// The decoder and toy LoRA comparison in the last section, from the same builders as its live figure.
+save('lora-static',loraStatic(F,M));
 
 // Device-resolution HTML carries every numeric caption when an external SVG shrinks on mobile.
 const fixed=(x,n=3)=>x.toFixed(n),freeFK=forwardKinematics(RIG.initialQ);
