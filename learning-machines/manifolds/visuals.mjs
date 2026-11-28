@@ -21,7 +21,6 @@ export function paintRobot(canvas,fk,ball,{ghost=null,trails=[]}={}){
  // The camera sees the robot's left side, so the right arm goes behind the ball and the left arm in front of it.
  // That is not exact for every pose, but a near hand drawn behind the ball reads as wrong.
  const drawArm=arm=>{const pts=arm.points;for(let j=1;j<pts.length;j++){line(pts[j-1],pts[j],'#716f62',19);line(pts[j-1],pts[j],'#c3c6b4',14);line(add(pts[j-1],[0,0,.015]),add(pts[j],[0,0,.015]),'#dde0d0',3);}for(const p of pts){const [x,y]=project(p);c.beginPath();c.arc(x,y,6,0,Math.PI*2);c.fillStyle='#f5f2e8';c.fill();c.strokeStyle='#757466';c.lineWidth=2;c.stroke();}
- const corners=[[0,-.045,-.045],[0,.045,-.045],[0,.045,.045],[0,-.045,.045]].map(p=>add(arm.position,transform(arm.rotation,p)));poly(corners,'#b9a586','#6d6557');
  for(let j=0;j<3;j++){const v=[0,0,0];v[j]=.09;line(arm.position,add(arm.position,transform(arm.rotation,v)),['#9c523d','#586e51','#536d83'][j],2);}
  };
  function sphere(pose,outline=false){const p=pose.position,[x,y]=project(p),radius=22; c.save();if(outline){c.setLineDash([5,4]);c.strokeStyle='#9c523d';c.lineWidth=2;c.beginPath();c.arc(x,y,radius,0,Math.PI*2);c.stroke();c.restore();return;}c.fillStyle='#dbc791';c.beginPath();c.arc(x,y,radius,0,Math.PI*2);c.fill();c.strokeStyle='#706957';c.lineWidth=1.5;c.stroke();c.beginPath();c.arc(x,y,radius-1,0,Math.PI*2);c.clip();

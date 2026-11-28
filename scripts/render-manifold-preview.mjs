@@ -16,7 +16,7 @@ const poly=(ps,color)=>svg+=`<polygon points="${ps.map(P).join(' ')}" fill="${co
 function box(...args){visibleBoxFaces(...args).forEach(({points,fill})=>poly(points,fill));}
 box(0,-.03,.58,.4,.18,.67);box(0,-.03,1.32,.17,.16,.17);
 // Right arm behind the ball, left arm in front of it, as in the live view.
-const drawArm=arm=>{for(let j=1;j<arm.points.length;j++){line(arm.points[j-1],arm.points[j],'#716f62',19);line(arm.points[j-1],arm.points[j],'#c3c6b4',14);}for(const p of arm.points){const [x,y]=project(p);svg+=`<circle cx="${x}" cy="${y}" r="6" fill="#f5f2e8" stroke="#757466" stroke-width="2"/>`;}poly([[0,-.045,-.045],[0,.045,-.045],[0,.045,.045],[0,-.045,.045]].map(v=>add(arm.position,arm.rotation.map(r=>r.reduce((n,a,i)=>n+a*v[i],0)))),'#b9a586');for(let j=0;j<3;j++)line(arm.position,add(arm.position,arm.rotation.map(r=>r[j]*.09)),['#9c523d','#586e51','#536d83'][j],2);};
+const drawArm=arm=>{for(let j=1;j<arm.points.length;j++){line(arm.points[j-1],arm.points[j],'#716f62',19);line(arm.points[j-1],arm.points[j],'#c3c6b4',14);}for(const p of arm.points){const [x,y]=project(p);svg+=`<circle cx="${x}" cy="${y}" r="6" fill="#f5f2e8" stroke="#757466" stroke-width="2"/>`;}for(let j=0;j<3;j++)line(arm.position,add(arm.position,arm.rotation.map(r=>r[j]*.09)),['#9c523d','#586e51','#536d83'][j],2);};
 drawArm(fk.right);
 const ball=F.canonical.ballPose.position,[x,y]=project(ball);svg+=`<circle cx="${x}" cy="${y}" r="22" fill="#dbc791" stroke="#706957" stroke-width="1.5"/>`;
 // Only the near half of each seam is drawn, as in the live view.

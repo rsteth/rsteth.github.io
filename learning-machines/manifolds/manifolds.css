@@ -29,4 +29,4 @@
 .vector-body::before,.vector-body::after{content:'';position:absolute;top:0;bottom:0;width:6px;border:1.5px solid currentColor}
 .vector-body::before{left:0;border-right:0}.vector-body::after{right:0;border-left:0}
 @media(max-width:540px){.vector{font-size:12.5px;gap:6px}.vector i{font-size:17px}.vector-body{gap:3px 7px;padding:4px 8px}}
-
+.toolbar button[aria-pressed="true"]{background:#302e28;border-color:#302e28;color:#f6f3eb}

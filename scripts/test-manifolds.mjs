@@ -165,7 +165,9 @@ for(const field of ['torque','jointLimit','clearanceCost']){
   assert.equal(Terrain.nearestCell(points,routes[1].path,-900,-900),null);
  }
 }
-assert.match(script,/terrainFigure\(\{onGoal:/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
+assert.match(script,/terrainFigure\(\{onGoal:/);
+// The two example buttons are toggles: the same handler shows an example and, pressed again, goes back.
+assert.match(script,/function inspect\(example\)\{if\(target===example\)/);assert.match(script,/out\.setAttribute\('aria-pressed',String\(target===F\.outsideSkill\)\)/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
 // Schematic sheets (top of the page): each map point lifts to one point on every sheet, each sheet stretches the map's grid sideways in its own way (without folding it) so
 // no surface coordinate repeats a map coordinate and its outline runs both outside and inside the map's, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
