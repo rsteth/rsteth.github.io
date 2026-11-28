@@ -30,3 +30,8 @@
 .vector-body::before{left:0;border-right:0}.vector-body::after{right:0;border-left:0}
 @media(max-width:540px){.vector{font-size:12.5px;gap:6px}.vector i{font-size:17px}.vector-body{gap:3px 7px;padding:4px 8px}}
 .toolbar button[aria-pressed="true"]{background:#302e28;border-color:#302e28;color:#f6f3eb}
+.vector-paren{font-size:27px;line-height:1;font-weight:300;margin:0 -5px}
+.vector-body.has-heads{padding-top:0;padding-bottom:19px}
+.vector-body.has-heads::before,.vector-body.has-heads::after{top:15px;bottom:14px}
+.vector-head{font:10px/16px var(--font-mono);color:var(--muted);white-space:nowrap}
+@media(max-width:540px){.vector{flex-wrap:wrap;row-gap:0}.vector-head{font-size:9px}.vector-paren{font-size:22px}}

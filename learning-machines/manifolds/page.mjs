@@ -9,7 +9,8 @@ import {sheetFigure} from './sheet.mjs';
 import {showNumbers,fixed} from './numbers.mjs';
 const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n=2)=>Number.isFinite(x)?x.toFixed(n):'not available';
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
-// Every panel shows its pose as a box of the fourteen joint angles. Where a smaller set of numbers produced that pose, p.fewer describes it and it goes underneath.
+// Every panel shows its pose as a box of the fourteen joint angles, with a line about q underneath from p.fewer:
+// the angles written out as q where the arms are free, and q as a function of the few numbers that produced the pose elsewhere.
 function draw(p,options={}){paintRobot(p.canvas,M.forwardKinematics(p.q),p.ball,options);const arm=from=>p.q.slice(from,from+7).map(x=>fixed(deg(x),1));showNumbers(p.vector,[{caption:'joint angles in degrees · 14 numbers',rows:[['left arm',arm(0)],['right arm',arm(7)]]},p.fewer?.()??null]);}
 // Robot on the left, its numbers on the right (stacked on narrow screens).
 function besideScene(p){const row=document.createElement('div'),scene=$('.scene',p.root);row.className='pose-row';scene.before(row);row.append(scene,p.vector);p.vector.classList.add('numbers');}
@@ -28,7 +29,8 @@ function setupFree(){const p=panels[0];besideScene(p);p.q=[...M.RIG.initialQ];
  const update=()=>{draw(p);p.status.textContent='';};const controls=jointControls(p,'joint',update);const reset=()=>{p.q=[...M.RIG.initialQ];controls.forEach((s,i)=>s.set(deg(p.q[i])));update();};$('[data-reset]',p.root).onclick=reset;reset();}
 function setupGrasp(){const p=panels[1],t=toolbar(p.controls);let locked=true;let values=[0,.43,1.2,0,0,0,0,0];const free=document.createElement('div');free.className='controls';free.hidden=true;p.controls.after(free);besideScene(p);const proxy={...p,controls:free};
  // While the grasp holds, eight numbers produce the fourteen: six for the ball's pose and one elbow preference per arm.
- p.fewer=()=>locked?{caption:'grasp controls · 8 numbers',rows:[['ball pose',values.slice(0,6).map((v,i)=>fmt(v,i<3?3:0))],['elbow preferences',values.slice(6).map(v=>fmt(v,0))]]}:null;
+ // Written as q = g(…): the joint angles in the box above are produced from these eight by the grasp solver.
+ p.fewer=()=>locked?{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],values:values.map((v,i)=>fixed(v,i<3?3:0))}:null;
  const freeControls=jointControls(proxy,'released',()=>{p.q=[...proxy.q];draw(p);p.status.textContent='Released: independent joint control. The ball stays where it was; no rigid grasp is enforced.';});
  const mode=button(t,'Release grasp',()=>{locked=!locked;mode.textContent=locked?'Release grasp':'Reset to canonical grasp';free.hidden=locked;unreachable.disabled=!locked;controls.forEach(s=>s.input.disabled=!locked);if(locked)reset();else {proxy.q=[...p.q];freeControls.forEach((s,i)=>s.set(deg(p.q[i])));draw(p);p.status.textContent='Released: fourteen independent joints below. Ball no longer attached. Reset to canonical grasp loads a known valid example; it does not simulate a grasping transition.';}});
  const update=()=>{if(!locked)return;const target=M.poseFromCoordinates(...values.slice(0,3),...values.slice(3,6).map(x=>x*rad));const result=M.solveGrasp({ballPose:target,leftPosture:values[6]*rad,rightPosture:values[7]*rad,initialQ:p.q});if(result.ok&&!result.discontinuous){p.q=result.q;p.ball=target;p.status.textContent='Grasp held. These eight numbers set all fourteen joint angles.';draw(p);}else {p.status.textContent=`Target not accepted: ${result.discontinuous?'discontinuous joint change; reset to the canonical example before trying a smaller movement':result.reason}. The last valid pose is kept, and the dashed ball marks the requested target.`;draw(p,{ghost:target});}};
@@ -38,7 +40,7 @@ function setupGrasp(){const p=panels[1],t=toolbar(p.controls);let locked=true;le
  $('[data-reset]',p.root).onclick=reset;reset();}
 function setupLandscape(){const p=panels[2],grid=F.landscape,{top,side}=sideBySide(p);const t=toolbar(top);let field='torque';const fields={torque:['Ball-load torque estimate','N·m'],jointLimit:['Joint-limit proximity','normalized index'],clearanceCost:['Clearance penalty','normalized index']};let start=grid.start;let goal=start;let inspect=null;
  // Within this slice two numbers place the ball, and with it all fourteen joints.
- p.fewer=()=>({caption:'position in the slice · 2 numbers',heads:['forward y','height z'],rows:[['ball',p.ball.position.slice(1).map(v=>fmt(v,3))]]});
+ p.fewer=()=>({symbol:'q',fn:'g',heads:['forward y','height z'],values:p.ball.position.slice(1).map(v=>fixed(v,3))});
  const selector=select(t,'cost-field','Cost field',Object.entries(fields).map(([key,[label]])=>[key,label]),v=>{field=v;update();});
  // The field drawn as ground. Pointing at a route shows the robot at that step; clicking valid ground moves the goal.
  const figure=terrainFigure({onGoal:cell=>{goal=cell;y.set(cell%grid.width);z.set(Math.floor(cell/grid.width));update();},onInspect:cell=>{inspect=cell;show();}});side.append(figure.stage);
@@ -56,7 +58,8 @@ function setupLandscape(){const p=panels[2],grid=F.landscape,{top,side}=sideBySi
  function reset(){field='torque';selector.value=field;goal=grid.goal;y.set(goal%grid.width);z.set(Math.floor(goal/grid.width));figure.reset();update();}
  $('[data-reset]',p.root).onclick=reset;reset();}
 function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);let mode='task',values=[0,0],target=null;const pca=F.pca;
- p.fewer=()=>({caption:(mode==='task'?'skill controls':'fitted coordinates')+' · 2 numbers',heads:mode==='task'?['Reach','Present']:['PC1','PC2'],rows:[['handoff',values.map(v=>fmt(v,3))]]});const scores=F.scores;const ranges=[0,1].map(i=>{const all=F.demonstrations.train.map(s=>M.encodePCA(s.q,pca)[i]);return [Math.min(...all),Math.max(...all)];});
+ // Hand-designed controls go through the same solver, g. The fitted pair goes through the decoder f of the text, and only approximately.
+ p.fewer=()=>mode==='task'?{symbol:'q',fn:'g',heads:['Reach','Present'],values:values.map(v=>fixed(v,3))}:{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],values:values.map(v=>fixed(v,3))};const scores=F.scores;const ranges=[0,1].map(i=>{const all=F.demonstrations.train.map(s=>M.encodePCA(s.q,pca)[i]);return [Math.min(...all),Math.max(...all)];});
  const selector=select(t,'skill-mode','Controller',[['task','Hand-designed task coordinates'],['pca','Fitted PCA coordinates']],v=>{mode=v;target=null;values=[0,0];configure();update();});
  const figure=threadFigure(threadData(F,M),{onPick:({sample,hold,outside})=>{if(outside){inspect(F.outsideSkill);return;}mode='pca';selector.value=mode;target=hold?sample:null;values=M.encodePCA(sample.q,pca);configure();update();}});side.append(figure.stage,figure.views);
  const holder=document.createElement('div'),notes=document.createElement('div');holder.className='skill-controls';notes.className='thread-notes';notes.append(figure.readout,figure.legend);p.controls.append(holder,notes);let controls=[];

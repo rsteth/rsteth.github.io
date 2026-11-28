@@ -206,11 +206,12 @@ assert.equal(fixed(-.001),'0.00');assert.equal(fixed(1.239),'1.24');
  assert.notDeepEqual(Sheet.numbersAt(Sheet.TARGET,.5),Sheet.numbersAt(Sheet.TARGET,1));}
 assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table class="number-box"><caption>a &lt; b</caption><tbody><tr><th scope="row">r</th><td>1</td><td>2</td></tr></tbody></table>');
 // Each robot panel shows its fourteen joint angles as a box. Beneath it the free panel writes the same angles out as the vector q,
-// and the other three show the smaller set of numbers that produced the pose.
+// and the other three write q as a function of the few numbers that produced the pose: g for the solver, f (approximately) for the fit.
 assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,4);
 assert.match(script,/p\.fewer=\(\)=>\(\{symbol:'q',columns:7,/);
 assert.equal(vectorHTML({symbol:'q',values:['-1.5','2.0'],columns:2}),'<p class="vector" role="math" aria-label="q equals \u22121.5, 2.0"><i>q</i><span>=</span><span class="vector-body" style="grid-template-columns:repeat(2,auto)"><span>\u22121.5</span><span>2.0</span></span></p>');
-for(const caption of ['grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
+for(const line of ["{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],","{symbol:'q',fn:'g',heads:['forward y','height z'],","{symbol:'q',fn:'g',heads:['Reach','Present'],","{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],"])assert.ok(script.includes(line),line);
+assert.equal(vectorHTML({symbol:'q',relation:'≈',fn:'f',heads:['a','b'],values:['-0.5','1.0']}),'<p class="vector" role="math" aria-label="q is approximately f of \u22120.5, 1.0"><i>q</i><span>≈</span><i>f</i><span class="vector-paren">(</span><span class="vector-body has-heads" style="grid-template-columns:repeat(2,auto)"><span class="vector-head">a</span><span class="vector-head">b</span><span>\u22120.5</span><span>1.0</span></span><span class="vector-paren">)</span></p>');
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');
