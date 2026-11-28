@@ -9,11 +9,18 @@ export function numberBoxHTML({caption, heads = null, rows}) {
   return `<table class="number-box"><caption>${esc(caption)}</caption>${head}<tbody>${body}</tbody></table>`;
 }
 
+// A vector written out the way the text writes it, without boxes: an italic symbol, an equals sign and its values between brackets.
+export function vectorHTML({symbol, values, columns = values.length}) {
+  const shown = values.map(v => String(v).replace('-', '\u2212'));
+  return `<p class="vector" role="math" aria-label="${esc(symbol)} equals ${shown.map(esc).join(', ')}"><i>${esc(symbol)}</i><span>=</span>`
+    + `<span class="vector-body" style="grid-template-columns:repeat(${columns},auto)">${shown.map(v => `<span>${esc(v)}</span>`).join('')}</span></p>`;
+}
+
 // Two decimals by default, without a negative zero.
 export const fixed = (n, places = 2) => (Math.round(n * 10 ** places) / 10 ** places || 0).toFixed(places);
 
-// Fills a container with one box per entry; an entry that is null is left out.
+// Fills a container with one box per entry, or a written-out vector for an entry with a symbol; an entry that is null is left out.
 export function showNumbers(container, boxes) {
-  const html = boxes.filter(Boolean).map(numberBoxHTML).join('');
+  const html = boxes.filter(Boolean).map(entry => entry.symbol ? vectorHTML(entry) : numberBoxHTML(entry)).join('');
   if (container.innerHTML !== html) container.innerHTML = html;
 }

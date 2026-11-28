@@ -23,8 +23,8 @@ function button(parent,text,fn){const b=document.createElement('button');b.type=
 function select(parent,id,label,options,fn){const lab=document.createElement('label');lab.htmlFor=id;lab.textContent=label;const s=document.createElement('select');s.id=id;options.forEach(([v,t])=>s.add(new Option(t,v)));parent.append(lab,s);s.addEventListener('change',()=>fn(s.value));return s;}
 function jointControls(p,prefix,onChange){const groups=['Left arm · 7 joints','Right arm · 7 joints'].map(label=>{const fieldset=document.createElement('fieldset'),legend=document.createElement('legend');legend.textContent=label;fieldset.append(legend);p.controls.append(fieldset);return fieldset;});return Array.from({length:14},(_,i)=>slider(groups[Math.floor(i/7)],`${prefix}-${i}`,`${i<7?'Left':'Right'} ${M.RIG.jointNames[i%7]}`,deg(M.RIG.limits[i%7][0]),deg(M.RIG.limits[i%7][1]),.1,deg(p.q[i]),v=>{p.q[i]=v*rad;onChange();},'°'));}
 function setupFree(){const p=panels[0];besideScene(p);p.q=[...M.RIG.initialQ];
- // Forward kinematics: where the fourteen angles put the two paws.
- p.fewer=()=>{const f=M.forwardKinematics(p.q);return {caption:'paw positions in metres',heads:['x','y','z'],rows:['left','right'].map(side=>[side+' paw',f[side].position.map(v=>fixed(v,3))])};};
+ // The same fourteen angles written as the vector q of the text above: left arm on the first line, right arm on the second.
+ p.fewer=()=>({symbol:'q',columns:7,values:p.q.map(x=>fixed(deg(x),1))});
  const update=()=>{draw(p);p.status.textContent='';};const controls=jointControls(p,'joint',update);const reset=()=>{p.q=[...M.RIG.initialQ];controls.forEach((s,i)=>s.set(deg(p.q[i])));update();};$('[data-reset]',p.root).onclick=reset;reset();}
 function setupGrasp(){const p=panels[1],t=toolbar(p.controls);let locked=true;let values=[0,.43,1.2,0,0,0,0,0];const free=document.createElement('div');free.className='controls';free.hidden=true;p.controls.after(free);besideScene(p);const proxy={...p,controls:free};
  // While the grasp holds, eight numbers produce the fourteen: six for the ball's pose and one elbow preference per arm.

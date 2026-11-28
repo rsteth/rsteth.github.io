@@ -12,7 +12,7 @@ import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/man
 import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
 import * as Terrain from '../learning-machines/manifolds/terrain.mjs';
-import {numberBoxHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
+import {numberBoxHTML,vectorHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
 const contrast=(a,b)=>(Math.max(luminance(a),luminance(b))+.05)/(Math.min(luminance(a),luminance(b))+.05);
@@ -203,10 +203,12 @@ assert.equal(fixed(-.001),'0.00');assert.equal(fixed(1.239),'1.24');
  assert.ok(page.includes('<div class="numbers sheet-numbers">'+[surfaces,map].map(numberBoxHTML).join('')+'</div>'),'static number boxes match the default route');
  assert.notDeepEqual(Sheet.numbersAt(Sheet.TARGET,.5),Sheet.numbersAt(Sheet.TARGET,1));}
 assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table class="number-box"><caption>a &lt; b</caption><tbody><tr><th scope="row">r</th><td>1</td><td>2</td></tr></tbody></table>');
-// Each robot panel shows its fourteen joint angles as a box with a second box beneath: the paw positions they produce in the free panel,
-// and in the other three the smaller set of numbers that produced the pose.
+// Each robot panel shows its fourteen joint angles as a box. Beneath it the free panel writes the same angles out as the vector q,
+// and the other three show the smaller set of numbers that produced the pose.
 assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,4);
-for(const caption of ['paw positions in metres','grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
+assert.match(script,/p\.fewer=\(\)=>\(\{symbol:'q',columns:7,/);
+assert.equal(vectorHTML({symbol:'q',values:['-1.5','2.0'],columns:2}),'<p class="vector" role="math" aria-label="q equals \u22121.5, 2.0"><i>q</i><span>=</span><span class="vector-body" style="grid-template-columns:repeat(2,auto)"><span>\u22121.5</span><span>2.0</span></span></p>');
+for(const caption of ['grasp controls · 8 numbers','position in the slice · 2 numbers','skill controls'])assert.ok(script.includes(caption),caption);
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}
 console.log('PASS: manifolds source integrity, links, four static fallbacks, article concepts, actual 14-joint FK, renderer finiteness, rank, route and PCA fixture integration, schematic sheet');
