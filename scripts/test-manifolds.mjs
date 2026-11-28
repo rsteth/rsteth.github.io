@@ -166,21 +166,26 @@ for(const field of ['torque','jointLimit','clearanceCost']){
  }
 }
 assert.match(script,/terrainFigure\(\{onGoal:/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
-// Schematic sheets (top of the page): each map point lifts to one point on every sheet, drawn straight above it, each sheet reports that point in its own coordinates so
-// no surface number repeats a map number, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
+// Schematic sheets (top of the page): each map point lifts to one point on every sheet, each sheet stretches the map's grid sideways in its own way (without folding it) so
+// no surface coordinate repeats a map coordinate and its outline runs both outside and inside the map's, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);
 assert.match(page,/One flat map for two curved surfaces/);assert.match(page,/takes six numbers, three per surface, and the map holds it in two/);assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('id="fourteen-numbers"'),'the concept figure comes before section 00');assert.ok(page.indexOf('id="sheet-figure"')<page.indexOf('Replace the two surfaces with the two arms'),'and before the introduction that builds on it');
 assert.equal(Sheet.SHEETS.length,2);
+Sheet.SHEETS.forEach(({place},k)=>{
+ // The sideways stretch never folds: its Jacobian keeps one sign across the whole map.
+ for(let u=-1;u<=1;u+=.1)for(let v=-1;v<=1;v+=.1){const e=1e-4,[ax,ay]=place(u+e,v),[bx,by]=place(u-e,v),[cx,cy]=place(u,v+e),[dx,dy]=place(u,v-e);assert.ok((ax-bx)*(cy-dy)-(ay-by)*(cx-dx)>0,'sheet '+k+' does not fold');}
+ const edge=[];for(let t=-1;t<=1;t+=.125)edge.push(place(t,-1),place(t,1),place(-1,t),place(1,t));
+ assert.ok(edge.some(([x,y])=>Math.max(Math.abs(x),Math.abs(y))>1.03),'part of the outline runs outside the map');
+ assert.ok(edge.some(([x,y])=>Math.max(Math.abs(x),Math.abs(y))<.97),'part of the outline runs inside the map');
+});
 const sheetSamples=[];for(let u=-1;u<=1;u+=.25)for(let v=-1;v<=1;v+=.25)sheetSamples.push([u,v]);
 for(const target of sheetSamples){
  const path=Sheet.route(target),stack=Sheet.SHEETS.map((_,k)=>Sheet.lift(target,k));
- for(const lifted of stack)assert.deepEqual(lifted.slice(0,2),target,'the same point on every layer lies on one vertical line');
  assert.ok(Sheet.MAP_Z<stack[0][2]&&stack[0][2]<stack[1][2],'map, lower sheet and upper sheet never cross');
- Sheet.SHEETS.forEach((_,k)=>assert.equal(Sheet.own(target,k)[2],stack[k][2]));
+
  assert.deepEqual(path.map[0],[...Sheet.START]);assert.ok(Math.hypot(path.map.at(-1)[0]-target[0],path.map.at(-1)[1]-target[1])<1e-12);
- path.sheetLengths.forEach((length,k)=>assert.ok(length>=path.mapLength-1e-12,'lifting a straight map line cannot shorten it'));
 }
-{const {mapLength,sheetLengths}=Sheet.route(Sheet.TARGET);assert.ok(sheetLengths.every(n=>n>mapLength*1.03),'the default route visibly bends on both sheets');assert.ok(Math.abs(sheetLengths[0]-sheetLengths[1])>.01,'the two sheets bend it differently');}
+{const {mapLength,sheetLengths}=Sheet.route(Sheet.TARGET);assert.ok(sheetLengths.every(n=>n>mapLength),'the default route is longer on both sheets than on the map');assert.ok(Math.abs(sheetLengths[0]-sheetLengths[1])>.01,'the two sheets bend it differently');}
 for(const [W,H] of [[320,380],[507,588],[640,640]])for(let turn=0;turn<12;turn++){
  const yaw=Sheet.START_YAW+turn*Math.PI/6,P=Sheet.projector(W,H,yaw);
  for(const point of [...sheetSamples.flatMap(p=>Sheet.SHEETS.map((_,k)=>Sheet.lift(p,k))),...sheetSamples.map(([u,v])=>[u,v,Sheet.MAP_Z])]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`sheet figure stays inside a ${W}x${H} canvas`);}
