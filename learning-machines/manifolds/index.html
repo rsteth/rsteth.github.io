@@ -53,6 +53,7 @@
     <p>Fourteen dimensions does not mean fourteen spatial directions. It means fourteen independent coordinates are needed to specify the pose.</p>
     <p>In robotics, <strong>forward kinematics</strong> takes joint angles and calculates where the hands end up. <strong>Inverse kinematics</strong>, or IK, works backward: give the robot a desired hand pose and solve for joint angles that achieve it.</p>
     <p>Inverse kinematics may have more than one solution. Your elbow can move while your hand stays approximately in place; a robot can have that same redundancy.</p>
+    <p>In a working robot, IK usually sits low in the stack. A planner or a learned policy decides where the hands should go, and a fast controller solves for the joint angles many times a second, correcting as sensors report where the hands really are.</p>
     <div class="exhibit" id="panel-0" aria-labelledby="panel-0-title">
       <div class="exhibit-head">
         <h3 id="panel-0-title">Fourteen independent joint angles</h3>
@@ -66,7 +67,7 @@
       <div class="joint-vector" data-vector="0"></div>
     </div>
     <p>A <em>manifold</em> is a space that looks locally like an ordinary flat coordinate space, even if its global geometry is curved or complicated. The surface of a sphere is a familiar example: it sits in 3D space, but its location can be described with two coordinates.</p>
-    <p>Our robot&#x27;s configuration space is harder to visualize, partly because revolute joint angles have a rotational topology and real joints have limits. But the idea is the same: a point is a configuration, and a path through the space is a movement of the robot.</p>
+    <p>Our robot&#x27;s configuration space is harder to picture than a sphere. Each joint is a hinge, so its angle runs around a circle instead of along a line, and a real joint stops partway round, which gives the space edges. But the idea is the same: a point is a configuration, and a path through the space is a movement of the robot.</p>
   </section>
 
   <section id="grasp" aria-labelledby="heading-1">
@@ -87,6 +88,7 @@
       <p class="small">A sketch of the nesting, drawn with far fewer dimensions than the real thing. The box stands for every pose of the two arms, the sheet inside it for the poses that keep the grasp, and the band across the sheet for the poses one handoff uses. Each sits inside the one before, and each needs fewer numbers to say where you are in it.</p>
     </div>
     <p>Six of those remaining degrees of freedom can describe the ball&#x27;s position and orientation; the other two describe ways the arms can change posture without moving the ball. This description is local: the whole space may not have one simple eight-number coordinate system.</p>
+    <p>In the panel below, those eight numbers go into an IK solver, written <em>g</em>, which returns the fourteen joint angles.</p>
     <div class="exhibit" id="panel-1" aria-labelledby="panel-1-title">
       <div class="exhibit-head">
         <h3 id="panel-1-title">Eight controls, one rigid grasp</h3>
