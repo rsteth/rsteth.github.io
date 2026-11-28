@@ -108,7 +108,9 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
     const node = (i, j) => nodes[i + j * (CELLS + 1)], facets = [];
     for (let j = 0; j < CELLS; j++) for (let i = 0; i < CELLS; i++) {
       const corners = [node(i, j), node(i + 1, j), node(i + 1, j + 1), node(i, j + 1)];
-      facets.push({corners, cell: i + j * CELLS, near: corners.reduce((sum, p) => sum + p[2], 0) / 4, fill: tone(sheet, at(i + .5), at(j + .5))});
+      // The sides of this facet that lie on the sheet's outer edge, if any.
+      const rim = [[j === 0, 0, 1], [i === CELLS - 1, 1, 2], [j === CELLS - 1, 2, 3], [i === 0, 3, 0]].filter(([outer]) => outer).map(([, a, b]) => [corners[a], corners[b]]);
+      facets.push({corners, rim, cell: i + j * CELLS, near: corners.reduce((sum, p) => sum + p[2], 0) / 4, fill: tone(sheet, at(i + .5), at(j + .5))});
     }
     facets.sort((a, b) => a.near - b.near);
     // A piece waits until the facets touching its own are drawn, so a neighbour cannot clip the width of the line.
@@ -124,15 +126,13 @@ export function paintSheet(c, W, H, yaw, target, {mark = 1, font = 'monospace'} 
     facets.forEach((facet, order) => {
       c.globalAlpha = 1; c.fillStyle = facet.fill; line(facet.corners); c.closePath(); c.fill();
       c.globalAlpha = .16; c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+      // The outline is drawn with its own facet, so a nearer part of the sheet hides the far edge instead of letting it show through.
+      c.globalAlpha = .55; for (const [a, b] of facet.rim) seg(a, b);
       if (due.has(order)) {
         c.globalAlpha = 1; c.strokeStyle = ROUTE; c.lineWidth = 2.8;
         for (const [a, b] of due.get(order)) seg(a, b);
       }
     });
-    c.globalAlpha = .55; c.strokeStyle = INK; c.lineWidth = 1;
-    for (const [a, b] of [[0, 1], [1, 2], [2, 3], [3, 0]]) {
-      line(Array.from({length: CELLS + 1}, (_, k) => P(lift(CORNERS[a].map((s, i) => s + (CORNERS[b][i] - s) * k / CELLS), index)))); c.stroke();
-    }
     c.globalAlpha = 1; c.fillStyle = ROUTE; for (const end of [lifted[0], lifted.at(-1)]) { dot(end, 3.2); c.fill(); }
     reticle(marked);
     lines.push(lifted); marks.push(marked);
