@@ -45,7 +45,7 @@ assert.ok(page.includes(`${F.scores.holdout.rmsDeg.toFixed(3)}° before projecti
 assert.ok(page.includes(`${F.scores.holdoutProjected.rmsDeg.toFixed(3)}° after projection`));
 assert.ok(page.includes(`${F.landscape.cells.filter(c=>c.valid).length} of ${F.landscape.cells.length} samples are valid`));
 assert.ok(page.includes(`forward y, ${F.landscape.axes.y[0].toFixed(2)} to ${F.landscape.axes.y.at(-1).toFixed(2)} m`));
-const css=readFileSync(resolve(base,'manifolds.css'),'utf8');assert.match(css,/\.learning-page>p,\.manifold-study section>p,\.manifold-study section>ul\{max-width:740px\}/,'one reading width for body text');
+const css=readFileSync(resolve(base,'manifolds.css'),'utf8');assert.ok(!/(?:section|\.learning-page)>(?:p|ul)[^{]*\{[^}]*max-width/.test(css),'body text runs the same width as the diagrams');
 assert.equal((page.match(/class="static-rig"/g)||[]).length,4);assert.equal((page.match(/data-reset=/g)||[]).length,4);
 assert.ok(page.includes(pin.repository+'/tree/'+pin.commit+'/experiments/manifolds'));
 assert.ok(page.includes(pin.repository+'/commit/'+pin.commit));
