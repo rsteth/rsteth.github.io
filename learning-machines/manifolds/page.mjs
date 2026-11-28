@@ -12,9 +12,9 @@ const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
 // Every panel writes its pose out as numbers beside the robot.
 // The free-arms panel (p.boxed) has a labelled box of the fourteen joint angles, and under it the same angles written as the vector q.
-// The others show the formula that produces q from a few numbers (p.fewer), and under it q written out as that formula's result.
+// The others show the formula that produces q from a few numbers (p.fewer), and under it q written out again as q = […].
 function draw(p,options={}){paintRobot(p.canvas,M.forwardKinematics(p.q),p.ball,options);const angles=p.q.map(x=>fixed(deg(x),1)),formula=p.fewer?.()??null,q={symbol:'q',columns:7,values:angles};
- showNumbers(p.vector,p.boxed?[{caption:'joint angles in degrees · 14 numbers',rows:[['left arm',angles.slice(0,7)],['right arm',angles.slice(7)]]},q]:[formula,formula?{...q,relation:formula.relation??'=',continued:true}:q]);}
+ showNumbers(p.vector,p.boxed?[{caption:'joint angles in degrees · 14 numbers',rows:[['left arm',angles.slice(0,7)],['right arm',angles.slice(7)]]},q]:[formula,q]);}
 // Robot on the left, its numbers on the right (stacked on narrow screens).
 function besideScene(p){const row=document.createElement('div'),scene=$('.scene',p.root);row.className='pose-row';scene.before(row);row.append(scene,p.vector);p.vector.classList.add('numbers');}
 function slider(parent,id,label,min,max,step,value,fn,unit=''){

@@ -224,8 +224,7 @@ assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table cla
 // The other three write q as a function of the few numbers that produced the pose (g for the solver, f, approximately, for the fit)
 // and then q written out under that formula as its result.
 assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,3);assert.equal((script.match(/p\.boxed=true/g)||[]).length,1);
-assert.match(script,/\{\.\.\.q,relation:formula\.relation\?\?'=',continued:true\}/);
-assert.equal(vectorHTML({symbol:'q',values:['1.0'],continued:true}),'<p class="vector vector-continued" role="math" aria-label="equals 1.0"><i aria-hidden="true">q</i><span>=</span><span class="vector-body" style="grid-template-columns:repeat(1,auto)"><span>1.0</span></span></p>');
+assert.match(script,/q\]:\[formula,q\]\);\}/);
 assert.equal(vectorHTML({symbol:'q',values:['-1.5','2.0'],columns:2}),'<p class="vector" role="math" aria-label="q equals \u22121.5, 2.0"><i>q</i><span>=</span><span class="vector-body" style="grid-template-columns:repeat(2,auto)"><span>\u22121.5</span><span>2.0</span></span></p>');
 for(const line of ["{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],","{symbol:'q',fn:'g',heads:['forward y','height z'],","{symbol:'q',fn:'g',heads:['Reach','Present'],","{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],"])assert.ok(script.includes(line),line);
 assert.equal(vectorHTML({symbol:'q',relation:'≈',fn:'f',heads:['a','b'],values:['-0.5','1.0']}),'<p class="vector" role="math" aria-label="q is approximately f of \u22120.5, 1.0"><i>q</i><span>≈</span><i>f</i><span class="vector-paren">(</span><span class="vector-body has-heads" style="grid-template-columns:repeat(2,auto)"><span class="vector-head">a</span><span class="vector-head">b</span><span>\u22120.5</span><span>1.0</span></span><span class="vector-paren">)</span></p>');

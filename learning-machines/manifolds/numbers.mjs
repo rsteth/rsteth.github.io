@@ -11,14 +11,13 @@ export function numberBoxHTML({caption, heads = null, rows}) {
 
 // A vector written out the way the text writes it, without boxes: an italic symbol, a relation, and values between brackets.
 // With fn, the values are that function's argument, so the line reads "q = g([…])": the symbol is produced from these few numbers.
-// heads name the values, in small type above them. A continued line carries on from the one above it: the symbol keeps its
-// width but is not shown, so "= […]" lines up under the first line's relation.
-export function vectorHTML({symbol, relation = '=', fn = null, values, heads = null, columns = values.length, continued = false}) {
+// heads name the values, in small type above them.
+export function vectorHTML({symbol, relation = '=', fn = null, values, heads = null, columns = values.length}) {
   const shown = values.map(v => String(v).replace('-', '−'));
-  const said = `${continued ? '' : symbol + ' '}${relation === '=' ? 'equals' : 'is approximately'} ${fn ? fn + ' of ' : ''}${shown.join(', ')}`;
+  const said = `${symbol} ${relation === '=' ? 'equals' : 'is approximately'} ${fn ? fn + ' of ' : ''}${shown.join(', ')}`;
   const body = `<span class="vector-body${heads ? ' has-heads' : ''}" style="grid-template-columns:repeat(${columns},auto)">`
     + (heads ?? []).map(h => `<span class="vector-head">${esc(h)}</span>`).join('') + shown.map(v => `<span>${esc(v)}</span>`).join('') + '</span>';
-  return `<p class="vector${continued ? ' vector-continued' : ''}" role="math" aria-label="${esc(said)}"><i${continued ? ' aria-hidden="true"' : ''}>${esc(symbol)}</i><span>${esc(relation)}</span>`
+  return `<p class="vector" role="math" aria-label="${esc(said)}"><i>${esc(symbol)}</i><span>${esc(relation)}</span>`
     + (fn ? `<i>${esc(fn)}</i><span class="vector-paren">(</span>${body}<span class="vector-paren">)</span>` : body) + '</p>';
 }
 
