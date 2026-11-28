@@ -8,6 +8,7 @@ import {pcaDirectionNote,CHART_DIRECTION_NOTE} from '../learning-machines/manifo
 import * as M from '../learning-machines/manifolds/mechanics.mjs';
 import {threadData,paintThreads,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import {paintSheet,START_YAW,TARGET} from '../learning-machines/manifolds/sheet.mjs';
+import {paintNest,START_YAW as NEST_YAW} from '../learning-machines/manifolds/nest.mjs';
 function rig(q,caption){const fk=forwardKinematics(q),P=p=>project(p).map(x=>x.toFixed(2)).join(','),add=(a,b)=>a.map((v,i)=>v+b[i]);
 let svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440" role="img" aria-labelledby="title desc"><title id="title">Fourteen joints, one volleyball</title><desc id="desc">Original isometric diagram generated from the exact three-dimensional joint pose used by this panel. Caption states whether the hands are free or rigidly grasping. Fixed-torso kinematic teaching model, not a real robot.</desc><rect width="640" height="440" fill="#edeadf"/>';
 const line=(a,b,color,width=1)=>svg+=`<line x1="${project(a)[0]}" y1="${project(a)[1]}" x2="${project(b)[0]}" y2="${project(b)[1]}" stroke="${color}" stroke-width="${width}" stroke-linecap="round"/>`;
@@ -58,6 +59,10 @@ skill+=text(20,28,'HANDOFFS AS THREADS / A LIMITED SKILL FAMILY')+`<g transform=
 // The schematic sheets of the introduction, from the same painter as the live figure.
 const sheetRecorder=svgContext();paintSheet(sheetRecorder,640,620,START_YAW,TARGET);
 save('sheet-static',shell('One flat map for two curved surfaces','Schematic, not computed from the robot. Two shaded curved surfaces float one above the other over a flat grid, their shared map. A straight dashed line on the map appears on each surface as a different curved route. A ring marks the same point on all three, joined by a dashed line.',660)+text(20,28,'ONE FLAT MAP FOR TWO CURVED SURFACES / SCHEMATIC')+`<g transform="translate(0 30)">${sheetRecorder.svg()}</g></svg>`);
+
+// The sketch of nested spaces in the grasp section, from the same painter as its live figure.
+const nestRecorder=svgContext();paintNest(nestRecorder,640,470,NEST_YAW);
+save('nest-static',shell('Smaller spaces inside the larger one','Sketch, not computed from the robot. A wireframe box stands for every pose of the arms, a curved sheet inside it for the poses that keep the grasp, and a narrow band across the sheet for the poses a handoff uses.',500)+`<g transform="translate(0 15)">${nestRecorder.svg()}</g></svg>`);
 
 // Device-resolution HTML carries every numeric caption when an external SVG shrinks on mobile.
 const fixed=(x,n=3)=>x.toFixed(n),freeFK=forwardKinematics(RIG.initialQ);

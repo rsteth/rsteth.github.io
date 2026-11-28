@@ -12,6 +12,7 @@ import {project,depth,visibleBoxFaces,paintRobot} from '../learning-machines/man
 import {threadData,paintThreads,projector,rmsDegrees,VIEWS} from '../learning-machines/manifolds/threads.mjs';
 import * as Sheet from '../learning-machines/manifolds/sheet.mjs';
 import * as Terrain from '../learning-machines/manifolds/terrain.mjs';
+import * as Nest from '../learning-machines/manifolds/nest.mjs';
 import {numberBoxHTML,vectorHTML,fixed} from '../learning-machines/manifolds/numbers.mjs';
 // Each route has dark ink and a pale casing; at least one edge exceeds 3:1 across the full field.
 const luminance=rgb=>rgb.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
@@ -168,6 +169,20 @@ for(const field of ['torque','jointLimit','clearanceCost']){
 assert.match(script,/terrainFigure\(\{onGoal:/);
 // The two example buttons are toggles: the same handler shows an example and, pressed again, goes back.
 assert.match(script,/function inspect\(example\)\{if\(target===example\)/);assert.match(script,/out\.setAttribute\('aria-pressed',String\(target===F\.outsideSkill\)\)/);assert.match(script,/M\.planGridPath\(grid,start,goal,\{field,weight:4\}\)/);
+// Nested-spaces sketch (grasp section): the sheet stays inside the box, the band stays on the sheet, and the painter stays finite
+// and inside its canvas at every yaw and size.
+assert.ok(page.includes('id="nest-figure"')&&page.includes('src="./nest-static.svg"'));assert.match(script,/nestFigure\(/);
+assert.ok(page.indexOf('id="grasp"')<page.indexOf('id="nest-figure"')&&page.indexOf('id="nest-figure"')<page.indexOf('id="panel-1"'),'the sketch sits in the grasp section, before its panel');
+for(let u=-Nest.EDGE;u<=Nest.EDGE+1e-9;u+=Nest.EDGE/8){
+ for(let v=-Nest.EDGE;v<=Nest.EDGE+1e-9;v+=Nest.EDGE/8){const z=Nest.height(u,v);assert.ok(z>.2&&z<Nest.TALL-.2,'the sheet floats inside the box');}
+ assert.ok(Math.abs(Nest.bandCentre(u))+Nest.BAND<Nest.EDGE-.2,'the band stays on the sheet');
+}
+for(const [W,H] of [[300,300],[507,436],[640,470]])for(let turn=0;turn<8;turn++){
+ const yaw=Nest.START_YAW+turn*Math.PI/4,P=Nest.projector(W,H,yaw);
+ for(const x of [-1,1])for(const y of [-1,1])for(const z of [0,Nest.TALL]){const [px,py]=P([x,y,z]);assert.ok(px>=0&&px<=W&&py>=60&&py<=H,`nest box stays inside a ${W}x${H} canvas, below its key`);}
+ const drawn=[];const nestContext=new Proxy({},{get:(_,k)=>k==='measureText'?t=>({width:t.length*7.2}):(...args)=>{for(const n of args)if(typeof n==='number')assert.ok(Number.isFinite(n),k);drawn.push(k);},set:()=>true});
+ Nest.paintNest(nestContext,W,H,yaw);assert.ok(drawn.includes('fill')&&drawn.filter(k=>k==='fillText').length===6);
+}
 // Schematic sheets (top of the page): each map point lifts to one point on every sheet, each sheet stretches the map's grid sideways in its own way (without folding it) so
 // no surface coordinate repeats a map coordinate and its outline runs both outside and inside the map's, the sheets stay stacked above the map, and the painter stays finite and inside its canvas.
 assert.ok(page.includes('id="sheet-figure"')&&page.includes('src="./sheet-static.svg"'));assert.match(script,/sheetFigure\(/);

@@ -79,6 +79,13 @@
     <p>The hands can no longer move independently. They must preserve a fixed relative position <strong>and orientation</strong>. In this idealized example, that introduces six independent constraints: three positional and three rotational.</p>
     <p class="equation">14 joint dimensions − 6 grasp constraints = 8 remaining dimensions</p>
     <p>So the valid poses of our fourteen-joint robot lie on an eight-dimensional <em>constraint manifold</em>, locally and away from singularities.</p>
+    <div class="exhibit" id="nest-figure" aria-labelledby="nest-figure-title">
+      <div class="exhibit-head">
+        <h3 id="nest-figure-title">Smaller spaces inside the larger one</h3>
+      </div>
+      <img class="sheet-static nest-static" src="./nest-static.svg" alt="A wireframe box with a curved sheet floating inside it and a narrow band running across the sheet. A key reads: every pose of the arms, 14 numbers; poses that keep the grasp, 8; poses a handoff uses, 2." width="640" height="500">
+      <p class="small">A sketch of the nesting, drawn with far fewer dimensions than the real thing. The box stands for every pose of the two arms, the sheet inside it for the poses that keep the grasp, and the band across the sheet for the poses one handoff uses. Each sits inside the one before, and each needs fewer numbers to say where you are in it.</p>
+    </div>
     <p>Six of those remaining degrees of freedom can describe the ball&#x27;s position and orientation; the other two describe ways the arms can change posture without moving the ball. This description is local: the whole space may not have one simple eight-number coordinate system.</p>
     <div class="exhibit" id="panel-1" aria-labelledby="panel-1-title">
       <div class="exhibit-head">

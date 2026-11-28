@@ -6,6 +6,7 @@ import {sameRoute} from './routes.mjs';
 import {threadData,threadFigure} from './threads.mjs';
 import {terrainMesh,terrainFigure} from './terrain.mjs';
 import {sheetFigure} from './sheet.mjs';
+import {nestFigure} from './nest.mjs';
 import {showNumbers,fixed} from './numbers.mjs';
 const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n=2)=>Number.isFinite(x)?x.toFixed(n):'not available';
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
@@ -80,3 +81,5 @@ function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);
 [setupFree,setupGrasp,setupLandscape,setupSkill].forEach((setup,i)=>{const p=panels[i];try{setup();p.canvas.hidden=false;$('.static-rig',p.root).hidden=true;$('.static-caption',p.root).hidden=true;$('[data-reset]',p.root).disabled=false;}catch(error){p.root.classList?.add('failed');p.canvas.hidden=true;$('.static-rig',p.root).hidden=false;const caption=$('.static-caption',p.root);if(caption)caption.hidden=false;p.root.querySelectorAll('input,button,select').forEach(control=>control.disabled=true);p.status.textContent='Interactive panel unavailable. The static diagram and explanation remain readable.';console.error(error);}});
 // The schematic sheets at the top of the page are independent of the four panels; if the figure fails, its static drawing stays.
 try{sheetFigure($('#sheet-figure'));}catch(problem){console.error(problem);}
+// The sketch of nested spaces in the grasp section is independent in the same way.
+try{nestFigure($('#nest-figure'));}catch(problem){console.error(problem);}
