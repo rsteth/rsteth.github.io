@@ -1,6 +1,6 @@
 // Presentation only. Every height and shade is a cost sampled in the pinned landscape fixture: one value per valid pose in the slice.
 // The slice's two coordinates (ball forward distance and ball height) lie flat; the cost lifts the ground, so harder poses are higher and darker.
-// Samples with no valid pose stand at the full height as a hatched plateau: ground a route cannot cross.
+// Samples with no valid pose have no ground at all: the surface simply stops there.
 export const PITCH = .5, START_YAW = -.62, RISE = .7;
 const TAU = Math.PI * 2, REACH = Math.SQRT2;
 const INK = '#302e28', MUTED = '#6b695f', PALE = '#fff9ef';
@@ -13,9 +13,9 @@ export function terrainMesh(grid, field) {
   const min = Math.min(...costs), max = Math.max(...costs), span = Math.max(1e-12, max - min), {width, height} = grid;
   const vertices = grid.cells.map((cell, index) => {
     const level = cell.valid ? (cell.costs[field] - min) / span : null;
-    return {index, valid: cell.valid, level, point: [-1 + 2 * (index % width) / (width - 1), -1 + 2 * Math.floor(index / width) / (height - 1), (level ?? 1) * RISE]};
+    return {index, valid: cell.valid, level, point: [-1 + 2 * (index % width) / (width - 1), -1 + 2 * Math.floor(index / width) / (height - 1), (level ?? 0) * RISE]};
   });
-  // A facet joins four neighbouring samples. Where any of the four has no valid pose it is hatched, and slopes up to the plateau.
+  // A facet joins four neighbouring samples, and is drawn only where all four have a valid pose.
   const facets = [];
   for (let row = 0; row < height - 1; row++) for (let col = 0; col < width - 1; col++) {
     const corners = [col + row * width, col + 1 + row * width, col + 1 + (row + 1) * width, col + (row + 1) * width];
@@ -64,9 +64,10 @@ export function paintTerrain(c, W, H, yaw, mesh, {routes = [], start = null, goa
     }
   });
   order.forEach(({facet, corners}, at) => {
-    c.globalAlpha = 1; line(corners); c.closePath();
-    if (facet.solid) { c.fillStyle = shade(facet.level); c.fill(); c.globalAlpha = .14; c.strokeStyle = INK; c.lineWidth = 1; c.stroke(); }
-    else { c.fillStyle = '#d7d3c8'; c.fill(); c.globalAlpha = .55; c.strokeStyle = '#948e80'; c.lineWidth = 1; seg(corners[0], corners[2]); }
+    if (facet.solid) {
+      c.globalAlpha = 1; line(corners); c.closePath(); c.fillStyle = shade(facet.level); c.fill();
+      c.globalAlpha = .14; c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+    }
     for (const piece of (due.get(at) ?? []).sort((a, b) => a.which - b.which)) {
       c.globalAlpha = 1; c.setLineDash([]); c.strokeStyle = PALE; c.lineWidth = 5.5; seg(piece.a, piece.b);
       c.strokeStyle = INK; c.lineWidth = 2.2; c.setLineDash(piece.dashed ? [5, 5] : []); seg(piece.a, piece.b); c.setLineDash([]);
@@ -123,7 +124,7 @@ export function nearestCell(points, candidates, x, y, reach = 14) {
 // dragging sideways, or the left and right arrow keys, spins the ground at a fixed pitch.
 export function terrainFigure({onGoal = () => {}, onInspect = () => {}} = {}) {
   const stage = document.createElement('div'); stage.className = 'thread-stage';
-  stage.innerHTML = '<canvas class="thread-figure terrain-figure" tabindex="0" role="img" aria-label="The cost field drawn as ground: each valid pose in the slice is a point whose height and darkness show its cost, and the hatched plateau has no valid pose. A dashed shortest route and a solid cheapest route run from S to G. Left and right arrow keys spin the view; the goal sliders move G."></canvas>';
+  stage.innerHTML = '<canvas class="thread-figure terrain-figure" tabindex="0" role="img" aria-label="The cost field drawn as ground: each valid pose in the slice is a point whose height and darkness show its cost, and there is no ground where there is no valid pose. A dashed shortest route and a solid cheapest route run from S to G. Left and right arrow keys spin the view; the goal sliders move G."></canvas>';
   const canvas = stage.querySelector('canvas'), c = canvas.getContext('2d');
   let yaw = START_YAW, scene = null, inspect = null, points = [], drag = null, W = 480, H = 380;
 

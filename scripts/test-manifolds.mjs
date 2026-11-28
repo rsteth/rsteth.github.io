@@ -143,13 +143,13 @@ assert.equal(threads.designed.length,10);for(const points of threads.designed){a
 // The thread figure fits its canvas at every preset angle and size: sheet, outside pose and designed lines all stay inside.
 for(const [W,H] of [[320,250],[507,355],[760,440]])for(const [yaw,el] of Object.values(VIEWS)){const P=projector(W,H,{yaw,el,scale:320},threads),{x0,x1,y0,y1}=threads.bounds;
  for(const point of [[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0],threads.outside,...threads.designed.flat()]){const [x,y]=P(point);assert.ok(x>=0&&x<=W&&y>=0&&y<=H,`thread figure stays inside a ${W}x${H} canvas`);}}
-// Cost terrain: the pinned field drawn as ground. Height and shade both come from the same normalized cost, samples with no valid
-// pose stand at full height, hatched ground is exactly the facets with an invalid corner, and the painter stays finite and inside its canvas at every yaw and size.
+// Cost terrain: the pinned field drawn as ground. Height and shade both come from the same normalized cost, ground is drawn
+// only for facets whose four corners are all valid, and the painter stays finite and inside its canvas at every yaw and size.
 for(const field of ['torque','jointLimit','clearanceCost']){
  const mesh=Terrain.terrainMesh(F.landscape,field),cells=F.landscape.cells,valid=mesh.vertices.filter(v=>v.valid);
  assert.equal(mesh.vertices.length,cells.length);assert.equal(mesh.facets.length,(F.landscape.width-1)*(F.landscape.height-1));
  assert.equal(valid.length,cells.filter(c=>c.valid).length);
- for(const v of mesh.vertices){assert.equal(v.valid,cells[v.index].valid);if(v.valid){assert.ok(v.level>=0&&v.level<=1);assert.ok(Math.abs(v.point[2]-v.level*Terrain.RISE)<1e-12);}else assert.equal(v.point[2],Terrain.RISE);}
+ for(const v of mesh.vertices){assert.equal(v.valid,cells[v.index].valid);if(v.valid){assert.ok(v.level>=0&&v.level<=1);assert.ok(Math.abs(v.point[2]-v.level*Terrain.RISE)<1e-12);}else assert.equal(v.level,null);}
  const byCost=[...valid].sort((a,b)=>cells[a.index].costs[field]-cells[b.index].costs[field]);
  for(let i=1;i<byCost.length;i++)assert.ok(byCost[i].point[2]>=byCost[i-1].point[2],'a costlier pose is never lower');
  assert.equal(Math.min(...valid.map(v=>v.level)),0);assert.equal(Math.max(...valid.map(v=>v.level)),1);
