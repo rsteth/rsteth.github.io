@@ -35,3 +35,4 @@
 .vector-body.has-heads::before,.vector-body.has-heads::after{top:15px;bottom:14px}
 .vector-head{font:10px/16px var(--font-mono);color:var(--muted);white-space:nowrap}
 @media(max-width:540px){.vector{flex-wrap:wrap;row-gap:0}.vector-head{font-size:9px}.vector-paren{font-size:22px}}
+.numbers .vector{margin:0;padding-right:8px}.numbers .vector-continued{margin-top:-22px}.vector-continued>i:first-child{visibility:hidden}

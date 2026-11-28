@@ -10,9 +10,11 @@ import {nestFigure} from './nest.mjs';
 import {showNumbers,fixed} from './numbers.mjs';
 const $=(s,p=document)=>p.querySelector(s),rad=Math.PI/180,deg=x=>x/rad,fmt=(x,n=2)=>Number.isFinite(x)?x.toFixed(n):'not available';
 const panels=[0,1,2,3].map(i=>{const root=$('#panel-'+i);return {root,controls:$('[data-controls]',root),status:$('[data-status]',root),vector:$('[data-vector]',root),canvas:$('canvas',root),q:[...F.canonical.q],ball:structuredClone(M.RIG.canonicalBallPose)};});
-// Every panel shows its pose as a box of the fourteen joint angles, with a line about q underneath from p.fewer:
-// the angles written out as q where the arms are free, and q as a function of the few numbers that produced the pose elsewhere.
-function draw(p,options={}){paintRobot(p.canvas,M.forwardKinematics(p.q),p.ball,options);const arm=from=>p.q.slice(from,from+7).map(x=>fixed(deg(x),1));showNumbers(p.vector,[{caption:'joint angles in degrees · 14 numbers',rows:[['left arm',arm(0)],['right arm',arm(7)]]},p.fewer?.()??null]);}
+// Every panel writes its pose out as numbers beside the robot.
+// The free-arms panel (p.boxed) has a labelled box of the fourteen joint angles, and under it the same angles written as the vector q.
+// The others show the formula that produces q from a few numbers (p.fewer), and under it q written out as that formula's result.
+function draw(p,options={}){paintRobot(p.canvas,M.forwardKinematics(p.q),p.ball,options);const angles=p.q.map(x=>fixed(deg(x),1)),formula=p.fewer?.()??null,q={symbol:'q',columns:7,values:angles};
+ showNumbers(p.vector,p.boxed?[{caption:'joint angles in degrees · 14 numbers',rows:[['left arm',angles.slice(0,7)],['right arm',angles.slice(7)]]},q]:[formula,formula?{...q,relation:formula.relation??'=',continued:true}:q]);}
 // Robot on the left, its numbers on the right (stacked on narrow screens).
 function besideScene(p){const row=document.createElement('div'),scene=$('.scene',p.root);row.className='pose-row';scene.before(row);row.append(scene,p.vector);p.vector.classList.add('numbers');}
 function slider(parent,id,label,min,max,step,value,fn,unit=''){
@@ -25,12 +27,11 @@ function button(parent,text,fn){const b=document.createElement('button');b.type=
 function select(parent,id,label,options,fn){const lab=document.createElement('label');lab.htmlFor=id;lab.textContent=label;const s=document.createElement('select');s.id=id;options.forEach(([v,t])=>s.add(new Option(t,v)));parent.append(lab,s);s.addEventListener('change',()=>fn(s.value));return s;}
 function jointControls(p,prefix,onChange){const groups=['Left arm · 7 joints','Right arm · 7 joints'].map(label=>{const fieldset=document.createElement('fieldset'),legend=document.createElement('legend');legend.textContent=label;fieldset.append(legend);p.controls.append(fieldset);return fieldset;});return Array.from({length:14},(_,i)=>slider(groups[Math.floor(i/7)],`${prefix}-${i}`,`${i<7?'Left':'Right'} ${M.RIG.jointNames[i%7]}`,deg(M.RIG.limits[i%7][0]),deg(M.RIG.limits[i%7][1]),.1,deg(p.q[i]),v=>{p.q[i]=v*rad;onChange();},'°'));}
 function setupFree(){const p=panels[0];besideScene(p);p.q=[...M.RIG.initialQ];
- // The same fourteen angles written as the vector q of the text above: left arm on the first line, right arm on the second.
- p.fewer=()=>({symbol:'q',columns:7,values:p.q.map(x=>fixed(deg(x),1))});
+ p.boxed=true;
  const update=()=>{draw(p);p.status.textContent='';};const controls=jointControls(p,'joint',update);const reset=()=>{p.q=[...M.RIG.initialQ];controls.forEach((s,i)=>s.set(deg(p.q[i])));update();};$('[data-reset]',p.root).onclick=reset;reset();}
 function setupGrasp(){const p=panels[1],t=toolbar(p.controls);let locked=true;let values=[0,.43,1.2,0,0,0,0,0];const free=document.createElement('div');free.className='controls';free.hidden=true;p.controls.after(free);besideScene(p);const proxy={...p,controls:free};
  // While the grasp holds, eight numbers produce the fourteen: six for the ball's pose and one elbow preference per arm.
- // Written as q = g(…): the joint angles in the box above are produced from these eight by the grasp solver.
+ // Written as q = g(…): the fourteen joint angles are produced from these eight by the grasp solver.
  p.fewer=()=>locked?{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],values:values.map((v,i)=>fixed(v,i<3?3:0))}:null;
  const freeControls=jointControls(proxy,'released',()=>{p.q=[...proxy.q];draw(p);p.status.textContent='Released: independent joint control. The ball stays where it was; no rigid grasp is enforced.';});
  const mode=button(t,'Release grasp',()=>{locked=!locked;mode.textContent=locked?'Release grasp':'Reset to canonical grasp';free.hidden=locked;unreachable.disabled=!locked;controls.forEach(s=>s.input.disabled=!locked);if(locked)reset();else {proxy.q=[...p.q];freeControls.forEach((s,i)=>s.set(deg(p.q[i])));draw(p);p.status.textContent='Released: fourteen independent joints below. Ball no longer attached. Reset to canonical grasp loads a known valid example; it does not simulate a grasping transition.';}});
