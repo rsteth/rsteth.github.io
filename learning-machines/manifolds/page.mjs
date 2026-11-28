@@ -41,8 +41,8 @@ function setupGrasp(){const p=panels[1],t=toolbar(p.controls);let locked=true;le
  function reset(){locked=true;free.hidden=true;unreachable.disabled=false;mode.textContent='Release grasp';values=[0,.43,1.2,0,0,0,0,0];p.q=[...F.canonical.q];p.ball=structuredClone(M.RIG.canonicalBallPose);controls.forEach((s,i)=>{s.set(values[i]);s.input.disabled=false;});update();}
  $('[data-reset]',p.root).onclick=reset;reset();}
 function setupLandscape(){const p=panels[2],grid=F.landscape,{top,side}=sideBySide(p);const t=toolbar(top);let field='torque';const fields={torque:['Ball-load torque estimate','N·m'],jointLimit:['Joint-limit proximity','normalized index'],clearanceCost:['Clearance penalty','normalized index']};let start=grid.start;let goal=start;let inspect=null;
- // Within this slice two numbers place the ball, and with it all fourteen joints.
- p.fewer=()=>({symbol:'q',fn:'g',heads:['forward y','height z'],values:p.ball.position.slice(1).map(v=>fixed(v,3))});
+ // The same solver and the same eight inputs as the grasp panel. The slice holds six of them still (shown muted) and varies two.
+ p.fewer=()=>({symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],quiet:[0,3,4,5,6,7],values:[grid.slice.x,p.ball.position[1],p.ball.position[2],grid.slice.roll,grid.slice.pitch,grid.slice.yaw,grid.slice.leftPosture,grid.slice.rightPosture].map((v,i)=>fixed(v,i<3?3:0))});
  const selector=select(t,'cost-field','Cost field',Object.entries(fields).map(([key,[label]])=>[key,label]),v=>{field=v;update();});
  // The field drawn as ground. Pointing at a route shows the robot at that step; clicking valid ground moves the goal.
  const figure=terrainFigure({onGoal:cell=>{goal=cell;y.set(cell%grid.width);z.set(Math.floor(cell/grid.width));update();},onInspect:cell=>{inspect=cell;show();}});side.append(figure.stage);
@@ -60,8 +60,9 @@ function setupLandscape(){const p=panels[2],grid=F.landscape,{top,side}=sideBySi
  function reset(){field='torque';selector.value=field;goal=grid.goal;y.set(goal%grid.width);z.set(Math.floor(goal/grid.width));figure.reset();update();}
  $('[data-reset]',p.root).onclick=reset;reset();}
 function setupSkill(){const p=panels[3],{top,side}=sideBySide(p),t=toolbar(top);let mode='task',values=[0,0],target=null;const pca=F.pca;
- // Hand-designed controls go through the same solver, g. The fitted pair goes through the decoder f of the text, and only approximately.
- p.fewer=()=>mode==='task'?{symbol:'q',fn:'g',heads:['Reach','Present'],values:values.map(v=>fixed(v,3))}:{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],values:values.map(v=>fixed(v,3))};const scores=F.scores;const ranges=[0,1].map(i=>{const all=F.demonstrations.train.map(s=>M.encodePCA(s.q,pca)[i]);return [Math.min(...all),Math.max(...all)];});
+ // Both controllers are the decoder f of the text just above the panel. The designed one hands Reach and Present to the solver and is exact;
+ // the fitted one is approximate.
+ p.fewer=()=>mode==='task'?{symbol:'q',fn:'f',heads:['Reach','Present'],values:values.map(v=>fixed(v,3))}:{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],values:values.map(v=>fixed(v,3))};const scores=F.scores;const ranges=[0,1].map(i=>{const all=F.demonstrations.train.map(s=>M.encodePCA(s.q,pca)[i]);return [Math.min(...all),Math.max(...all)];});
  const selector=select(t,'skill-mode','Controller',[['task','Hand-designed task coordinates'],['pca','Fitted PCA coordinates']],v=>{mode=v;target=null;values=[0,0];configure();update();});
  const figure=threadFigure(threadData(F,M),{onPick:({sample,hold,outside})=>{if(outside){inspect(F.outsideSkill);return;}mode='pca';selector.value=mode;target=hold?sample:null;values=M.encodePCA(sample.q,pca);configure();update();}});side.append(figure.stage,figure.views);
  const holder=document.createElement('div'),notes=document.createElement('div');holder.className='skill-controls';notes.className='thread-notes';notes.append(figure.readout,figure.legend);p.controls.append(holder,notes);let controls=[];

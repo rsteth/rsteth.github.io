@@ -143,7 +143,7 @@
     </ul>
     <p>The joint angles all change together when those two values change. We can write a compact decoder as:</p>
     <p class="equation">z ∈ ℝ², q ≈ f(z) ∈ ℝ¹⁴</p>
-    <p>The two numbers encode a point in a <em>learned or designed action space</em>. The decoder expands it into a full fourteen-joint pose; a constraint solver can correct the result to maintain the rigid grasp.</p>
+    <p>The two numbers encode a point in a <em>learned or designed action space</em>. The decoder expands it into a full fourteen-joint pose; a constraint solver can correct the result to maintain the rigid grasp. The panel below has both kinds: a designed <em>f</em>, which hands Reach and Present to the solver <em>g</em> and is exact, and a fitted <em>f</em>, which is approximate.</p>
     <div class="exhibit" id="panel-3" aria-labelledby="panel-3-title">
       <div class="exhibit-head">
         <h3 id="panel-3-title">Two ways to encode a handoff</h3>
@@ -166,7 +166,7 @@
     <p class="eyebrow">04 / compression isn&#x27;t always distillation</p>
     <h2 id="heading-4">Three operations that sound similar.</h2>
     <p><strong>Constraint reduction:</strong> fourteen joint variables are restricted by six known grasp constraints, yielding an eight-dimensional valid set locally. This comes from geometry. The solver <em>g</em> in the panels above works this way: it is derived from the shape of the robot, and it is exact.</p>
-    <p><strong>Representation learning:</strong> recorded handoffs are approximated with a compact code. This discovers statistical structure in a collection of movements. The resulting 2D representation can be useful without spanning every motion the robot is capable of making. The decoder <em>f</em> in the last panel works this way: it is fitted to examples, and it is approximate.</p>
+    <p><strong>Representation learning:</strong> recorded handoffs are approximated with a compact code. This discovers statistical structure in a collection of movements. The resulting 2D representation can be useful without spanning every motion the robot is capable of making. The fitted <em>f</em> in the last panel works this way: it is learned from examples, and it is approximate.</p>
     <p><strong>Knowledge distillation:</strong> a capable teacher, perhaps a slow planner that evaluates many possible motions, supplies behavior for a smaller student policy to imitate. Distillation transfers a mapping from situations to good actions; the student may or may not use a low-dimensional code.</p>
     <p>The same robot can benefit from all three. We can constrain its body using physics, describe practiced skills compactly, and transfer an expensive planner&#x27;s decisions into a faster controller.</p>
   </section>
@@ -189,7 +189,7 @@
     <p class="eyebrow">06 / back to learning machines</p>
     <h2 id="heading-6">High dimensionality doesn&#x27;t require high-dimensional solutions.</h2>
     <p>A neural network may work with representations containing thousands of numbers, while a particular task depends on variations along only a handful of effective directions. A compact representation can make the patterns easier to learn, reuse or control.</p>
-    <p>LoRA is a related example. It approximates a model&#x27;s <em>weight updates</em> with low-rank matrices rather than fine-tuning every weight independently. In the terms of the panels above, the small matrices are the few numbers, and multiplying them together expands them into the full update. That makes LoRA more like <em>f</em> than <em>g</em>. Nothing derives it from the problem; it is a bet that the update a task needs is one the small matrices can produce. It also doesn&#x27;t literally discover a robot-like manifold inside the network&#x27;s activations.</p>
+    <p>LoRA is a related example. It approximates a model&#x27;s <em>weight updates</em> with low-rank matrices rather than fine-tuning every weight independently. In the terms of the panels above, the small matrices are the few numbers, and multiplying them together expands them into the full update. That makes LoRA more like the fitted <em>f</em> than like <em>g</em>. Nothing derives it from the problem; it is a bet that the update a task needs is one the small matrices can produce. It also doesn&#x27;t literally discover a robot-like manifold inside the network&#x27;s activations.</p>
     <p>Our volleyball robot began with fourteen independently movable joints. Under an idealized rigid grasp, it had eight available degrees of freedom. And a particular family of successful handoffs might be approximated with only two coordinated variables.</p>
     <p>Those last two variables aren&#x27;t universal. A handoff skill isn&#x27;t a juggling skill, and a good compression for one task may fail on another.</p>
     <p>The robot doesn&#x27;t need to rediscover the geometry of a sphere. It needs to learn what to do with the ball.</p>

@@ -219,14 +219,17 @@ assert.equal(fixed(-.001),'0.00');assert.equal(fixed(1.239),'1.24');
  assert.equal(six.length,6);assert.equal(two.length,2);assert.equal(new Set([...six,...two]).size,8,'all eight numbers differ');
  assert.ok(page.includes('<div class="numbers sheet-numbers">'+[surfaces,map].map(numberBoxHTML).join('')+'</div>'),'static number boxes match the default route');
  assert.notDeepEqual(Sheet.numbersAt(Sheet.TARGET,.5),Sheet.numbersAt(Sheet.TARGET,1));}
+assert.deepEqual(F.landscape.slice,{x:0,roll:0,pitch:0,yaw:0,leftPosture:0,rightPosture:0},'the six inputs the slice holds still');
+assert.ok(vectorHTML({symbol:'q',fn:'g',values:['1','2'],quiet:[1]}).includes('<span>1</span><span class="vector-quiet">2</span>'));
 assert.equal(numberBoxHTML({caption:'a < b',rows:[['r',['1','2']]]}),'<table class="number-box"><caption>a &lt; b</caption><tbody><tr><th scope="row">r</th><td>1</td><td>2</td></tr></tbody></table>');
 // The free-arms panel shows its fourteen joint angles as a labelled box with the same angles written out as the vector q beneath.
 // The other three write q as a function of the few numbers that produced the pose (g for the solver, f, approximately, for the fit)
-// and then q written out under that formula as its result.
+// and then q written out again under that formula. g always takes the eight grasp numbers; the slice holds six of them at the
+// values the fixture records. Both controllers in the last panel are the decoder f of the text above it.
 assert.match(script,/joint angles in degrees · 14 numbers/);assert.equal((script.match(/p\.fewer=\(\)=>/g)||[]).length,3);assert.equal((script.match(/p\.boxed=true/g)||[]).length,1);
 assert.match(script,/q\]:\[formula,q\]\);\}/);
 assert.equal(vectorHTML({symbol:'q',values:['-1.5','2.0'],columns:2}),'<p class="vector" role="math" aria-label="q equals \u22121.5, 2.0"><i>q</i><span>=</span><span class="vector-body" style="grid-template-columns:repeat(2,auto)"><span>\u22121.5</span><span>2.0</span></span></p>');
-for(const line of ["{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],","{symbol:'q',fn:'g',heads:['forward y','height z'],","{symbol:'q',fn:'g',heads:['Reach','Present'],","{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],"])assert.ok(script.includes(line),line);
+for(const line of ["{symbol:'q',fn:'g',heads:['x','y','z','roll','pitch','yaw','L elbow','R elbow'],","quiet:[0,3,4,5,6,7],values:[grid.slice.x,p.ball.position[1],p.ball.position[2],grid.slice.roll,","{symbol:'q',fn:'f',heads:['Reach','Present'],","{symbol:'q',relation:'≈',fn:'f',heads:['PC1','PC2'],"])assert.ok(script.includes(line),line);
 assert.equal(vectorHTML({symbol:'q',relation:'≈',fn:'f',heads:['a','b'],values:['-0.5','1.0']}),'<p class="vector" role="math" aria-label="q is approximately f of \u22120.5, 1.0"><i>q</i><span>≈</span><i>f</i><span class="vector-paren">(</span><span class="vector-body has-heads" style="grid-template-columns:repeat(2,auto)"><span class="vector-head">a</span><span class="vector-head">b</span><span>\u22120.5</span><span>1.0</span></span><span class="vector-paren">)</span></p>');
 // Spinning never changes the drawn size: the scale depends on the canvas alone.
 {const span=yaw=>{const P=Sheet.projector(640,640,yaw),a=P([0,0,Sheet.MAP_Z]),b=P([0,0,1]);return Math.hypot(a[0]-b[0],a[1]-b[1]);};assert.ok(Math.abs(span(0)-span(1.3))<1e-9);}

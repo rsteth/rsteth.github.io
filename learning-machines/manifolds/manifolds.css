@@ -36,3 +36,4 @@
 .vector-head{font:10px/16px var(--font-mono);color:var(--muted);white-space:nowrap}
 @media(max-width:540px){.vector{flex-wrap:wrap;row-gap:0}.vector-head{font-size:9px}.vector-paren{font-size:22px}}
 .numbers .vector{margin:0;padding-right:8px}.numbers .vector+.vector{margin-top:-22px}
+.vector-quiet{color:#a39d90}
